@@ -15,7 +15,7 @@ setup:
 		echo "" >> .env; \
 		echo "# Front-end variables:" >> .env; \
 		echo "FRONTEND_PORT=$$FRONTEND_PORT" >> .env; \
-		echo "FRONTEND_ADMIN_PASSWORD=$$FRONTEND_ADMIN_PASSWORD" >> .env; \
+		echo "FRONTEND_ADMIN_PASSWORD=$$FRONTEND_ADMIN_PASSWORD # NOTE: If changed the db_volume must be deleted in order for this to be updated" >> .env; \
 		echo "" >> .env; \
         echo "# Database variables:" >> .env; \
 		echo "DB_NAME=$$DB_NAME" >> .env; \
