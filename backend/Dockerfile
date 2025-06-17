@@ -6,6 +6,6 @@ COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle gradle/
 COPY src src/
 
-RUN gradle --no-daemon build --dryrun || true
+RUN gradle --no-daemon build
 
-CMD ["gradle", "bootRun", "--no-daemon"]
+CMD ["gradle", "bootRun", "--no-daemon", "--stacktrace"]

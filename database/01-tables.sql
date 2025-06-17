@@ -23,7 +23,7 @@ CREATE TABLE server_instances
     name             VARCHAR(255) NOT NULL,
     jar_url          TEXT         NOT NULL,
     eula_accepted    BOOLEAN                  DEFAULT FALSE,
-    created_at       TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
     world_name       VARCHAR(255),
     allocated_ram_mb INTEGER                  DEFAULT 1024,
     config           JSONB -- Store additional flexible data like properties.json
@@ -68,7 +68,7 @@ CREATE TABLE user_action_logs
     user_id        UUID NOT NULL,
     instance_id    UUID NOT NULL,
     action_type_id UUID NOT NULL,
-    timestamp      TIMESTAMPTZ      DEFAULT CURRENT_TIMESTAMP,
+    timestamp      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metadata       JSONB, -- e.g., { "from": 2048, "to": 4096 }
 
     CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
