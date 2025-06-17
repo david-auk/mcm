@@ -1,4 +1,4 @@
-package com.mcm.backend;
+package com.mcm.backend.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
