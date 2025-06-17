@@ -1,9 +1,9 @@
 package com.mcm.backend.app.database.models;
 
-import com.mcm.backend.database.core.annotations.table.Id;
-import com.mcm.backend.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.database.core.annotations.table.TableName;
-import com.mcm.backend.database.core.components.tables.AutoTableEntity;
+import com.mcm.backend.app.database.core.annotations.table.Id;
+import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.components.tables.AutoTableEntity;
 
 import java.util.UUID;
 

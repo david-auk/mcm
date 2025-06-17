@@ -35,40 +35,13 @@ public class DAO<T, K> implements DAOInterface<T, K> {
     public void add(T entity) {
         if (!exists(entity)){
             try {
-                PreparedStatement addStatement = connection.prepareStatement(table.getAddQuery());
-                table.prepareAddStatement(addStatement, entity);
+                PreparedStatement addStatement = connection.prepareStatement(table.getInsertQuery());
+                table.prepareInsertStatement(addStatement, entity);
                 addStatement.executeUpdate();
             } catch (SQLException e){
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    @Override
-    public T create(T entity) {
-        K primaryKey;
-        try {
-            PreparedStatement addStatement = connection.prepareStatement(table.getAddQuery(), PreparedStatement.RETURN_GENERATED_KEYS);
-            table.prepareAddStatement(addStatement, entity);
-            addStatement.executeUpdate();
-
-            // Get generated key
-            try (ResultSet generatedKeys = addStatement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    primaryKey = generatedKeys.getObject(1, table.getPrimaryKeyDataType());
-                } else {
-                    throw new SQLException("Creating threshold failed, no ID generated.");
-                }
-            }
-        } catch (SQLException e){
-            throw new RuntimeException(e);
-        }
-
-        if (primaryKey == null) {
-            throw new RuntimeException("Generated primary key could not be found.");
-        }
-
-        return get(primaryKey);
     }
 
     @Override

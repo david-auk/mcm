@@ -52,7 +52,7 @@ CREATE TABLE user_role_assignments
     UNIQUE (user_id, instance_id, role_id) -- Prevent duplicate assignments
 );
 
--- Types of actions (for the user_action_logs table)
+-- Types of actions (for the user_action_logs tableOld)
 CREATE TABLE action_types
 (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
