@@ -1,4 +1,6 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.tables.timestaped;
+
+import com.mcm.backend.database.core.components.tables.Table;
 
 public abstract class TimestampedTable<T, K> extends Table<T, K> {
     protected final String timestampColumnName;

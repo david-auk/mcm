@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.daos;
 
 import java.util.List;
 

@@ -1,4 +1,7 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.daos;
+
+import com.mcm.backend.database.core.components.Database;
+import com.mcm.backend.database.core.components.tables.Table;
 
 import java.sql.*;
 import java.util.ArrayList;

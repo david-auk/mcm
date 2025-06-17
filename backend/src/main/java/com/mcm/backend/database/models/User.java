@@ -1,6 +1,7 @@
 package com.mcm.backend.database.models;
 
-import com.mcm.backend.database.core.components.AutoTableEntity;
+import com.mcm.backend.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.database.core.components.tables.AutoTableEntity;
 import com.mcm.backend.database.core.annotations.table.Id;
 import com.mcm.backend.database.core.annotations.table.TableField;
 import com.mcm.backend.database.core.annotations.table.TableName;
@@ -20,6 +21,7 @@ public class User implements AutoTableEntity {
     @TableField(name = "password_hash", type = String.class)
     private String passwordHash;
 
+    @TableConstructor
     public User(UUID id, String username, String passwordHash) {
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.username = username;

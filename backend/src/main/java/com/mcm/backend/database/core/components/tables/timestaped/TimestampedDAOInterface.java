@@ -1,4 +1,6 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.tables.timestaped;
+
+import com.mcm.backend.database.core.components.daos.DAOInterface;
 
 import java.util.List;
 

@@ -1,4 +1,7 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.daos;
+
+import com.mcm.backend.database.core.components.tables.timestaped.TimestampedDAOInterface;
+import com.mcm.backend.database.core.components.tables.timestaped.TimestampedTable;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

@@ -1,16 +1,12 @@
 package com.mcm.backend.database.core.factories;
 
-import com.mcm.backend.database.core.components.DAO;
-import com.mcm.backend.database.core.components.DAOInterface;
+import com.mcm.backend.database.core.components.daos.DAO;
+import com.mcm.backend.database.core.components.daos.DAOInterface;
 
 public class DAOFactory {
 
     public static <T, K> DAOInterface<T, K> createDAO(Class<T> clazz) {
-
-        // Could this replace the "K" definition so i only have to change the model?
-        //Class<?> privateKeyClass = ReflectiveTable.getPrimaryKeyField(clazz).getClass();
-
-        ReflectiveTable<T, K> table = new ReflectiveTable<>(clazz);
+        TableFactory<T, K> table = new TableFactory<>(clazz);
         return new DAO<>(table);
     }
 }

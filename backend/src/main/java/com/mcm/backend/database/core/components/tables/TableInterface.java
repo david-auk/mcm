@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.tables;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

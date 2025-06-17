@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.database.core.components.tables;
 
 public abstract class Table<T, K> implements TableInterface<T, K> {
     protected final String tableName;

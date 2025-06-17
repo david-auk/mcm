@@ -1,17 +1,17 @@
 package com.mcm.backend.database.core.factories;
 
 import com.mcm.backend.database.core.annotations.table.Id;
+import com.mcm.backend.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.database.core.annotations.table.TableField;
 import com.mcm.backend.database.core.annotations.table.TableName;
-import com.mcm.backend.database.core.components.AutoTableEntity;
-import com.mcm.backend.database.core.components.Table;
+import com.mcm.backend.database.core.components.tables.Table;
 
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ReflectiveTable<T, K> extends Table<T, K> {
+public class TableFactory<T, K> extends Table<T, K> {
 
     private final Class<T> clazz;
     private final Field primaryKeyField;
@@ -19,7 +19,7 @@ public class ReflectiveTable<T, K> extends Table<T, K> {
     private final Map<Field, String> fieldToColumnName;
 
     @SuppressWarnings("unchecked")
-    public ReflectiveTable(Class<T> clazz) {
+    public TableFactory(Class<T> clazz) {
         super(
                 getTableName(clazz),
                 getPrimaryKeyField(clazz).getName(), // Will update to column name below
@@ -49,7 +49,7 @@ public class ReflectiveTable<T, K> extends Table<T, K> {
         return annotation != null ? annotation.value() : clazz.getSimpleName().toLowerCase();
     }
 
-    public static Field getPrimaryKeyField(Class<?> clazz) {
+    private static Field getPrimaryKeyField(Class<?> clazz) {
         for (Field field : clazz.getDeclaredFields()) {
             if (field.isAnnotationPresent(Id.class)) {
                 field.setAccessible(true);
@@ -147,7 +147,11 @@ public class ReflectiveTable<T, K> extends Table<T, K> {
     @Override
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructors()[0];
+            Constructor<?> constructor = Arrays.stream(clazz.getDeclaredConstructors())
+                    .filter(c -> c.isAnnotationPresent(TableConstructor.class))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("No constructor annotated with @TableConstructor found for " + clazz.getName()));
+
             constructor.setAccessible(true);
 
             Field[] fields = clazz.getDeclaredFields();
@@ -180,21 +184,18 @@ public class ReflectiveTable<T, K> extends Table<T, K> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public K getPrimaryKey(T entity) {
         try {
-            return (K) primaryKeyField.get(entity);
+            Object key = primaryKeyField.get(entity);
+            if (!primaryKeyDataType.isInstance(key)) {
+                throw new IllegalStateException("Primary key type mismatch: expected " + primaryKeyDataType + " but got " + key.getClass());
+            }
+            return (K) key;
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void debugPrint() {
-        System.out.println("=== Table Metadata ===");
-        System.out.println("Table: " + getTableName());
-        System.out.println("Primary Key: " + primaryKeyColumnName + " (" + getPrimaryKeyDataType().getSimpleName() + ")");
-        System.out.println("Insert Query: " + getAddQuery());
-        System.out.println("Update Query: " + getUpdateQuery());
-        System.out.println("======================");
-    }
 }
