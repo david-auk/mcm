@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.components.daos;
+package com.mcm.backend.app.database.core.components.daos;
 
 import com.mcm.backend.database.core.components.tables.timestaped.TimestampedDAOInterface;
 import com.mcm.backend.database.core.components.tables.timestaped.TimestampedTable;

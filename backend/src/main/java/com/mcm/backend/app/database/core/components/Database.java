@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.components;
+package com.mcm.backend.app.database.core.components;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

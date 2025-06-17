@@ -1,4 +1,4 @@
-package com.mcm.backend.database.core.annotations.table;
+package com.mcm.backend.app.database.core.annotations.table;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

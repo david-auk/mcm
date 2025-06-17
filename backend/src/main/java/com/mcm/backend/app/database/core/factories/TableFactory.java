@@ -1,10 +1,10 @@
-package com.mcm.backend.database.core.factories;
+package com.mcm.backend.app.database.core.factories;
 
-import com.mcm.backend.database.core.annotations.table.Id;
-import com.mcm.backend.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.database.core.annotations.table.TableField;
-import com.mcm.backend.database.core.annotations.table.TableName;
-import com.mcm.backend.database.core.components.tables.Table;
+import com.mcm.backend.app.database.core.annotations.table.Id;
+import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.components.tables.Table;
 
 import java.lang.reflect.*;
 import java.sql.*;

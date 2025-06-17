@@ -1,4 +1,4 @@
-package com.mcm.backend.database.models;
+package com.mcm.backend.app.database.models;
 
 import com.mcm.backend.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.database.core.components.tables.AutoTableEntity;
