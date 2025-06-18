@@ -1,4 +1,4 @@
-package com.mcm.backend.app.database.models;
+package com.mcm.backend.app.database.models.users;
 
 import com.mcm.backend.app.database.core.annotations.table.Id;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;

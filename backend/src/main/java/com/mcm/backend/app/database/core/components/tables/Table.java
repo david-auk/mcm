@@ -35,6 +35,31 @@ public class Table<T, K> implements TableInterface<T, K>, AutoTableEntity {
     // -- Interface Implementations --
 
     @Override
+    public <D> String buildGetQuery(Field whereField, D isData, boolean wildcardQuery) {
+
+        // Check if the field is from the table instance class
+        if (!whereField.getDeclaringClass().equals(clazz)) {
+            throw new IllegalArgumentException("Field " + whereField.getName() + " not from " + clazz.getName() + " class");
+        }
+
+        // Check if the dataType matches for field and data
+        if (!whereField.getType().isInstance(isData)) {
+            throw new IllegalArgumentException("Field " + whereField.getName() + " expects type "
+                    + whereField.getType().getName() + ", but got " + isData.getClass().getName());
+        }
+
+        // Get the column name
+        String columnName;
+        if (fieldToColumnName.containsKey(whereField)) {
+            columnName = fieldToColumnName.get(whereField);
+        } else {
+            throw new IllegalArgumentException("Missing field " + whereField.getName() + " in " + tableName);
+        }
+
+        return String.format("SELECT * FROM %s WHERE %s %s ?", tableName, columnName, wildcardQuery ? "LIKE" : "=");
+    }
+
+    @Override
     public void prepareInsertStatement(PreparedStatement ps, T entity) throws SQLException {
         try {
             int i = 1;

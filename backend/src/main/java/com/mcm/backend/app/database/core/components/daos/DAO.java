@@ -3,6 +3,7 @@ package com.mcm.backend.app.database.core.components.daos;
 import com.mcm.backend.app.database.core.components.Database;
 import com.mcm.backend.app.database.core.components.tables.Table;
 
+import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,6 +81,37 @@ public class DAO<T, K> implements DAOInterface<T, K> {
             throw new RuntimeException(e);
         }
         return entity;
+    }
+
+    /**
+     * Get method that builds a where query
+     * @param whereField The field you are sorting for
+     * @param isData The data you want to match
+     * @param wildcardQuery Boolean option to choose if you want to use LIKE operator
+     * @return Entities from query
+     */
+    public <D> List<T> get(Field whereField, D isData, boolean wildcardQuery) {
+        String query = table.buildGetQuery(whereField, isData, wildcardQuery);
+        List<T> entities;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setObject(1, isData);
+            entities = getEntities(preparedStatement.executeQuery());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return entities;
+    }
+
+    /**
+     * Get method that builds a where query
+     * @param whereField The field you are sorting for
+     * @param isData The data you want to match
+     * @return Entities from query
+     */
+    public <D> List<T> get(Field whereField, D isData) {
+        return get(whereField, isData, false);
     }
 
     @Override

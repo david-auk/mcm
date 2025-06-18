@@ -75,5 +75,4 @@ public class TableUtils {
         return String.format("UPDATE %s SET %s WHERE %s = ?", tableName, assignments, primaryKeyColumnName);
     }
 
-
 }
