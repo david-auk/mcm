@@ -1,6 +1,6 @@
 package com.mcm.backend.app.database.core.components.tables;
 
-import com.mcm.backend.app.database.core.annotations.table.Id;
+import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 
@@ -17,27 +17,27 @@ public class TableUtils {
 
     public static Field getPrimaryKeyField(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(Id.class))
+                .filter(f -> f.isAnnotationPresent(PrimaryKey.class))
                 .findFirst()
                 .map(f -> {
                     f.setAccessible(true);
                     return f;
                 })
-                .orElseThrow(() -> new IllegalArgumentException("No @Id field found in " + clazz.getName()));
+                .orElseThrow(() -> new IllegalArgumentException("No @PrimaryKey field found in " + clazz.getName()));
     }
 
     public static Class<?> getPrimaryKeyType(Class<?> clazz) {
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(Id.class))
+                .filter(f -> f.isAnnotationPresent(PrimaryKey.class))
                 .findFirst()
-                .map(f -> f.getAnnotation(Id.class).value())
-                .orElseThrow(() -> new IllegalArgumentException("Missing @Id annotation with type"));
+                .map(f -> f.getAnnotation(PrimaryKey.class).value())
+                .orElseThrow(() -> new IllegalArgumentException("Missing @PrimaryKey annotation with type"));
     }
 
     public static Map<Field, String> mapFieldToColumnNames(Class<?> clazz) {
         Map<Field, String> map = new LinkedHashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(TableField.class) || field.isAnnotationPresent(Id.class)) {
+            if (field.isAnnotationPresent(TableField.class) || field.isAnnotationPresent(PrimaryKey.class)) {
                 field.setAccessible(true);
                 String columnName = field.isAnnotationPresent(TableField.class)
                         ? field.getAnnotation(TableField.class).name()

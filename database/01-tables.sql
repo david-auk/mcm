@@ -19,14 +19,27 @@ CREATE TABLE admins
 -- Server Instances
 CREATE TABLE server_instances
 (
+    id                UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
+    name              VARCHAR(255) NOT NULL,
+    description       VARCHAR(255),
+    minecraft_version VARCHAR(100) NOT NULL,
+    jar_url           TEXT         NOT NULL,
+    eula_accepted     BOOLEAN                  DEFAULT FALSE,
+    created_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
+    allocated_ram_mb  INTEGER                  DEFAULT 1024,
+    port              INTEGER                  NOT NULL CHECK (port BETWEEN 1024 AND 65535)
+);
+
+
+CREATE TABLE server_instance_properties (
     id               UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
-    name             VARCHAR(255) NOT NULL,
-    jar_url          TEXT         NOT NULL,
-    eula_accepted    BOOLEAN                  DEFAULT FALSE,
-    created_at       TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
-    world_name       VARCHAR(255),
-    allocated_ram_mb INTEGER                  DEFAULT 1024,
-    config           JSONB -- Store additional flexible data like properties.json
+    server_instance_id UUID REFERENCES server_instances(id) ON DELETE CASCADE,
+    key TEXT NOT NULL,
+    value TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('string', 'integer', 'boolean')),
+    hidden BOOLEAN DEFAULT FALSE,     -- whether to hide from API/UI etc.
+
+    CONSTRAINT unique_key_per_instance UNIQUE (server_instance_id, key)
 );
 
 -- Roles

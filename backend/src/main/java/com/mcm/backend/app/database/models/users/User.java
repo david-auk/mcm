@@ -1,8 +1,7 @@
 package com.mcm.backend.app.database.models.users;
 
+import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.components.tables.AutoTableEntity;
-import com.mcm.backend.app.database.core.annotations.table.Id;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 
@@ -10,9 +9,9 @@ import java.util.Objects;
 import java.util.UUID;
 
 @TableName("users")
-public class User implements AutoTableEntity {
+public class User {
 
-    @Id(UUID.class)
+    @PrimaryKey(UUID.class)
     private final UUID id;
 
     @TableField(type = String.class)

@@ -2,7 +2,7 @@
 //
 //import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 //import com.mcm.backend.app.database.core.components.tables.AutoTableEntity;
-//import com.mcm.backend.app.database.core.annotations.table.Id;
+//import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 //import com.mcm.backend.app.database.core.annotations.table.TableField;
 //import com.mcm.backend.app.database.core.annotations.table.TableName;
 //
@@ -15,7 +15,7 @@
 //    public static Enum<String> SEVERITY = new Enum<String>() {
 //    }
 //
-//    @Id(UUID.class)
+//    @PrimaryKey(UUID.class)
 //    private final UUID id;
 //
 //    //@UniqueField TODO Implement

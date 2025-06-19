@@ -6,7 +6,7 @@ import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
-public class Table<T, K> implements TableInterface<T, K>, AutoTableEntity {
+public class Table<T, K> implements TableInterface<T, K> {
 
     private final Class<T> clazz;
     private final Field primaryKeyField;
