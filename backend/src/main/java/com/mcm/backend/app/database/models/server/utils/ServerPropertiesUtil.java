@@ -2,7 +2,6 @@ package com.mcm.backend.app.database.models.server.utils;
 
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.ServerInstanceProperty;
-import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -24,16 +23,17 @@ public class ServerPropertiesUtil {
      * Initializes the server.properties into a list of {@link ServerInstanceProperty}.
      * Special values are routed to the {@link ServerInstance} object instead.
      *
-     * @param instance the server instance
+     * @param serverInstance the server instance
      * @return list of regular properties
      * @throws IOException if file reading fails
      */
-    public static List<ServerInstanceProperty> initialize(ServerInstance instance) throws IOException {
-        Properties props = loadProperties(instance);
+    public static List<ServerInstanceProperty> initialize(ServerInstance serverInstance) throws IOException {
+        Properties props = loadProperties(serverInstance);
         List<ServerInstanceProperty> result = new ArrayList<>();
 
         // Generate RCON password fresh on init
-        String generatedRconPassword = generateRandomPassword(16);
+        String rconPassword = generateRandomPassword();
+        String rconPort = String.valueOf(serverInstance.getPort() + 1);
 
         for (String key : props.stringPropertyNames()) {
             String value = props.getProperty(key);
@@ -42,15 +42,17 @@ public class ServerPropertiesUtil {
             // Override special keys explicitly
             if (isSpecial) {
                 switch (key) {
-                    case "server-port" -> value = String.valueOf(instance.getPort());
-                    case "rcon.password" -> value = generatedRconPassword;
-                    case "rcon.port" -> value = String.valueOf(instance.getPort() + 1);
+                    case "server-port" -> value = String.valueOf(serverInstance.getPort());
+                    case "rcon.password" -> value = rconPassword;
+                    case "rcon.port" -> value = rconPort;
                     case "enable-rcon" -> value = "true";
+                    // TODO Find implementation to auto set motd from serverInstance.getDescription()
                 }
             }
 
             result.add(new ServerInstanceProperty(
                     null, // Handle generation within constructor
+                    serverInstance.getId(),
                     isSpecial,
                     inferType(value),
                     value,
@@ -61,16 +63,44 @@ public class ServerPropertiesUtil {
         // Add missing specials if they weren't in the file
         Set<String> keysInFile = new HashSet<>(props.stringPropertyNames());
         if (!keysInFile.contains("server-port")) {
-            result.add(new ServerInstanceProperty(null, true, "integer", String.valueOf(instance.getPort()), "server-port"));
+            result.add(new ServerInstanceProperty(
+                null,
+                serverInstance.getId(),
+                true,
+                "integer",
+                String.valueOf(serverInstance.getPort()),
+                "server-port"
+            ));
         }
         if (!keysInFile.contains("rcon.password")) {
-            result.add(new ServerInstanceProperty(null, true, "string", generatedRconPassword, "rcon.password"));
+            result.add(new ServerInstanceProperty(
+                null,
+                serverInstance.getId(),
+                true,
+                "string",
+                rconPassword,
+                "rcon.password"
+            ));
         }
         if (!keysInFile.contains("rcon.port")) {
-            result.add(new ServerInstanceProperty(null, true, "integer", String.valueOf(instance.getPort() + 1), "rcon.port"));
+            result.add(new ServerInstanceProperty(
+                null,
+                serverInstance.getId(),
+                true,
+                "integer",
+                rconPort,
+                "rcon.port"
+            ));
         }
         if (!keysInFile.contains("enable-rcon")) {
-            result.add(new ServerInstanceProperty(null, true, "boolean", "true", "enable-rcon"));
+            result.add(new ServerInstanceProperty(
+                null,
+                serverInstance.getId(),
+                true,
+                "boolean",
+                "true",
+                "enable-rcon"
+            ));
         }
 
         return result;
@@ -119,12 +149,12 @@ public class ServerPropertiesUtil {
         }
     }
 
-    private static String generateRandomPassword(int length) {
+    private static String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         Random random = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
+        StringBuilder sb = new StringBuilder(16);
 
-        for (int i = 0; i < length; i++) {
+        for (int i = 0; i < 16; i++) {
             sb.append(chars.charAt(random.nextInt(chars.length())));
         }
 

@@ -3,6 +3,7 @@ package com.mcm.backend.app.database.models.server;
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
 
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+@TableName("server_instances")
 public class ServerInstance {
 
     @PrimaryKey(UUID.class)
@@ -32,7 +34,7 @@ public class ServerInstance {
     @TableField(type = Boolean.class, name = "eula_accepted")
     private Boolean eulaAccepted;
 
-    @TableField(type = Timestamp.class, name = "created_at") // TODO check if imported class works as expected
+    @TableField(type = Timestamp.class, name = "created_at")
     private final Timestamp createdAt;
 
     @TableField(type = Integer.class, name = "allocated_ram_mb")
@@ -134,8 +136,14 @@ public class ServerInstance {
     public void setPort(Integer port) {
         if (port == null || !(port > 1024 && port < 65535)) {
             throw new IllegalArgumentException("Port must be between 1024 and 65535");
+        } else if (!isEven(port)) {
+            throw new IllegalArgumentException("Port must be even (so uneven port is reseved for rcon)");
         }
         this.port = port;
+    }
+
+    public boolean isEven(int number) {
+        return number % 2 == 0;
     }
 
     // - Logic
@@ -152,10 +160,10 @@ public class ServerInstance {
         TmuxUtil.stopServerInstance(this);
     }
 
-    public void restart() throws RuntimeException {
+    public void restart() throws RuntimeException, InterruptedException {
         if (isRunning()) {
             stop();
-        }
+        } // TODO Implement wait for complete down
         start();
     }
 

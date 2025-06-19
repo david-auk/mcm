@@ -14,6 +14,9 @@ public class ServerInstanceProperty {
     @PrimaryKey(UUID.class)
     private final UUID id;
 
+    @TableField(type = UUID.class, name = "server_instance_id")
+    private final UUID serverInstanceId;
+
     @TableField(type = Boolean.class)
     private boolean hidden;
 
@@ -28,8 +31,9 @@ public class ServerInstanceProperty {
 
 
     @TableConstructor
-    public ServerInstanceProperty(UUID id, boolean hidden, String type, String value, String key) {
+    public ServerInstanceProperty(UUID id, UUID serverInstanceId, boolean hidden, String type, String value, String key) {
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
+        this.serverInstanceId = serverInstanceId;
         this.hidden = hidden;
         this.type = type;
         this.value = value;
@@ -37,6 +41,14 @@ public class ServerInstanceProperty {
     }
 
     //- Getters & Setters
+
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getServerInstanceId() {
+        return serverInstanceId;
+    }
 
     public String getKey() {
         return key;

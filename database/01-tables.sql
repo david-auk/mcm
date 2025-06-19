@@ -20,14 +20,16 @@ CREATE TABLE admins
 CREATE TABLE server_instances
 (
     id                UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
-    name              VARCHAR(255) NOT NULL,
+    name              VARCHAR(255) UNIQUE NOT NULL,
     description       VARCHAR(255),
     minecraft_version VARCHAR(100) NOT NULL,
     jar_url           TEXT         NOT NULL,
     eula_accepted     BOOLEAN                  DEFAULT FALSE,
     created_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
     allocated_ram_mb  INTEGER                  DEFAULT 1024,
-    port              INTEGER                  NOT NULL CHECK (port BETWEEN 1024 AND 65535)
+    port              INTEGER NOT NULL CHECK (
+                          port BETWEEN 1024 AND 65535 AND port % 2 = 0
+                      )
 );
 
 

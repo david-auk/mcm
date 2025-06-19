@@ -4,6 +4,7 @@ import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.UUID;
 
 /**
@@ -51,6 +52,10 @@ public class TmuxUtil {
         String fullCommand = String.format("cd %s && %s >> latest.log 2>&1", workingDir, startCommand);
 
         try {
+            // Delete previous latest log
+            Files.deleteIfExists(ServerCoreUtil.getLogFilePath(instance));
+
+            // Start Tmux session
             ProcessBuilder pb = new ProcessBuilder("tmux", "new-session", "-d", "-s", sessionName, fullCommand);
             Process process = pb.start();
             int exitCode = process.waitFor();
