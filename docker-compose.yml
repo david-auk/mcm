@@ -1,34 +1,60 @@
-version: '3.8'
 services:
   db:
-    image: mysql:8.0
-    container_name: mysql_db
+    image: postgres:16
+    container_name: postgres_db
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: myapp
-      MYSQL_USER: user
-      MYSQL_PASSWORD: password
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
-      - db_data:/var/lib/mysql
-
-  app:
-    build: .
-    container_name: spring_app
-    ports:
-      - "8080:8080"
-    depends_on:
+      - db_data:/var/lib/postgresql/data
+      - ./database:/docker-entrypoint-initdb.d:ro
+    restart: unless-stopped
+    networks:
       - db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+  backend:
+    build:
+      context: backend
+    container_name: mcm_backend
+    ports:
+      - "${PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
     volumes:
-      - .:/app
-      - /app/build
+      - ./backend:/app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/myapp
-      SPRING_DATASOURCE_USERNAME: user
-      SPRING_DATASOURCE_PASSWORD: password
-    command: ["./gradlew", "bootRun", "--no-daemon"]
+      DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DATASOURCE_USERNAME: ${DB_USER}
+      DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - backend
+      - db
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 
 volumes:
   db_data:
 
+networks:
+  db:
+      internal: false
+  backend:
+      internal: false # So compiler can download packages (TODO find fix)
+  frontend:
+      internal: false
