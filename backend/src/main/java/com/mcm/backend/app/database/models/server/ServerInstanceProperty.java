@@ -4,12 +4,13 @@ import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
 import java.util.Objects;
 import java.util.UUID;
 
 @TableName("server_instance_properties")
-public class ServerInstanceProperty {
+public class ServerInstanceProperty implements TableEntity {
 
     @PrimaryKey(UUID.class)
     private final UUID id;

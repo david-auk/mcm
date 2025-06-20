@@ -10,6 +10,9 @@ import java.lang.annotation.Target;
  * <p>
  * Field name must be the same as the column name.
  */
+
+
+// TODO Write (Better) JAVADOC
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PrimaryKey {

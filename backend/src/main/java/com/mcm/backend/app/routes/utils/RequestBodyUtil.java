@@ -36,6 +36,12 @@ public class RequestBodyUtil {
         }
     }
 
+    public boolean containsField(String fieldName) {
+        return requestBody.containsKey(fieldName);
+    }
+
+    // --- Helper methods ---
+
     private Timestamp convertStringToTimestamp(String timestampString) throws JsonErrorResponseException {
         // List of supported timestamp formats
         List<String> formats = Arrays.asList(
