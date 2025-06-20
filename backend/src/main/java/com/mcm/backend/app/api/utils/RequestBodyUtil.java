@@ -1,4 +1,4 @@
-package com.mcm.backend.app.routes.utils;
+package com.mcm.backend.app.api.utils;
 
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 

@@ -1,6 +1,6 @@
-package com.mcm.backend.app.routes.utils.configurations;
+package com.mcm.backend.app.api.utils.configurations;
 
-import com.mcm.backend.app.routes.utils.components.ValidatedBodyResolver;
+import com.mcm.backend.app.api.utils.components.ValidatedBodyResolver;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

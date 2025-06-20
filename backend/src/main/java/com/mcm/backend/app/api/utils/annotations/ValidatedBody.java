@@ -1,4 +1,4 @@
-package com.mcm.backend.app.routes.utils.annotations;
+package com.mcm.backend.app.api.utils.annotations;
 
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 

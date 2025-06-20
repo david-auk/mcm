@@ -1,9 +1,9 @@
-package com.mcm.backend.app.routes.users.user;
+package com.mcm.backend.app.api.controllers.users.user;
 
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.users.User;
-import com.mcm.backend.app.routes.utils.annotations.ValidatedBody;
+import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     /**
@@ -56,7 +56,6 @@ public class UserController {
      * @return Created user
      *
      */
-    // * @throws JsonErrorResponseException if validation fails
     @PostMapping
     public ResponseEntity<User> createUser(@ValidatedBody(User.class) User user) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
@@ -80,22 +79,26 @@ public class UserController {
      * @return updated user or 404 if not found
      */
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @ValidatedBody(User.class) User user) throws JsonErrorResponseException, NoSuchFieldException {
+    public ResponseEntity<?> updateUser(@PathVariable UUID id, @ValidatedBody(User.class) User user) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
-            if (!userDAO.existsByPrimaryKey(id)) {
-                return ResponseEntity.notFound().build();
-            }
 
             // Ensure the ID from the path matches the one in the request
             if (!user.getId().equals(id)) {
                 throw new JsonErrorResponseException("ID in path and body must match");
             }
 
-            // Todo add check if username changed
+            User oldUser = userDAO.get(id);
 
-            // Check if the username is unique
-            if (usernameInUse(userDAO, user)) {
-                throw new JsonErrorResponseException("Username already in use");
+            if (oldUser == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // If username changed
+            if (!oldUser.getUsername().equals(user.getUsername())) {
+                // Check if the username is unique
+                if (usernameInUse(userDAO, user)) {
+                    throw new JsonErrorResponseException("Username already in use");
+                }
             }
 
             userDAO.update(user);

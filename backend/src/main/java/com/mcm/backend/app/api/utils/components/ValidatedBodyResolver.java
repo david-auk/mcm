@@ -1,13 +1,13 @@
-package com.mcm.backend.app.routes.utils.components;
+package com.mcm.backend.app.api.utils.components;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcm.backend.app.api.utils.RequestBodyUtil;
+import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import com.mcm.backend.app.routes.utils.RequestBodyUtil;
-import com.mcm.backend.app.routes.utils.annotations.ValidatedBody;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
@@ -26,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
