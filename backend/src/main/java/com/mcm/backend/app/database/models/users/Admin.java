@@ -25,5 +25,10 @@ public class Admin implements TableEntity {
     public UUID getId() {
         return id;
     }
+
+    @Override
+    public Class<?> getPKType() {
+        return UUID.class;
+    }
 }
 

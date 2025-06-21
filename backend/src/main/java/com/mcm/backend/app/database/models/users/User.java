@@ -1,9 +1,6 @@
 package com.mcm.backend.app.database.models.users;
 
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
-import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
 import java.util.Objects;
@@ -15,6 +12,7 @@ public class User implements TableEntity {
     @PrimaryKey(UUID.class)
     private final UUID id;
 
+    @UniqueField
     @TableField(type = String.class)
     private String username;
 
@@ -51,5 +49,10 @@ public class User implements TableEntity {
     @Override
     public String toString() {
         return "{id: " + id + ", username: " + username + ", passwordHash: " + passwordHash + "}";
+    }
+
+    @Override
+    public Class<?> getPKType() {
+        return UUID.class;
     }
 }

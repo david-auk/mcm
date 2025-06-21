@@ -14,4 +14,9 @@ import com.mcm.backend.app.database.core.components.daos.DAO;
  */
 public interface TableEntity {
     // TODO Add (some level of) Annotation checks
+    static Class<?> getPKType() {
+        return null;
+    }
+
+    Class<?> getPKType();
 }

@@ -1,5 +1,7 @@
 package com.mcm.backend.app.database.core.components.daos;
 
+import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.app.database.core.annotations.table.UniqueField;
 import com.mcm.backend.app.database.core.components.Database;
 import com.mcm.backend.app.database.core.components.tables.Table;
 
@@ -90,6 +92,7 @@ public class DAO<T, K> implements DAOInterface<T, K> {
      * @param wildcardQuery Boolean option to choose if you want to use LIKE operator
      * @return Entities from query
      */
+    @Override
     public <D> List<T> get(Field whereField, D isData, boolean wildcardQuery) {
         String query = table.buildGetQuery(whereField, isData, wildcardQuery);
         List<T> entities;
@@ -112,6 +115,17 @@ public class DAO<T, K> implements DAOInterface<T, K> {
      */
     public <D> List<T> get(Field whereField, D isData) {
         return get(whereField, isData, false);
+    }
+
+    public <D> T getUnique(Field uniqueField, D isData) {
+        if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
+            throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
+        }
+        List<T> matches = get(uniqueField, isData, false);
+        if (matches.isEmpty()) {
+            return null;
+        }
+        return matches.getFirst();
     }
 
     @Override
