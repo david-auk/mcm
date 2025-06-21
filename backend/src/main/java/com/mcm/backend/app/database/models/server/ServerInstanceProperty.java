@@ -83,9 +83,4 @@ public class ServerInstanceProperty implements TableEntity {
     public String toString() {
         return "{id: " + id + ", hidden: " + hidden + ", key: " + key + ", value: " + value + ", type: " + type + "}";
     }
-
-    @Override
-    public Class<?> getPKType() {
-        return UUID.class;
-    }
 }

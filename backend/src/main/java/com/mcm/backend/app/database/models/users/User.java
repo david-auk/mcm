@@ -50,9 +50,4 @@ public class User implements TableEntity {
     public String toString() {
         return "{id: " + id + ", username: " + username + ", passwordHash: " + passwordHash + "}";
     }
-
-    @Override
-    public Class<?> getPKType() {
-        return UUID.class;
-    }
 }

@@ -1,4 +1,4 @@
-package com.mcm.backend.app.api.utils;
+package com.mcm.backend.app.middlewares.jwt;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

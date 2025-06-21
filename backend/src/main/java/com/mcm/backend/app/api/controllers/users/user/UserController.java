@@ -1,7 +1,10 @@
 package com.mcm.backend.app.api.controllers.users.user;
 
+import com.mcm.backend.app.api.utils.annotations.CurrentUser;
+import com.mcm.backend.app.api.utils.annotations.RequireRole;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
+import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.User;
 import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
@@ -18,6 +21,7 @@ public class UserController {
      * List all users.
      */
     @GetMapping
+    @RequireRole(Admin.class)
     public ResponseEntity<List<User>> getAllUsers() {
         // Get all users from the DB
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
@@ -32,6 +36,7 @@ public class UserController {
      * @return The user, if found
      */
     @GetMapping("/{id}")
+    @RequireRole(Admin.class)
     public ResponseEntity<?> getUser(@PathVariable UUID id) {
         User user;
 
@@ -57,7 +62,8 @@ public class UserController {
      *
      */
     @PostMapping
-    public ResponseEntity<User> createUser(@ValidatedBody(User.class) User user) throws JsonErrorResponseException {
+    @RequireRole(Admin.class)
+    public ResponseEntity<User> createUser(@ValidatedBody(User.class) User user, @CurrentUser Admin admin) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
 
             // Check if the username is unique
@@ -79,6 +85,7 @@ public class UserController {
      * @return updated user or 404 if not found
      */
     @PutMapping("/{id}")
+    @RequireRole(Admin.class)
     public ResponseEntity<?> updateUser(@PathVariable UUID id, @ValidatedBody(User.class) User user) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
 
@@ -112,6 +119,7 @@ public class UserController {
      * @param id the user's UUID
      */
     @DeleteMapping("/{id}")
+    @RequireRole(Admin.class)
     public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
             if (userDAO.existsByPrimaryKey(id)) {

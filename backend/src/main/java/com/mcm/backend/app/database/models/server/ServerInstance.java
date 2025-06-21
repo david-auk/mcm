@@ -178,9 +178,4 @@ public class ServerInstance implements TableEntity {
     public String sendCommand(String command) throws RuntimeException {
         return null;
     }
-
-    @Override
-    public Class<?> getPKType() {
-        return UUID.class;
-    }
 }

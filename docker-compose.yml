@@ -27,8 +27,8 @@ services:
     build:
       context: backend
     container_name: mcm_backend
-    ports:
-      - "${PORT:-8080}:8080"
+    expose:
+      - "8080"
     depends_on:
       db:
         condition: service_healthy
@@ -46,6 +46,29 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  frontend:
+    container_name: mcm_frontend
+    build:
+      context: frontend
+      target: ${ENVIRONMENT-production}
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+    environment:
+      REACT_APP_USING_DOCKER: "true"
+      NODE_ENV: development # TODO Investigate
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    networks:
+      - frontend
+      - backend # So the frontend can reach the backend
 
 
 volumes:

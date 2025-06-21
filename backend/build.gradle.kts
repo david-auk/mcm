@@ -22,10 +22,13 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.springframework.boot:spring-boot-starter-aop")
 	implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
 	implementation("org.json:json:20231013")
 	implementation("org.postgresql:postgresql:42.7.2")
-
+	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // for JSON parsing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
