@@ -1,0 +1,125 @@
+/* Modal.css */
+
+/* Full-screen backdrop */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 200ms ease-out;
+}
+
+/* Modal window */
+.modal-container {
+  width: 90%;
+  max-width: 500px;
+  background: rgba(30, 30, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  font-family: system-ui, sans-serif; /* ← use system default here */
+  animation: slideDown 300ms ease-out;
+}
+
+/* Header */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-title {
+  margin: 0;
+  color: #fafafa;
+  font-size: 1.25rem;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #cccccc;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.modal-close:hover {
+  color: #fafafa;
+}
+
+/* Body */
+.modal-body {
+  padding: 16px;
+  color: #dddddd;
+  font-size: 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+/* Footer buttons */
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.modal-btn {
+  min-width: 80px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.modal-btn--cancel {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fafafa;
+}
+.modal-btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.modal-btn--confirm {
+  background: #ba3f3f;
+  color: #fafafa;
+}
+.modal-btn--confirm:hover {
+  background: #d25c5c;
+}
+.modal-btn--confirm:active {
+  transform: translateY(1px);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
