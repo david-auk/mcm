@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+import static com.mcm.backend.app.api.controllers.users.user.Utils.usernameInUse;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -57,6 +59,21 @@ public class UserController {
 
         // Handle User found
         return ResponseEntity.ok(user);
+    }
+
+    /**
+     * Check if a username is in use
+     * @param username The username that will be checked
+     * @return {@code {'in_use', bool}}
+     */
+    @GetMapping("/username-in-use/{username}")
+    @RequireRole(User.class)
+    public ResponseEntity<?> getUsernameInUse(@PathVariable String username) {
+        boolean inUse;
+        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
+            inUse = usernameInUse(userDAO, username);
+        }
+        return ResponseEntity.ok(Map.of("in_use", inUse));
     }
 
     /**
@@ -133,20 +150,6 @@ public class UserController {
             } else {
                 return ResponseEntity.notFound().build();
             }
-        }
-    }
-
-    /**
-     * Helper method to check if username is in use
-     * @param userDAO The DAO used to fetch for the username
-     * @param user The User object which name will be checked for uniqueness
-     * @return {@code true} if the username is in use, {@code false} if not.
-     */
-    private boolean usernameInUse(DAO<User, UUID> userDAO, User user) {
-        try {
-            return !userDAO.get(User.class.getDeclaredField("username"), user.getUsername()).isEmpty();
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
         }
     }
 }

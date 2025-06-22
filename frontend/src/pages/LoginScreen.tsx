@@ -32,8 +32,7 @@ const LoginScreen: React.FC = () => {
             const data = await res.json();
 
             if (!res.ok) {
-
-                toast(`Login failed – ${data.error}`, 'error')
+                toast(`${data.error}`, 'error')
                 return
             }
 

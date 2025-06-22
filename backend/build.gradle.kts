@@ -23,6 +23,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
+
+	// Add Spring Security
+	implementation("org.springframework.boot:spring-boot-starter-security")
+
 	implementation("jakarta.servlet:jakarta.servlet-api:6.0.0")
 
 	// Jackson Core

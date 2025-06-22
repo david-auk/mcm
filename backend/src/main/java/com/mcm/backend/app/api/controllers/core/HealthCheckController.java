@@ -1,4 +1,4 @@
-package com.mcm.backend.app.api.core;
+package com.mcm.backend.app.api.controllers.core;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

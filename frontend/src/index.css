@@ -13,6 +13,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Minecraft font */
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/fonts/Minecraftia.woff2') format('woff2'),
+       url('/fonts/Minecraftia.woff')  format('woff'),
+       url('/fonts/Minecraftia.ttf')   format('truetype');
+  font-display: swap;
+  
+}
+
 a {
   font-weight: 500;
   color: #646cff;

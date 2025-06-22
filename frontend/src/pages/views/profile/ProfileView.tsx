@@ -1,27 +1,23 @@
 // src/pages/views/profile/ProfileView.tsx
 import React from 'react';
-import SideBarView from '../../../components/generic/views/SideBarView';
+import SideBarView from '../../../components/shared/views/SideBarView';
+import ChangeUsernameForm from './components/ChangeUsernameForm';
+import ChangePasswordForm from './components/ChangePasswordForm';
+import LogoutButton from './components/LogoutButton';
+import DeleteAccountButton from './components/DeleteAccountButton';
+import './ProfileView.css'
 
 const ProfileView: React.FC = () => {
   const options = [
-    {
-      label: 'Personal Info',
-      component: (
-        <div>
-          <h3>Personal Info</h3>
-          <p>Update your display name, email address, and avatar here.</p>
-          {/* insert form fields or other components as needed */}
-        </div>
-      ),
-    },
+    { label: 'Personal Info', component: <ChangeUsernameForm /> },
     {
       label: 'Security',
       component: (
-        <div>
-          <h3>Security</h3>
-          <p>Change your password or enable two-factor authentication.</p>
-          {/* password change form, MFA toggles, etc. */}
-        </div>
+        <>
+          <ChangePasswordForm />
+          <LogoutButton />
+          <DeleteAccountButton />
+        </>
       ),
     },
     {
@@ -29,8 +25,7 @@ const ProfileView: React.FC = () => {
       component: (
         <div>
           <h3>Notifications</h3>
-          <p>Manage which emails and in-app notifications you receive.</p>
-          {/* toggles for email alerts, push notifications, etc. */}
+          <p>Manage which emails and in-app notifications you receive. (Placeholder)</p>
         </div>
       ),
     },
