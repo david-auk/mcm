@@ -7,6 +7,7 @@ import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -35,7 +36,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
         UUID userId = (UUID) request.getAttribute("authenticatedUserId");
 
         if (userId == null) {
-            throw new JsonErrorResponseException("No authentication bearer/info found");
+            throw new JsonErrorResponseException("No authentication bearer/info found", HttpStatus.UNAUTHORIZED);
         }
 
         @SuppressWarnings("unchecked")
@@ -43,7 +44,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
 
         try (DAO<? extends TableEntity, UUID> dao = DAOFactory.createDAO(entityClass)) {
             TableEntity entity = dao.get(userId);
-            if (entity == null) throw new SecurityException("User not found");
+            if (entity == null) throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
             return entity;
         }
     }

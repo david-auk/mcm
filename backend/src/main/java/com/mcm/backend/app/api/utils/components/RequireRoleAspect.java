@@ -7,6 +7,7 @@ import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -30,13 +31,13 @@ public class RequireRoleAspect {
         UUID userId = (UUID) request.getAttribute("authenticatedUserId");
 
         if (userId == null) {
-            throw new JsonErrorResponseException("No authentication bearer/info found");
+            throw new JsonErrorResponseException("No authentication bearer/info found", HttpStatus.UNAUTHORIZED);
         }
 
         // Assumes all normalized/requireRole's will use UUID as the root User class does.
         try (DAO<?, UUID> dao = DAOFactory.createDAO(entityClass)) {
             if (!dao.existsByPrimaryKey(userId)) {
-                throw new JsonErrorResponseException("User is not authorized for role: " + entityClass.getSimpleName());
+                throw new JsonErrorResponseException("User is not authorized for role: " + entityClass.getSimpleName(), HttpStatus.UNAUTHORIZED);
             }
         }
 

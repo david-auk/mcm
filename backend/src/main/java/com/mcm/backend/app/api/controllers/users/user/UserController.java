@@ -23,6 +23,9 @@ public class UserController {
     @GetMapping
     @RequireRole(Admin.class)
     public ResponseEntity<List<User>> getAllUsers() {
+
+        // TODO Add bool if admin
+
         // Get all users from the DB
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
             return ResponseEntity.ok(new ArrayList<>(userDAO.getAll()));
@@ -49,6 +52,8 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
+
+        // TODO Add bool if admin
 
         // Handle User found
         return ResponseEntity.ok(user);

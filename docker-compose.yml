@@ -51,7 +51,7 @@ services:
     container_name: mcm_frontend
     build:
       context: frontend
-      target: ${ENVIRONMENT-production}
+      target: ${ENVIRONMENT-development}
     ports:
       - "${FRONTEND_PORT:-80}:80"
     volumes:

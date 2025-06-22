@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.tsx
+import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-function App() {
-  const [count, setCount] = useState(0)
+import PrivateRoute from './components/routing/PrivateRoute';
+import LoginScreen from './pages/LoginScreen';
+import HomeScreen from './pages/HomeScreen';
+
+import { ToastProvider } from './contexts/ToastContext';
+import './App.css';
+
+const backgrounds = [
+  '/backgrounds/dirt_bg.png',
+  '/backgrounds/nether_bg.png',
+  '/backgrounds/portal_bg.png',
+];
+
+const App: React.FC = () => {
+  useEffect(() => {
+    const pick = backgrounds[Math.floor(Math.random() * backgrounds.length)];
+    document.body.style.background = `url('${pick}') center center fixed`;
+    document.body.style.backgroundSize = 'cover';
+    document.body.style.imageRendering = 'pixelated';
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <ToastProvider> {/* ← wrap the entire app in toast so messages can be displayed at any time */}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<LoginScreen />} />
+          <Route
+            path="/home"
+            element={
+              <PrivateRoute>
+                <HomeScreen />
+              </PrivateRoute>
+            }
+          />
+          <Route path="*" element={<LoginScreen />} />
+        </Routes>
+      </BrowserRouter>
+    </ToastProvider>
+  );
+};
 
-export default App
+export default App;
