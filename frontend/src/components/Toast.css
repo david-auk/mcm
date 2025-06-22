@@ -1,0 +1,119 @@
+/* Toast.css */
+
+/* — Wrapper at top-center, stacking downward — */
+.toast-wrapper {
+  position: fixed;
+  top: 16px;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;    /* children centered horizontally */
+  gap: 8px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* — Base toast style — */
+.toast {
+  display: flex;
+  align-items: center;
+  min-width: 240px;
+  max-width: 90vw;
+  padding: 12px 16px;
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 40px;            /* very rounded */
+  color: white;
+  font-family: system-ui, sans-serif;    /* ← use system/fallback font here */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  overflow: hidden;
+  transform-origin: center top;
+  animation: toast-in 300ms ease-out forwards;
+}
+
+/* — Icon circle — */
+.toast__icon {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background-color: white;        /* overridden per type */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  color: black;                    /* overridden per type */
+}
+
+/* — Message text — */
+.toast__message {
+  flex: 1;
+}
+
+/* — Type-specific colors & icons — */
+.toast--success {
+  background-color: rgba(63, 186, 84, 0.8);
+}
+.toast--success .toast__icon {
+  background-color: white;
+  color: #3fba54;
+}
+.toast--success .toast__icon::before {
+  content: '✔';
+}
+
+.toast--error {
+  background-color: rgba(186, 63, 63, 0.8);
+}
+.toast--error .toast__icon {
+  background-color: white;
+  color: #ba3f3f;
+}
+.toast--error .toast__icon::before {
+  content: '✖';
+}
+
+.toast--info {
+  background-color: rgba(52, 152, 219, 0.8);
+}
+.toast--info .toast__icon {
+  background-color: white;
+  color: #3498db;
+}
+.toast--info .toast__icon::before {
+  content: 'ℹ';
+}
+
+/* — Exit animation override — */
+.toast--exit {
+  animation: toast-out 300ms ease-in forwards;
+}
+
+/* — Enter: straight down from above — */
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* — Exit: slide back up — */
+@keyframes toast-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-100%) scale(0.9);
+  }
+}
