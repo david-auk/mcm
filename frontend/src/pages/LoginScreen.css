@@ -1,0 +1,139 @@
+/* LoginScreen.css */
+
+/* — root reset & full-screen centering — */
+:root {
+  --gap:                16px;
+  --border-light:       rgba(255,255,255,0.25);
+  --bg-panel:           rgba(20,20,20,0.75);
+  --bg-blur:            blur(12px);
+  --text-primary:       #fafafa;
+  --text-secondary:     #cccccc;
+  --accent-green:       #3fba54;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+/* Minecraft font */
+@font-face {
+  font-family: 'Minecraftia';
+  src: url('/fonts/Minecraftia.woff2') format('woff2'),
+       url('/fonts/Minecraftia.woff')  format('woff'),
+       url('/fonts/Minecraftia.ttf')   format('truetype');
+  font-display: swap;
+}
+
+body {
+  font-family: 'Minecraftia', sans-serif;
+  background-size: cover;
+  image-rendering: pixelated;
+}
+
+/* — Full‐screen flex centering, pushed up — */
+main.main-centered {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;       /* start from top */
+  width: 100%;
+  height: 100%;
+}
+
+/* — login panel — */
+.container-login {
+  width: 340px;
+  max-width: 90%;
+  padding: 24px;
+  text-align: left;
+  background-color: var(--bg-panel);
+  backdrop-filter: var(--bg-blur);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  border-radius: 8px;
+  margin: 0 auto;                     /* horizontal center */
+}
+
+/* — heading — */
+.container-login h2 {
+  margin: 0 0 24px;
+  color: var(--text-primary);
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+/* — labels & inputs — */
+.container-login label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.container-login input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.1);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  box-sizing: border-box;
+}
+
+/* override Chrome autofill “yellow” */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.1) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.container-login input::placeholder {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+.container-login input:focus {
+  outline: none;
+  border-color: var(--accent-green);
+}
+
+/* — button — */
+.container-login button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--accent-green);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #2a8a3f;
+  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+  display: flex;                      /* center text */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.container-login button:hover {
+  background: #5fc066;
+}
+
+.container-login button:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2a8a3f;
+}

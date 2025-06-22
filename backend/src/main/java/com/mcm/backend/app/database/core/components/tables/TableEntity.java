@@ -13,5 +13,4 @@ import com.mcm.backend.app.database.core.components.daos.DAO;
  * and use {@link TableName}, {@link PrimaryKey}, {@link TableField}, etc.
  */
 public interface TableEntity {
-    // TODO Add (some level of) Annotation checks
 }

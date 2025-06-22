@@ -1,5 +1,8 @@
 package com.mcm.backend.app.database.core.components.tables;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 
 import java.lang.reflect.*;
@@ -7,6 +10,8 @@ import java.sql.*;
 import java.util.*;
 
 public class Table<T, K> implements TableInterface<T, K> {
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Class<T> clazz;
     private final Field primaryKeyField;
@@ -64,12 +69,19 @@ public class Table<T, K> implements TableInterface<T, K> {
         try {
             int i = 1;
             for (Field field : fieldToColumnName.keySet()) {
-                ps.setObject(i++, field.get(entity));
+                Object value = field.get(entity);
+                if (value instanceof Map) { // If map, encode it
+                    String json = objectMapper.writeValueAsString(value);
+                    ps.setObject(i++, json, java.sql.Types.OTHER); // .OTHER for PostgreSQL JSONB
+                } else {
+                    ps.setObject(i++, value);
+                }
             }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to access field", e);
+        } catch (IllegalAccessException | JsonProcessingException e) {
+            throw new RuntimeException("Failed to access or serialize field", e);
         }
     }
+
 
     @Override
     public void prepareUpdateStatement(PreparedStatement ps, T entity) throws SQLException {
@@ -77,14 +89,21 @@ public class Table<T, K> implements TableInterface<T, K> {
             int i = 1;
             for (Field field : fieldToColumnName.keySet()) {
                 if (!field.equals(primaryKeyField)) {
-                    ps.setObject(i++, field.get(entity));
+                    Object value = field.get(entity);
+                    if (value instanceof Map) { // If map, encode it
+                        String json = objectMapper.writeValueAsString(value);
+                        ps.setObject(i++, json, java.sql.Types.OTHER);
+                    } else {
+                        ps.setObject(i++, value);
+                    }
                 }
             }
             ps.setObject(i, primaryKeyField.get(entity));
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to access field", e);
+        } catch (IllegalAccessException | JsonProcessingException e) {
+            throw new RuntimeException("Failed to access or serialize field", e);
         }
     }
+
 
     @Override
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
@@ -108,8 +127,14 @@ public class Table<T, K> implements TableInterface<T, K> {
                 Field field = fields[i];
                 String columnName = fieldToColumnName.get(field);
                 Class<?> fieldType = field.getType();
+
                 try {
-                    args[i] = rs.getObject(columnName, fieldType);
+                    if (Map.class.isAssignableFrom(fieldType)) { // If map try to decode it
+                        String json = rs.getString(columnName);
+                        args[i] = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+                    } else {
+                        args[i] = rs.getObject(columnName, fieldType);
+                    }
                 } catch (Exception e) {
                     throw new RuntimeException("Error reading column '" + columnName +
                             "' for field '" + field.getName() + "' of type " + fieldType.getSimpleName(), e);
@@ -117,11 +142,11 @@ public class Table<T, K> implements TableInterface<T, K> {
             }
 
             return clazz.cast(constructor.newInstance(args));
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to create instance of " + clazz.getName(), e);
         }
     }
+
 
     @SuppressWarnings("unchecked")
     @Override
