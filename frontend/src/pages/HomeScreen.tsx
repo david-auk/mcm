@@ -5,42 +5,43 @@ import AdminView from './views/admin/AdminView';
 import ProfileView from './views/profile/ProfileView';
 
 interface Tab {
-  label: string;
-  path: string;
-  component: React.ReactNode;
+    label: string;
+    path: string;
+    component: React.ReactNode;
 }
 
 const HomeScreen: React.FC = () => {
-  const welcomeMessage = `Welcome ${getUsername()}`;
+    const welcomeMessage = `Welcome ${getUsername()}`;
+    const tabs: Tab[] = [];
 
-  const tabs: Tab[] = [];
 
-  if (isAdmin()) {
+    if (isAdmin()) {
+        tabs.push({
+            label: "Admin View",
+            path: 'admin', // path is relative to /home
+            component: <AdminView />,
+        });
+    }
+
     tabs.push({
-      label: "Admin View",
-      path: 'admin', // path is relative to /home
-      component: <AdminView />,
+        label: "Account",
+        path: "profile",
+        component: <ProfileView />,
     });
-  }
 
-  tabs.push({
-    label: "Account",
-    path: "profile",
-    component: <ProfileView />,
-  });
-
-  return (
-    <main>
-      {tabs.length > 0 ? (
-        <TabView
-          tabs={tabs}
-          title={welcomeMessage}
-        />
-      ) : (
-        <p>No tabs found... please report this as a bug.</p>
-      )}
-    </main>
-  );
+    return (
+        <main>
+            {tabs.length > 0 ? (
+                <TabView
+                    tabs={tabs}
+                    title="Minecraft Manager"
+                    subtitle={welcomeMessage}
+                />
+            ) : (
+                <p>No tabs found... please report this as a bug.</p>
+            )}
+        </main>
+    );
 };
 
 export default HomeScreen;

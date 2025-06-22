@@ -1,3 +1,39 @@
+/* 0. Global box-sizing so padding+border count inside width */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  
+  box-sizing: border-box;
+  background-image: var(--bg-image);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;        /* <-- lock it to the viewport */
+  image-rendering: pixelated;          /* crisp blocks */
+}
+
+/* Ensure no other wrapper layers paint over it */
+main, #root, .main-centered {
+  background: transparent !important;
+}
+*, *::before, *::after {
+  box-sizing: inherit;
+}
+
+/* 1. Prevent any micro-overflow from ever showing a scrollbar */
+body {
+  overflow-x: hidden;
+}
+
+/* 2. Make sure flex items can shrink down instead of overflowing */
+.tab-view,
+.tab-view__content,
+.tab-view__nav {
+  min-width: 0;
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;

@@ -21,6 +21,7 @@ const App: React.FC = () => {
     document.body.style.background = `url('${pick}') center center fixed`;
     document.body.style.backgroundSize = 'cover';
     document.body.style.imageRendering = 'pixelated';
+    document.documentElement.style.setProperty('--bg-image', `url('${pick}')`);
   }, []);
 
   return (

@@ -19,25 +19,28 @@ html, body, #root {
   box-sizing: border-box;
 }
 
-/* Minecraft font face */
+/* Minecraft font */
 @font-face {
   font-family: 'Minecraftia';
-  src: url('/fonts/Minecraftia.ttf') format('truetype');
+  src: url('/fonts/Minecraftia.woff2') format('woff2'),
+       url('/fonts/Minecraftia.woff')  format('woff'),
+       url('/fonts/Minecraftia.ttf')   format('truetype');
+  font-display: swap;
 }
+
 body {
   font-family: 'Minecraftia', sans-serif;
   background-size: cover;
   image-rendering: pixelated;
 }
 
-/* center the login panel */
+/* — Full‐screen flex centering, pushed up — */
 main.main-centered {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;       /* start from top */
   width: 100%;
   height: 100%;
-  padding: var(--gap);
 }
 
 /* — login panel — */
@@ -45,15 +48,16 @@ main.main-centered {
   width: 340px;
   max-width: 90%;
   padding: 24px;
-  text-align: left; /* labels/input left-aligned */
+  text-align: left;
   background-color: var(--bg-panel);
   backdrop-filter: var(--bg-blur);
   border: 1px solid var(--border-light);
   box-shadow: 0 8px 16px rgba(0,0,0,0.6);
   border-radius: 8px;
+  margin: 0 auto;                     /* horizontal center */
 }
 
-/* header */
+/* — heading — */
 .container-login h2 {
   margin: 0 0 24px;
   color: var(--text-primary);
@@ -61,7 +65,7 @@ main.main-centered {
   font-size: 1.8rem;
 }
 
-/* form fields */
+/* — labels & inputs — */
 .container-login label {
   display: block;
   margin-bottom: 8px;
@@ -81,6 +85,21 @@ main.main-centered {
   box-sizing: border-box;
 }
 
+/* override Chrome autofill “yellow” */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary) !important;
+  box-shadow: 0 0 0px 1000px rgba(255,255,255,0.1) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
 .container-login input::placeholder {
   color: var(--text-secondary);
   opacity: 1;
@@ -91,9 +110,10 @@ main.main-centered {
   border-color: var(--accent-green);
 }
 
-/* button */
+/* — button — */
 .container-login button {
   width: 100%;
+  margin-top: 12px;
   padding: 12px;
   background: var(--accent-green);
   color: var(--text-primary);
@@ -103,6 +123,10 @@ main.main-centered {
   cursor: pointer;
   box-shadow: 0 3px 0 #2a8a3f;
   transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+  display: flex;                      /* center text */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .container-login button:hover {

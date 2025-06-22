@@ -29,11 +29,14 @@ const LoginScreen: React.FC = () => {
                 })
             });
 
+            const data = await res.json();
+
             if (!res.ok) {
-                toast('Login failed – check credentials', 'error')
+
+                toast(`Login failed – ${data.error}`, 'error')
+                return
             }
 
-            const data = await res.json();
 
             const token = data.token;
 
