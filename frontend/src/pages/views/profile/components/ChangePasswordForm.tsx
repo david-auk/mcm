@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import authenticatedFetch from '../../../../utils/auth/authenticatedFetch';
+import '../ProfileView.css'
 import { useToast } from '../../../../contexts/ToastContext';
 
 const ChangePasswordForm: React.FC = () => {

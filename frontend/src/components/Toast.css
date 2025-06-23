@@ -11,7 +11,7 @@
   align-items: center;    /* children centered horizontally */
   gap: 8px;
   pointer-events: none;
-  z-index: 9999;
+  z-index: 11000;
 }
 
 /* — Base toast style — */
