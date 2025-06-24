@@ -55,8 +55,7 @@ public class UserMeController {
             userDAO.update(user);
 
             // Log the action
-            // TODO Fix
-            //LoggingUtil.log(ActionType.USER_CHANGED_USERNAME, user, Map.of("old_username", oldUsername, "new_username", newUsername));
+            LoggingUtil.log(ActionType.USER_CHANGED_USERNAME, user, Map.of("old_username", oldUsername, "new_username", newUsername));
 
             return ResponseEntity.ok().build();
         }
