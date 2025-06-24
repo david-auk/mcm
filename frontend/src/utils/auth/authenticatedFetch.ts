@@ -1,12 +1,13 @@
 import axios from 'axios';
 import { getToken, removeToken } from './token';  // assume clearToken() nukes your stored token
 
-const authenticadedFetch = axios.create({
-  baseURL: 'http://localhost/api',
-});
+// build baseURL dynamically from the current origin + "/api"
+const baseURL = `${window.location.origin}/api`;
+
+const authenticatedFetch = axios.create({ baseURL });
 
 // attach the bearer header
-authenticadedFetch.interceptors.request.use(config => {
+authenticatedFetch.interceptors.request.use(config => {
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -18,7 +19,7 @@ authenticadedFetch.interceptors.request.use(config => {
 });
 
 // catch any 401 or 403 and redirect
-authenticadedFetch.interceptors.response.use(
+authenticatedFetch.interceptors.response.use(
   response => response,
   error => {
     const status = error.response?.status;
@@ -32,4 +33,4 @@ authenticadedFetch.interceptors.response.use(
   }
 );
 
-export default authenticadedFetch;
+export default authenticatedFetch;
