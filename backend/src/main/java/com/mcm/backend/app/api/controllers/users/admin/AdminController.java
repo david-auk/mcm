@@ -36,41 +36,6 @@ public class AdminController {
     }
 
     /**
-     * Promote user to admin.
-     */
-    @PostMapping("/{id}")
-    @RequireRole(Admin.class)
-    public ResponseEntity<?> promote(@CurrentUser User currentUser, @PathVariable UUID id) throws JsonErrorResponseException {
-        // Get all users from the DB
-        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
-            User user = userDAO.get(id);
-            if (user == null) {
-                throw new JsonErrorResponseException("User with id " + id.toString() + " not found", HttpStatus.NOT_FOUND);
-            }
-
-            try (DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
-
-                Admin admin = new Admin(user);
-
-                // Check if user already admin
-                if (adminDAO.exists(admin)) {
-                    throw new JsonErrorResponseException("Admin with id " + id.toString() + " already exists", HttpStatus.CONFLICT);
-                }
-
-                // Add user to admin table (promote to admin)
-                adminDAO.add(admin);
-
-                // Log event
-                LoggingUtil.log(ActionType.PROMOTE_ADMIN, currentUser, user);
-
-                // Give response
-                return ResponseEntity.ok("Promoted user with id " + id.toString() + " to admin");
-            }
-        }
-    }
-
-
-    /**
      * Demote admin to user.
      */
     @DeleteMapping("/{id}")
@@ -95,7 +60,7 @@ public class AdminController {
                 adminDAO.delete(admin.getId());
 
                 // Log event
-                LoggingUtil.log(ActionType.DEMOTE_ADMIN, currentUser, user);
+                LoggingUtil.log(ActionType.ADMIN_DEMOTE, currentUser, user);
 
                 // Give response
                 return ResponseEntity.ok("Demoted admin with id " + id.toString() + " to user");

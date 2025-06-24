@@ -1,13 +1,17 @@
 package com.mcm.backend.app.api.controllers.users.user;
 
+import com.mcm.backend.app.api.utils.LoggingUtil;
+import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
 import com.mcm.backend.app.api.utils.annotations.RequireRole;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
+import com.mcm.backend.app.database.models.logging.ActionType;
 import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.User;
 import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -85,7 +89,7 @@ public class UserController {
      */
     @PostMapping
     @RequireRole(Admin.class)
-    public ResponseEntity<User> createUser(@ValidatedBody(User.class) User user, @CurrentUser Admin admin) throws JsonErrorResponseException {
+    public ResponseEntity<User> createUser(@CurrentUser User currentUser, @ValidatedBody(User.class) User user, @CurrentUser Admin admin) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
 
             // Check if the username is unique
@@ -93,10 +97,16 @@ public class UserController {
                 throw new JsonErrorResponseException("username " + user.getUsername() + " already in use");
             }
 
+            // Add the user
             userDAO.add(user);
-        }
 
-        return ResponseEntity.ok(user);
+            // Log the action
+            LoggingUtil.log(ActionType.USER_CREATE, currentUser, user);
+
+            // Return with success
+            return ResponseEntity.ok(user);
+
+        }
     }
 
     /**
@@ -108,7 +118,7 @@ public class UserController {
      */
     @PutMapping("/{id}")
     @RequireRole(Admin.class)
-    public ResponseEntity<?> updateUser(@PathVariable UUID id, @ValidatedBody(User.class) User user) throws JsonErrorResponseException {
+    public ResponseEntity<?> updateUser(@CurrentUser User currentUser, @PathVariable UUID id, @ValidatedBody(User.class) User user) throws JsonErrorResponseException {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
 
             // Ensure the ID from the path matches the one in the request
@@ -119,8 +129,12 @@ public class UserController {
             User oldUser = userDAO.get(id);
 
             if (oldUser == null) {
-                return ResponseEntity.notFound().build();
+                throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
             }
+
+            String changedField = "?";
+            String oldValue = "-";
+            String newValue = "-";
 
             // If username changed
             if (!oldUser.getUsername().equals(user.getUsername())) {
@@ -128,10 +142,73 @@ public class UserController {
                 if (usernameInUse(userDAO, user)) {
                     throw new JsonErrorResponseException("Username already in use");
                 }
+
+                // Set vars for logging
+                changedField = "username";
+                oldValue = oldUser.getUsername();
+
+            }
+
+            // If password changed
+            if (!oldUser.getPasswordHash().equals(user.getPasswordHash())) {
+
+                // The password is not hashed yet. however the getPasswordHash method lets it appear that way
+                String password = user.getPasswordHash();
+
+                // Actually hash the password
+                String passwordHash = PasswordHashUtil.hashPassword(password);
+
+                // Store new hashed password
+                user.setPasswordHash(passwordHash);
+
+                // Set vars for logging
+                changedField = "password";
+                // Keep values "-" (redacted)
             }
 
             userDAO.update(user);
-            return ResponseEntity.ok(user);
+
+            LoggingUtil.log(ActionType.USER_UPDATE, currentUser, user, Map.of(
+                    "updated_field", changedField,
+                    "old_value", oldValue,
+                    "new_value", newValue
+            ));
+
+            return ResponseEntity.ok(user.getId());
+        }
+    }
+
+    /**
+     * Promote user to admin.
+     */
+    @PostMapping("/{id}")
+    @RequireRole(Admin.class)
+    public ResponseEntity<?> promote(@CurrentUser User currentUser, @PathVariable UUID id) throws JsonErrorResponseException {
+        // Get all users from the DB
+        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
+            User user = userDAO.get(id);
+            if (user == null) {
+                throw new JsonErrorResponseException("User with id " + id.toString() + " not found", HttpStatus.NOT_FOUND);
+            }
+
+            try (DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
+
+                Admin admin = new Admin(user);
+
+                // Check if user already admin
+                if (adminDAO.exists(admin)) {
+                    throw new JsonErrorResponseException("Admin with id " + id.toString() + " already exists", HttpStatus.CONFLICT);
+                }
+
+                // Add user to admin table (promote to admin)
+                adminDAO.add(admin);
+
+                // Log event
+                LoggingUtil.log(ActionType.USER_PROMOTE, currentUser, user);
+
+                // Give response
+                return ResponseEntity.ok("Promoted user with id " + id.toString() + " to admin");
+            }
         }
     }
 
@@ -142,10 +219,16 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @RequireRole(Admin.class)
-    public ResponseEntity<?> deleteUser(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteUser(@CurrentUser User currentUser, @PathVariable UUID id) {
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
             if (userDAO.existsByPrimaryKey(id)) {
+
+                User user = userDAO.get(id);
+
                 userDAO.delete(id);
+
+                LoggingUtil.log(ActionType.USER_DELETE, currentUser, Map.of("deleted_user_username", user.getUsername()));
+
                 return ResponseEntity.ok(Map.of("message", "Deleted", "id", id.toString()));
             } else {
                 return ResponseEntity.notFound().build();

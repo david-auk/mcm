@@ -5,19 +5,33 @@ package com.mcm.backend.app.database.models.logging;
  */
 public enum ActionType {
 
-    // TODO Add CRUD actions
+    // User operations
     USER_CHANGED_USERNAME,
+    USER_CHANGED_PASSWORD,
 
-
-    CHANGE_ALLOCATED_RAM,
-    EDIT_CONFIG_FILE,
-    UPLOAD_FILE,
-
-    // TODO improve
+    // Operator operations
     EXECUTE_COMMAND,
+    START_SERVER,
+    STOP_SERVER,
+
+    // Editor operations
+    EDIT_PROPERTY,
+    UPLOAD_FILE,
+    CHANGE_FILE,
+    DELETE_FILE,
+
+    // Maintainer operations
+    CHANGE_ALLOCATED_RAM,
+
+    // Admin operations
     ASSIGN_ROLE,
-    PROMOTE_ADMIN,
-    DEMOTE_ADMIN,
+    USER_PROMOTE,
+    ADMIN_DEMOTE,
+
+        // User management
+        USER_CREATE,
+        USER_UPDATE,
+        USER_DELETE,
 
     ;
 

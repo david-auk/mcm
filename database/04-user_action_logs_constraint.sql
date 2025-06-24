@@ -14,7 +14,7 @@ DECLARE
     key     text;
     vars    text[];
 BEGIN
-    SELECT message
+    SELECT message_template
     INTO tmpl
     FROM action_types
     WHERE name = NEW.action_type;
