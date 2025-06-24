@@ -71,7 +71,7 @@ CREATE TABLE user_role_assignments
 CREATE TABLE action_types
 (
     name        VARCHAR(100) PRIMARY KEY UNIQUE,
-    description TEXT,
+    message TEXT,
     severity    VARCHAR(20)      DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'severe', 'critical'))
 );
 

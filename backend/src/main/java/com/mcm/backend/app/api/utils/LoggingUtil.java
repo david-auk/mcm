@@ -7,6 +7,7 @@ import com.mcm.backend.app.database.models.logging.UserActionLog;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.users.User;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,14 +44,33 @@ public class LoggingUtil {
     // Actual impl
     public static void log(ActionType actionType, User user, User affectedUser, ServerInstance serverInstance, Map<String, Object> metadata) {
 
+        if (actionType == null) {
+            throw new IllegalArgumentException("actionType cannot be null");
+        }
+        if (user == null) {
+            throw new IllegalArgumentException("user cannot be null");
+        }
+        UUID affectedUserId;
+        if (affectedUser == null) {
+            affectedUserId = null;
+        } else {
+            affectedUserId = affectedUser.getId();
+        }
+        UUID serverInstanceId;
+        if (serverInstance == null) {
+            serverInstanceId = null;
+        } else {
+            serverInstanceId = serverInstance.getId();
+        }
+
         // Build the log instance
         UserActionLog userActionLog = new UserActionLog(
                 null,
                 actionType.toString(),
                 user.getId(),
-                affectedUser.getId(),
-                serverInstance.getId(),
-                null,
+                affectedUserId,
+                serverInstanceId,
+                null, // generate current timestamp within the constructor
                 metadata
         );
 

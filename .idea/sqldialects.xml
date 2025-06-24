@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/database/01-tables.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/database/02-roles.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/database/03-action_types.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/database/04-user_action_logs_constraint.sql" dialect="PostgreSQL" />
   </component>
 </project>

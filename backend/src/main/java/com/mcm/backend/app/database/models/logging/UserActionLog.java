@@ -9,7 +9,7 @@ import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import java.sql.Timestamp;
 import java.util.*;
 
-@TableName("user_action_log")
+@TableName("user_action_logs")
 public record UserActionLog(
         @PrimaryKey(UUID.class)
         UUID id,
