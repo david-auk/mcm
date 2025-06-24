@@ -29,7 +29,7 @@ public class BackendApplication {
 					User user = new User(
 						null,
 						"admin",
-						PasswordHashUtil.hashPassword("admin")
+						PasswordHashUtil.hashPassword(System.getenv("DEFAULT_USER_PASSWORD"))
 					);
 
 					// Add the default user to the user table

@@ -4,7 +4,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 80,
     host: true,
     allowedHosts: true,  // This will allow all hosts
     proxy: {
@@ -17,7 +16,6 @@ export default defineConfig({
     },
   },
   preview: {
-    port: 80,
     host: true
   }
 });
