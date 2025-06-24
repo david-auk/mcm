@@ -54,7 +54,7 @@ services:
       context: frontend
       target: ${ENVIRONMENT-development}
     ports:
-      - "${FRONTEND_PORT:-8080}:5173"
+      - "${FRONTEND_PORT:-8080}:5173" # Map VITE Port to predefined FRONTEND_PORT
     volumes:
       # Files auto update-able
       - ./frontend/src:/app/src
