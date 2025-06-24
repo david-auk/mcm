@@ -1,5 +1,5 @@
 import React from 'react';
-import TabView from '../../../components/generic/views/TabView';
+import TabView from '../../../components/shared/views/TabView';
 
 const tabs = [
   {

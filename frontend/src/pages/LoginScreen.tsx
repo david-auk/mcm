@@ -32,8 +32,7 @@ const LoginScreen: React.FC = () => {
             const data = await res.json();
 
             if (!res.ok) {
-
-                toast(`Login failed – ${data.error}`, 'error')
+                toast(`${data.error}`, 'error')
                 return
             }
 
@@ -46,7 +45,7 @@ const LoginScreen: React.FC = () => {
             setLocalUsername(username)
 
             // Display message
-            toast('Welcome back!', 'success')
+            toast('Logged In', 'success')
 
             navigate('/home');
         } catch (err: any) {

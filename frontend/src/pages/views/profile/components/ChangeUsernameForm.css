@@ -1,0 +1,31 @@
+/* ChangeUsernameForm.css */
+
+/* align icon & text neatly */
+.availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 0.9rem;
+  color: #cccccc;
+}
+
+/* override the icon’s font and vertical position */
+.availability-icon {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+  font-family: system-ui, sans-serif;  /* use a normal sans, not Minecraftia */
+  font-size: 1em;
+  line-height: 1;
+  position: relative;
+  top: -2px;                            /* nudge up 2px */
+}
+
+/* success vs. error coloring */
+.availability.success {
+  color: #3fba54;
+}
+.availability.error {
+  color: #ba3f3f;
+}

@@ -19,3 +19,8 @@ export function isAdmin() {
 
     return localVal.toLowerCase() === 'true'
 }
+
+export function clearUserDetails() {
+    localStorage.removeItem("is_admin")
+    localStorage.removeItem("username")
+}

@@ -1,0 +1,141 @@
+/* ProfileView.css */
+
+/* —— Color Variables —— */
+:root {
+  /* Softer, darker primary green */
+  --btn-green: #2a8a3f;
+  /* A gentle tint for hover */
+  --btn-green-hover: #3fa859;
+  /* A deeper shade for the “pressed” shadow */
+  --btn-green-active: #1e392e;
+  /* Softer, darker primary red */
+  --btn-red: #a13b3b;
+  /* A gentle tint for hover (~25% lighter) */
+  --btn-red-hover: #c15757;
+  /* A deeper shade for the “pressed” shadow (~20% darker) */
+  --btn-red-active: #7c2c2c;
+}
+
+/* —— Profile Form Layout —— */
+.profile-form {
+  max-width: 400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile-form h3 {
+  text-align: center;
+  color: #fafafa;
+  margin-bottom: 8px;
+  font-size: 1.5rem;
+}
+
+.profile-form label {
+  font-size: 0.95rem;
+  color: #cccccc;
+  margin-bottom: 4px;
+}
+
+.profile-form input {
+  width: 100%;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  color: #fafafa;
+  font-family: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.profile-form input:focus {
+  outline: none;
+  border-color: var(--btn-green);
+}
+
+.profile-form .availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.profile-form .availability-icon {
+  display: inline-block;
+  width: 1.2em;
+  text-align: center;
+}
+
+.profile-form .availability.success {
+  color: var(--btn-green);
+}
+
+.profile-form .availability.error {
+  color: var(--btn-red);
+}
+
+/* —— Primary Buttons (Change username, Change password, Logout) —— */
+.profile-form button,
+.profile-security-buttons button:not(.delete) {
+  width: 100%;
+  padding: 12px;
+  background: var(--btn-green);
+  color: #fafafa;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--btn-green-active);
+  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+}
+
+.profile-form button:hover,
+.profile-security-buttons button:not(.delete):hover {
+  background: var(--btn-green-hover);
+}
+
+.profile-form button:disabled,
+.profile-security-buttons button:not(.delete):disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.profile-form button:active,
+.profile-security-buttons button:not(.delete):active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--btn-green-active);
+}
+
+/* —— Delete Button —— */
+.profile-security-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  margin: 16px auto 0;
+}
+
+.profile-security-buttons button.delete {
+  width: 100%;
+  padding: 12px;
+  background: var(--btn-red);
+  color: #fafafa;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #7b2c2c;
+  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+}
+
+.profile-security-buttons button.delete:hover {
+  background: var(--btn-red-hover);
+}
+
+.profile-security-buttons button.delete:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #7b2c2c;
+}

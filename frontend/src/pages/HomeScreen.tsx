@@ -1,47 +1,53 @@
-import React from 'react';
-import TabView from '../components/generic/views/TabView';
+import React, { useState, useEffect } from 'react';
 import { getUsername, isAdmin } from '../utils/auth/userDetails';
 import AdminView from './views/admin/AdminView';
 import ProfileView from './views/profile/ProfileView';
-
-interface Tab {
-    label: string;
-    path: string;
-    component: React.ReactNode;
-}
+import TabView from '../components/shared/views/TabView';
 
 const HomeScreen: React.FC = () => {
-    const welcomeMessage = `Welcome ${getUsername()}`;
-    const tabs: Tab[] = [];
+  // state to hold current username
+  const [username, setUsername] = useState(getUsername());
 
+  // listen for username updates to update the welcomeMessage
+  useEffect(() => {
+    const onUsernameChange = () => {
+      setUsername(getUsername());
+    };
+    window.addEventListener('username-changed', onUsernameChange);
+    return () => {
+      window.removeEventListener('username-changed', onUsernameChange);
+    };
+  }, []);
 
-    if (isAdmin()) {
-        tabs.push({
-            label: "Admin View",
-            path: 'admin', // path is relative to /home
-            component: <AdminView />,
-        });
-    }
+  const welcomeMessage = `Welcome ${username}`;
+  const tabs = [];
 
+  if (isAdmin()) {
     tabs.push({
-        label: "Account",
-        path: "profile",
-        component: <ProfileView />,
+      label: 'Admin View',
+      path: 'admin',
+      component: <AdminView />,
     });
+  }
+  tabs.push({
+    label: 'Account',
+    path: 'profile',
+    component: <ProfileView />,
+  });
 
-    return (
-        <main>
-            {tabs.length > 0 ? (
-                <TabView
-                    tabs={tabs}
-                    title="Minecraft Manager"
-                    subtitle={welcomeMessage}
-                />
-            ) : (
-                <p>No tabs found... please report this as a bug.</p>
-            )}
-        </main>
-    );
+  return (
+    <main>
+      {tabs.length > 0 ? (
+        <TabView
+            tabs={tabs}
+            title="Minecraft Manager"
+            subtitle={welcomeMessage}
+        />
+      ) : (
+        <p>No tabs found... please report this as a bug.</p>
+      )}
+    </main>
+  );
 };
 
 export default HomeScreen;

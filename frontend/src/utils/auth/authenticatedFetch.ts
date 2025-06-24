@@ -1,20 +1,35 @@
 import axios from 'axios';
-import { getToken } from './token';
-//import { Navigate } from 'react-router-dom';
+import { getToken, removeToken } from './token';  // assume clearToken() nukes your stored token
 
-const authApi = axios.create({
-  // TODO use env variable instead of hardcoded
-  baseURL: 'http://backend:8080/api',
+const authenticadedFetch = axios.create({
+  baseURL: 'http://localhost/api',
 });
 
-authApi.interceptors.request.use(config => {
+// attach the bearer header
+authenticadedFetch.interceptors.request.use(config => {
   const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-  } //else {
-    //return (<Navigate to="/login" />)
-  //} TODO Redirect to loggin if no token
+  } else {
+      // force‐navigate to login
+      window.location.href = '/login';
+  }
   return config;
 });
 
-export default authApi;
+// catch any 401 or 403 and redirect
+authenticadedFetch.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error.response?.status;
+    if (status === 401 || status === 403) {
+      // clear any stale token
+      removeToken();
+      // force‐navigate to login
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default authenticadedFetch;

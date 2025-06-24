@@ -6,6 +6,8 @@ package com.mcm.backend.app.database.models.logging;
 public enum ActionType {
 
     // TODO Add CRUD actions
+    USER_CHANGED_USERNAME,
+
 
     CHANGE_ALLOCATED_RAM,
     EDIT_CONFIG_FILE,

@@ -19,15 +19,6 @@ html, body, #root {
   box-sizing: border-box;
 }
 
-/* Minecraft font */
-@font-face {
-  font-family: 'Minecraftia';
-  src: url('/fonts/Minecraftia.woff2') format('woff2'),
-       url('/fonts/Minecraftia.woff')  format('woff'),
-       url('/fonts/Minecraftia.ttf')   format('truetype');
-  font-display: swap;
-}
-
 body {
   font-family: 'Minecraftia', sans-serif;
   background-size: cover;

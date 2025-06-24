@@ -23,7 +23,33 @@
 hs_err_pid*
 replay_pid*
 
-gradle
+# GRADLE CONFIG
+
+# 1) Don’t check in Gradle’s caches or your build output
+.gradle/
+build/
+
+# 2) Don’t check in IDE/project metadata
+*.iml
+*.ipr
+*.iws
+.idea/
+.vscode/
+
+# 3) Ignore OS cruft
+.DS_Store
+Thumbs.db
+
+# the gradle folder, ignore it wholesale…
+/gradle/**
+#    …but then un-ignore only the Wrapper bits:
+!/gradle/wrapper/
+!/gradle/wrapper/gradle-wrapper.jar
+!/gradle/wrapper/gradle-wrapper.properties
+
+# 5) Keep the runner scripts in the repo
+!/gradlew
+!/gradlew.bat
 
 # user vars
 .env
