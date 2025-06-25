@@ -8,6 +8,7 @@ import HomeScreen from './pages/HomeScreen';
 
 import { ToastProvider } from './contexts/ToastContext';
 import './App.css';
+import ServerInstance from './pages/ServerInstance';
 
 const backgrounds = [
   '/backgrounds/dirt_bg.png',
@@ -36,6 +37,15 @@ const App: React.FC = () => {
                 <HomeScreen />
               </PrivateRoute>
             }
+          />
+          {/* new server-instance detail route */}
+          <Route
+              path="/server-instance/:id"
+              element={
+                <PrivateRoute>
+                  <ServerInstance />
+                </PrivateRoute>
+              }
           />
           <Route path="*" element={<LoginScreen />} />
         </Routes>
