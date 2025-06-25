@@ -1,0 +1,49 @@
+/* ItemTooltip.css */
+
+.item-tooltip__wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer; /* <- finger, not question-mark */
+  text-decoration: underline dotted rgba(255,255,255,0.6);
+}
+
+.item-tooltip__popup {
+  position: absolute;
+  z-index: 10000;
+  background: rgba(30, 30, 30, 0.9);
+  border: 1px solid #3c0d75; /* deep purple */
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  padding: 8px;
+  min-width: 160px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.6);
+  font-family: 'Minecraftia', sans-serif;
+  color: #fafafa;
+}
+
+.item-tooltip__title {
+  font-size: 1rem;
+  color: #55ffff;  /* cyan like Netherite */
+  margin-bottom: 4px;
+}
+
+.item-tooltip__line {
+  font-size: 0.9rem;
+  color: #cccccc;
+  margin-left: 4px;
+}
+
+.item-tooltip__stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.item-tooltip__stat-key {
+  color: #a0a0a0;
+}
+
+.item-tooltip__stat-val {
+  color: #55ff55;
+}

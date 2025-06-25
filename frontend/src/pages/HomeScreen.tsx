@@ -3,6 +3,7 @@ import { getUsername, isAdmin } from '../utils/auth/userDetails';
 import AdminView from './views/admin/AdminView';
 import ProfileView from './views/profile/ProfileView';
 import TabView from '../components/shared/views/TabView';
+import NotificationsView from './views/notifications/NotificationsView';
 
 const HomeScreen: React.FC = () => {
   // state to hold current username
@@ -33,6 +34,11 @@ const HomeScreen: React.FC = () => {
     label: 'Account',
     path: 'profile',
     component: <ProfileView />,
+  });
+  tabs.push({
+    label: 'Notifications',
+    path: 'notifications',
+    component: <NotificationsView />,
   });
 
   return (

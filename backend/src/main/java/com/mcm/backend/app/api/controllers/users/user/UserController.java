@@ -155,11 +155,8 @@ public class UserController {
                 // The password is not hashed yet. however the getPasswordHash method lets it appear that way
                 String password = user.getPasswordHash();
 
-                // Actually hash the password
-                String passwordHash = PasswordHashUtil.hashPassword(password);
-
-                // Store new hashed password
-                user.setPasswordHash(passwordHash);
+                // Let the user setPassword hash the password and store it
+                user.setPassword(password);
 
                 // Set vars for logging
                 changedField = "password";
