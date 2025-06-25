@@ -4,7 +4,7 @@ import '../ProfileView.css'
 import { useToast } from '../../../../contexts/ToastContext';
 
 const ChangePasswordForm: React.FC = () => {
-  const [oldPwd, setOldPwd] = useState('');
+  const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [confirm, setConfirm] = useState('');
   const toast = useToast();
@@ -17,62 +17,30 @@ const ChangePasswordForm: React.FC = () => {
     }
     try {
       await authenticatedFetch.post('/user/me/change-password', {
-        old_password: oldPwd,
+        current_password: currentPwd,
         new_password: newPwd,
       });
       toast('Password changed!', 'success');
-      setOldPwd('');
+      setCurrentPwd('');
       setNewPwd('');
       setConfirm('');
     } catch (err: any) {
-      toast(err.response?.data?.message || 'Failed to change password', 'error');
+      toast(err.response?.data?.error || 'Failed to change password', 'error');
     }
   };
 
   return (
-  <form className="profile-form" onSubmit={handleSubmit}>
-    <h3>Security</h3>
-    <label>Current Password</label>
-    <input
-        id="old-pwd"
-        type="password"
-        value={oldPwd}
-        onChange={e => setOldPwd(e.target.value)}
-        required
-      />
-    <label>New Password</label>
-    <input
-        id="new-pwd"
-        type="password"
-        value={newPwd}
-        onChange={e => setNewPwd(e.target.value)}
-        required
-      />
-    <label>Confirm New Password</label>
-    <input
-        id="confirm-pwd"
-        type="password"
-        value={confirm}
-        onChange={e => setConfirm(e.target.value)}
-        required
-      />
-    <button type="submit">Change Password</button>
-  </form>
-);
-
-  return (
-    <form onSubmit={handleSubmit}>
+    <form className="profile-form" onSubmit={handleSubmit}>
       <h3>Security</h3>
-      <label htmlFor="old-pwd">Current Password</label>
+      <label>Current Password</label>
       <input
-        id="old-pwd"
+        id="current-pwd"
         type="password"
-        value={oldPwd}
-        onChange={e => setOldPwd(e.target.value)}
+        value={currentPwd}
+        onChange={e => setCurrentPwd(e.target.value)}
         required
       />
-
-      <label htmlFor="new-pwd">New Password</label>
+      <label>New Password</label>
       <input
         id="new-pwd"
         type="password"
@@ -80,8 +48,7 @@ const ChangePasswordForm: React.FC = () => {
         onChange={e => setNewPwd(e.target.value)}
         required
       />
-
-      <label htmlFor="confirm-pwd">Confirm New Password</label>
+      <label>Confirm New Password</label>
       <input
         id="confirm-pwd"
         type="password"
@@ -89,7 +56,6 @@ const ChangePasswordForm: React.FC = () => {
         onChange={e => setConfirm(e.target.value)}
         required
       />
-
       <button type="submit">Change Password</button>
     </form>
   );

@@ -6,6 +6,7 @@ import ChangePasswordForm from './components/ChangePasswordForm';
 import LogoutButton from './components/LogoutButton';
 import DeleteAccountButton from './components/DeleteAccountButton';
 import './ProfileView.css'
+import NotificationsList from '../../../components/shared/notifications/NotificationsList';
 
 const ProfileView: React.FC = () => {
   const options = [
@@ -22,12 +23,7 @@ const ProfileView: React.FC = () => {
     },
     {
       label: 'Notifications',
-      component: (
-        <div>
-          <h3>Notifications</h3>
-          <p>Manage which emails and in-app notifications you receive. (Placeholder)</p>
-        </div>
-      ),
+      component: <NotificationsList endpoint='/user/me/notifications' />,
     },
   ];
 

@@ -1,7 +1,7 @@
 INSERT INTO action_types (name, message_template, severity)
 VALUES
     -- User operations
-    ('user_changed_username', '${user} changed their username from ${old_username} to ${new username}', 'info'),
+    ('user_changed_username', '${user} changed their username from ${old_username} to ${new_username}', 'info'),
     ('user_changed_password', '${user} changed their password', 'info'),
 
     -- Operator operations

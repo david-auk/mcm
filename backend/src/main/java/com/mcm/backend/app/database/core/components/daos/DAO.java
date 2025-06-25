@@ -1,8 +1,9 @@
 package com.mcm.backend.app.database.core.components.daos;
 
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.app.database.core.annotations.table.UniqueField;
 import com.mcm.backend.app.database.core.components.Database;
+import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterion;
+import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.components.tables.Table;
 
 import java.lang.reflect.Field;
@@ -10,7 +11,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DAO<T, K> implements DAOInterface<T, K> {
+public class DAO<T, K> implements AutoCloseable {
 
     protected final Connection connection;
     private final Table<T, K> table;
@@ -21,12 +22,10 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         this.connection = Database.getConnection();
     }
 
-    @Override
     public boolean existsByPrimaryKey(K primaryKey) {
         return primaryKey != null && get(primaryKey) != null;
     }
 
-    @Override
     public boolean exists(T entity) {
         if (entity == null){
             return false;
@@ -34,7 +33,6 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         return existsByPrimaryKey(table.getPrimaryKey(entity));
     }
 
-    @Override
     public void add(T entity) {
         if (!exists(entity)){
             try {
@@ -47,7 +45,6 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         }
     }
 
-    @Override
     public void update(T entity) {
         if (!exists(entity)){
             throw new RuntimeException("Entity does not exist.");
@@ -65,7 +62,6 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         }
     }
 
-    @Override
     public T get(K primaryKey) {
         T entity = null;
 
@@ -86,25 +82,41 @@ public class DAO<T, K> implements DAOInterface<T, K> {
     }
 
     /**
-     * Get method that builds a where query
-     * @param whereField The field you are sorting for
-     * @param isData The data you want to match
-     * @param wildcardQuery Boolean option to choose if you want to use LIKE operator
-     * @return Entities from query
+     * Retrieve entities by multiple filter criteria and optional ordering.
+     *
+     * @param filters       the list of filter criteria (each with its own wildcard flag);
+     *                      any criterion whose value is null will be skipped
+     * @param orderByField  the entity Field to sort by (or null for no ordering)
+     * @param ascending     true for ASC, false for DESC
+     * @return a List of matching entities
+     * @throws RuntimeException         if a SQL error occurs
+     * @throws IllegalArgumentException if any Field is invalid for this entity
      */
-    @Override
-    public <D> List<T> get(Field whereField, D isData, boolean wildcardQuery) {
-        String query = table.buildGetQuery(whereField, isData, wildcardQuery);
-        List<T> entities;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setObject(1, isData);
-            entities = getEntities(preparedStatement.executeQuery());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    public List<T> get(
+            List<FilterCriterion<?>> filters,
+            Field orderByField,
+            boolean ascending
+    ) {
+        // 1) build the SQL
+        String sql = table.buildGetQuery(filters, orderByField, ascending);
 
-        return entities;
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+            // 2) bind parameters in the same order
+            int idx = 1;
+            for (FilterCriterion<?> criterion : filters) {
+                Object value = criterion.getValue();
+                if (value != null) {
+                    ps.setObject(idx++, value);
+                }
+            }
+
+            // 3) execute and map to entities
+            try (ResultSet rs = ps.executeQuery()) {
+                return getEntities(rs);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error executing query: " + sql, e);
+        }
     }
 
     /**
@@ -114,21 +126,22 @@ public class DAO<T, K> implements DAOInterface<T, K> {
      * @return Entities from query
      */
     public <D> List<T> get(Field whereField, D isData) {
-        return get(whereField, isData, false);
+        return new QueryBuilder<>(this)
+                .where(whereField, isData)
+                .get();
     }
 
     public <D> T getUnique(Field uniqueField, D isData) {
         if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
             throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
         }
-        List<T> matches = get(uniqueField, isData, false);
+        List<T> matches = get(uniqueField, isData);
         if (matches.isEmpty()) {
             return null;
         }
         return matches.getFirst();
     }
 
-    @Override
     public void delete(K primaryKey) {
         if (!existsByPrimaryKey(primaryKey)) {
             throw new RuntimeException("Record does not exist.");
@@ -148,7 +161,6 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         }
     }
 
-    @Override
     public List<T> getAll() {
         String query = "SELECT * FROM %s";
         query = String.format(query, table.getTableName());
@@ -178,7 +190,6 @@ public class DAO<T, K> implements DAOInterface<T, K> {
         return entities;
     }
 
-    @Override
     public void close() {
         Database.closeConnection(connection);
     }

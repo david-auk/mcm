@@ -79,5 +79,16 @@ public class LoggingUtil {
             userActionLogDAO.add(userActionLog);
         }
     }
+
+    // Method to add additional values to metadata for later formatting
+    public static Map<String, Object> getMetadata(UserActionLog userActionLog, DAO<User, UUID> userDAO, DAO<ServerInstance, UUID> serverInstanceDAO) {
+        Map<String, Object> metadata = new HashMap<>(userActionLog.metadata());
+
+        metadata.put("user", userDAO.get(userActionLog.userId()));
+        metadata.put("affected_user", userDAO.get(userActionLog.affectedUserId()));
+        metadata.put("server_instance", serverInstanceDAO.get(userActionLog.instanceId()));
+
+        return metadata;
+    }
 }
 

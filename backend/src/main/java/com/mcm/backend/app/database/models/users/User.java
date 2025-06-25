@@ -1,5 +1,7 @@
 package com.mcm.backend.app.database.models.users;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
@@ -38,6 +40,7 @@ public class User implements TableEntity {
         this.username = username;
     }
 
+    @JsonIgnore // Make the password not serialized
     public String getPasswordHash() {
         return passwordHash;
     }
@@ -49,5 +52,9 @@ public class User implements TableEntity {
     @Override
     public String toString() {
         return "{id: " + id + ", username: " + username + ", passwordHash: " + passwordHash + "}";
+    }
+
+    public void setPassword(String password) {
+        setPasswordHash(PasswordHashUtil.hashPassword(password));
     }
 }

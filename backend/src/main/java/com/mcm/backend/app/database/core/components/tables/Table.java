@@ -4,12 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterion;
 
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
 
-public class Table<T, K> implements TableInterface<T, K> {
+public class Table<T, K> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -39,32 +40,70 @@ public class Table<T, K> implements TableInterface<T, K> {
 
     // -- Interface Implementations --
 
-    @Override
-    public <D> String buildGetQuery(Field whereField, D isData, boolean wildcardQuery) {
+    /**
+     * Build a SELECT … WHERE … [AND …] [ORDER BY …] query,
+     * using the given filter list and sort.
+     *
+     * @param filters       list of FilterCriterion; null-valued criteria are skipped
+     * @param orderByField  optional Field to ORDER BY
+     * @param ascending     true for ASC, false for DESC
+     * @return the SQL string with “?” placeholders for each non-null value
+     * @throws IllegalArgumentException if any Field isn’t part of this table’s entity
+     */
+    public String buildGetQuery(
+            List<FilterCriterion<?>> filters,
+            Field orderByField,
+            boolean ascending
+    ) {
+        StringBuilder sql = new StringBuilder("SELECT * FROM ")
+                .append(tableName);
 
-        // Check if the field is from the table instance class
-        if (!whereField.getDeclaringClass().equals(clazz)) {
-            throw new IllegalArgumentException("Field " + whereField.getName() + " not from " + clazz.getName() + " class");
+        boolean first = true;
+        for (FilterCriterion<?> criterion : filters) {
+            Field f = criterion.getField();
+            Object v = criterion.getValue();
+
+            // skip null filters
+            if (v == null) continue;
+
+            // validate field belongs to this entity
+            if (!f.getDeclaringClass().equals(clazz)) {
+                throw new IllegalArgumentException(
+                        "Field " + f.getName() + " not from " + clazz.getName());
+            }
+
+            String col = fieldToColumnName.get(f);
+            if (col == null) {
+                throw new IllegalArgumentException(
+                        "Missing field " + f.getName() + " in table " + tableName);
+            }
+
+            sql.append(first ? " WHERE " : " AND ")
+                    .append(col)
+                    .append(criterion.isWildcard() ? " LIKE ?" : " = ?");
+            first = false;
         }
 
-        // Check if the dataType matches for field and data
-        if (!whereField.getType().isInstance(isData)) {
-            throw new IllegalArgumentException("Field " + whereField.getName() + " expects type "
-                    + whereField.getType().getName() + ", but got " + isData.getClass().getName());
+        // append ORDER BY if requested
+        if (orderByField != null) {
+            if (!orderByField.getDeclaringClass().equals(clazz)) {
+                throw new IllegalArgumentException(
+                        "Order‐by field " + orderByField.getName() +
+                                " not from " + clazz.getName());
+            }
+            String orderCol = fieldToColumnName.get(orderByField);
+            if (orderCol == null) {
+                throw new IllegalArgumentException(
+                        "Missing order‐by field " + orderByField.getName());
+            }
+            sql.append(" ORDER BY ")
+                    .append(orderCol)
+                    .append(ascending ? " ASC" : " DESC");
         }
 
-        // Get the column name
-        String columnName;
-        if (fieldToColumnName.containsKey(whereField)) {
-            columnName = fieldToColumnName.get(whereField);
-        } else {
-            throw new IllegalArgumentException("Missing field " + whereField.getName() + " in " + tableName);
-        }
-
-        return String.format("SELECT * FROM %s WHERE %s %s ?", tableName, columnName, wildcardQuery ? "LIKE" : "=");
+        return sql.toString();
     }
 
-    @Override
     public void prepareInsertStatement(PreparedStatement ps, T entity) throws SQLException {
         try {
             int i = 1;
@@ -82,8 +121,6 @@ public class Table<T, K> implements TableInterface<T, K> {
         }
     }
 
-
-    @Override
     public void prepareUpdateStatement(PreparedStatement ps, T entity) throws SQLException {
         try {
             int i = 1;
@@ -104,52 +141,62 @@ public class Table<T, K> implements TableInterface<T, K> {
         }
     }
 
-
-    @Override
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
         try {
+            // 1) Find the right constructor
             Constructor<?> constructor = Arrays.stream(clazz.getDeclaredConstructors())
                     .filter(c -> c.isAnnotationPresent(TableConstructor.class))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("No constructor annotated with @TableConstructor found for " + clazz.getName()));
-
+                    .orElseThrow(() ->
+                            new RuntimeException("No @TableConstructor on " + clazz.getName()));
             constructor.setAccessible(true);
-            Field[] fields = clazz.getDeclaredFields();
-            Parameter[] params = constructor.getParameters();
 
+            // 2) Match up fields ↔ constructor parameters
+            Field[] fields     = clazz.getDeclaredFields();
+            Parameter[] params = constructor.getParameters();
             if (params.length != fields.length) {
-                throw new RuntimeException("Mismatch between constructor parameters and fields");
+                throw new RuntimeException(
+                        "Constructor parameter count (" + params.length +
+                                ") does not match field count (" + fields.length + ")");
             }
 
+            // 3) Read each column into an argument array
             Object[] args = new Object[params.length];
-
             for (int i = 0; i < params.length; i++) {
-                Field field = fields[i];
-                String columnName = fieldToColumnName.get(field);
-                Class<?> fieldType = field.getType();
+                Field field      = fields[i];
+                String column    = fieldToColumnName.get(field);
+                Class<?> type    = field.getType();
 
-                try {
-                    if (Map.class.isAssignableFrom(fieldType)) { // If map try to decode it
-                        String json = rs.getString(columnName);
-                        args[i] = objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+                if (Map.class.isAssignableFrom(type)) {
+                    // JSON→Map column
+                    String json = rs.getString(column);
+                    if (json == null) {
+                        args[i] = Collections.emptyMap();
                     } else {
-                        args[i] = rs.getObject(columnName, fieldType);
+                        args[i] = objectMapper.readValue(
+                                json,
+                                new TypeReference<Map<String,Object>>(){}
+                        );
                     }
-                } catch (Exception e) {
-                    throw new RuntimeException("Error reading column '" + columnName +
-                            "' for field '" + field.getName() + "' of type " + fieldType.getSimpleName(), e);
+                } else {
+                    // Simple column → Java type
+                    args[i] = rs.getObject(column, type);
                 }
             }
 
+            // 4) Invoke the constructor with all the args
             return clazz.cast(constructor.newInstance(args));
+
+        } catch (SQLException e) {
+            throw e;  // pass SQL exceptions straight through
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create instance of " + clazz.getName(), e);
+            throw new RuntimeException(
+                    "Failed to create instance of " + clazz.getName(), e);
         }
     }
 
 
     @SuppressWarnings("unchecked")
-    @Override
     public K getPrimaryKey(T entity) {
         try {
             Object key = primaryKeyField.get(entity);
