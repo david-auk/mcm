@@ -86,8 +86,9 @@ CREATE TABLE user_action_logs
     timestamp      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metadata       JSONB, -- e.g., { "from": 2048, "to": 4096 }
 
-    CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE SET NULL,
-    CONSTRAINT fk_log_affected_user FOREIGN KEY (affected_user_id) REFERENCES users (id) ON DELETE SET NULL,
+    -- TODO Find better way to preserve logs when items get deleted
+    CONSTRAINT fk_log_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    CONSTRAINT fk_log_affected_user FOREIGN KEY (affected_user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_log_instance FOREIGN KEY (instance_id) REFERENCES server_instances (id) ON DELETE CASCADE,
     CONSTRAINT fk_log_action_type FOREIGN KEY (action_type) REFERENCES action_types(name) ON DELETE CASCADE
 );

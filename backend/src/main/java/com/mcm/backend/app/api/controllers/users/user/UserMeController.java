@@ -140,4 +140,19 @@ public class UserMeController {
             }
         }
     }
+
+    @RequireRole(User.class)
+    @DeleteMapping
+    public ResponseEntity<?> deleteUser(@CurrentUser User user) {
+        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
+            userDAO.delete(user.getId());
+
+            // TODO Revoke current Token
+
+            // TODO fix self deletion log (right now FK constraint fails because the deleted user cant be found)
+            //LoggingUtil.log(ActionType.USER_DELETE, user, Map.of("deleted_user_username", user.getUsername()));
+
+            return ResponseEntity.ok().build();
+        }
+    }
 }

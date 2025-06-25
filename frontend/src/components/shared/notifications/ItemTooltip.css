@@ -8,8 +8,9 @@
 }
 
 .item-tooltip__popup {
-  position: absolute;
+  position: fixed;
   z-index: 10000;
+  transition: none !important;
   background: rgba(30, 30, 30, 0.9);
   border: 1px solid #3c0d75; /* deep purple */
   border-radius: 4px;
