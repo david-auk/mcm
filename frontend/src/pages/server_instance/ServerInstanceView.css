@@ -1,0 +1,22 @@
+.server-instance-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.subtitle {
+  color: #cccccc;
+  margin-bottom: 24px;
+}
+.init-panel, .details-panel {
+  background: rgba(20,20,20,0.6);
+  backdrop-filter: blur(8px);
+  padding: 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.init-panel p {
+  margin-bottom: 16px;
+}
+.details-panel p {
+  margin: 8px 0;
+}
