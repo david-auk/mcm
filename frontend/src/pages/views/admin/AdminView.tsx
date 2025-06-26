@@ -1,12 +1,15 @@
 import React from 'react';
 import TabView from '../../../components/shared/views/TabView';
 import SystemView from './system/SystemView';
-import ServerInstanceView from './server_instances/ServerInstanceView';
+import ServerListView from '../../../components/server_instances/ServerListView';
 
 const tabs = [
   {
     label: "Server Overview",
-    component: <ServerInstanceView />,
+    component: <ServerListView
+      endpoint="/server-instances"
+      allowAdd={true}
+    />,
   },
   {
     label: "User Management",

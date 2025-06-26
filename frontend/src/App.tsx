@@ -5,10 +5,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from './components/routing/PrivateRoute';
 import LoginScreen from './pages/LoginScreen';
 import HomeScreen from './pages/HomeScreen';
+import ServerInstanceView from './pages/server_instance/ServerInstanceView';
 
 import { ToastProvider } from './contexts/ToastContext';
 import './App.css';
-import ServerInstance from './pages/ServerInstance';
 
 const backgrounds = [
   '/backgrounds/dirt_bg.png',
@@ -43,7 +43,7 @@ const App: React.FC = () => {
               path="/server-instance/:id"
               element={
                 <PrivateRoute>
-                  <ServerInstance />
+                  <ServerInstanceView />
                 </PrivateRoute>
               }
           />

@@ -1,5 +1,6 @@
 package com.mcm.backend.app.database.models.server;
 
+import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
@@ -166,11 +167,11 @@ public class ServerInstance implements TableEntity {
         start();
     }
 
-    public List<ServerInstanceProperty> initialize() throws RuntimeException, IOException, InterruptedException {
+    public List<ServerInstanceProperty> initialize(ProcessStatus ps) throws RuntimeException, IOException, InterruptedException {
         if (eulaAccepted) {
             throw new RuntimeException("Eula already accepted; Already initialized.");
         }
-        return ServerInitializerUtil.initialize(this);
+        return ServerInitializerUtil.initialize(this, ps);
     }
 
     public String sendCommand(String command) throws RuntimeException {

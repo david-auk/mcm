@@ -9,36 +9,59 @@ import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterio
 import java.lang.reflect.*;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Table<T, K> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     private final Class<T> clazz;
-    private final Field primaryKeyField;
+    private final AccessibleObject primaryKeyMember;
     private final Class<K> primaryKeyDataType;
     private final Map<Field, String> fieldToColumnName;
+    private final List<Field> nonPkFields;
+    private final List<Field> pkFields;
 
     protected final String tableName;
-    protected final String primaryKeyColumnName;
     protected final String insertQuery;
     protected final String updateQuery;
 
     @SuppressWarnings("unchecked")
     public Table(Class<T> clazz) {
         this.clazz = clazz;
-
         this.tableName = TableUtils.getTableName(clazz);
-        this.primaryKeyField = TableUtils.getPrimaryKeyField(clazz);
-        this.primaryKeyColumnName = TableUtils.mapFieldToColumnNames(clazz).get(primaryKeyField);
-        this.primaryKeyDataType = (Class<K>) TableUtils.getPrimaryKeyType(clazz);
+
+        // map fields → column names
         this.fieldToColumnName = TableUtils.mapFieldToColumnNames(clazz);
 
-        this.insertQuery = TableUtils.buildInsertQuery(tableName, fieldToColumnName.values());
+        // pick up the @PrimaryKey (field or zero-arg method)
+        this.primaryKeyMember = TableUtils.getPrimaryKeyMember(clazz);
+        this.primaryKeyDataType   = (Class<K>) TableUtils.getPrimaryKeyType(clazz);
+
+        // figure out which Fields back the PK for SQL binding
+        if (primaryKeyMember instanceof Field) {
+            this.pkFields = Collections.singletonList((Field) primaryKeyMember);
+        } else {
+            // composite: every @TableField column is part of the PK
+            this.pkFields = new ArrayList<>(fieldToColumnName.keySet());
+        }
+
+        // fields to SET in UPDATE
+        this.nonPkFields = fieldToColumnName.keySet().stream()
+                .filter(f -> !pkFields.contains(f))
+                .collect(Collectors.toList());
+
+        // build SQL
+        this.insertQuery = TableUtils.buildInsertQuery(
+                tableName,
+                fieldToColumnName.values()
+        );
         this.updateQuery = TableUtils.buildUpdateQuery(clazz);
     }
 
-    // -- Interface Implementations --
+    // ——————————————————————————————————————————————————————————
+    //  Query builder
+    // ——————————————————————————————————————————————————————————
 
     /**
      * Build a SELECT … WHERE … [AND …] [ORDER BY …] query,
@@ -55,6 +78,7 @@ public class Table<T, K> {
             Field orderByField,
             boolean ascending
     ) {
+        // unchanged from your original
         StringBuilder sql = new StringBuilder("SELECT * FROM ")
                 .append(tableName);
 
@@ -88,13 +112,13 @@ public class Table<T, K> {
         if (orderByField != null) {
             if (!orderByField.getDeclaringClass().equals(clazz)) {
                 throw new IllegalArgumentException(
-                        "Order‐by field " + orderByField.getName() +
+                        "Order-by field " + orderByField.getName() +
                                 " not from " + clazz.getName());
             }
             String orderCol = fieldToColumnName.get(orderByField);
             if (orderCol == null) {
                 throw new IllegalArgumentException(
-                        "Missing order‐by field " + orderByField.getName());
+                        "Missing order-by field " + orderByField.getName());
             }
             sql.append(" ORDER BY ")
                     .append(orderCol)
@@ -106,14 +130,15 @@ public class Table<T, K> {
 
     public void prepareInsertStatement(PreparedStatement ps, T entity) throws SQLException {
         try {
-            int i = 1;
+            int idx = 1;
             for (Field field : fieldToColumnName.keySet()) {
+                field.setAccessible(true);
                 Object value = field.get(entity);
-                if (value instanceof Map) { // If map, encode it
+                if (value instanceof Map) {
                     String json = objectMapper.writeValueAsString(value);
-                    ps.setObject(i++, json, java.sql.Types.OTHER); // .OTHER for PostgreSQL JSONB
+                    ps.setObject(idx++, json, Types.OTHER);
                 } else {
-                    ps.setObject(i++, value);
+                    ps.setObject(idx++, value);
                 }
             }
         } catch (IllegalAccessException | JsonProcessingException e) {
@@ -123,27 +148,35 @@ public class Table<T, K> {
 
     public void prepareUpdateStatement(PreparedStatement ps, T entity) throws SQLException {
         try {
-            int i = 1;
-            for (Field field : fieldToColumnName.keySet()) {
-                if (!field.equals(primaryKeyField)) {
-                    Object value = field.get(entity);
-                    if (value instanceof Map) { // If map, encode it
-                        String json = objectMapper.writeValueAsString(value);
-                        ps.setObject(i++, json, java.sql.Types.OTHER);
-                    } else {
-                        ps.setObject(i++, value);
-                    }
+            int idx = 1;
+            // 1) SET clauses
+            for (Field field : nonPkFields) {
+                field.setAccessible(true);
+                Object value = field.get(entity);
+                if (value instanceof Map) {
+                    String json = objectMapper.writeValueAsString(value);
+                    ps.setObject(idx++, json, Types.OTHER);
+                } else {
+                    ps.setObject(idx++, value);
                 }
             }
-            ps.setObject(i, primaryKeyField.get(entity));
+            // 2) WHERE clauses (all PK fields, in declaration order)
+            for (Field pkField : pkFields) {
+                pkField.setAccessible(true);
+                ps.setObject(idx++, pkField.get(entity));
+            }
         } catch (IllegalAccessException | JsonProcessingException e) {
             throw new RuntimeException("Failed to access or serialize field", e);
         }
     }
 
+    // ——————————————————————————————————————————————————————————
+    //  ResultSet → entity
+    // ——————————————————————————————————————————————————————————
+
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
         try {
-            // 1) Find the right constructor
+            // unchanged from your original
             Constructor<?> constructor = Arrays.stream(clazz.getDeclaredConstructors())
                     .filter(c -> c.isAnnotationPresent(TableConstructor.class))
                     .findFirst()
@@ -151,7 +184,7 @@ public class Table<T, K> {
                             new RuntimeException("No @TableConstructor on " + clazz.getName()));
             constructor.setAccessible(true);
 
-            // 2) Match up fields ↔ constructor parameters
+            // Match up fields ↔ constructor parameters
             Field[] fields     = clazz.getDeclaredFields();
             Parameter[] params = constructor.getParameters();
             if (params.length != fields.length) {
@@ -160,90 +193,79 @@ public class Table<T, K> {
                                 ") does not match field count (" + fields.length + ")");
             }
 
-            // 3) Read each column into an argument array
+            // Read each column into an argument array
             Object[] args = new Object[params.length];
             for (int i = 0; i < params.length; i++) {
-                Field field      = fields[i];
-                String column    = fieldToColumnName.get(field);
-                Class<?> type    = field.getType();
+                Field field   = fields[i];
+                String column = fieldToColumnName.get(field);
+                Class<?> type = field.getType();
 
                 if (Map.class.isAssignableFrom(type)) {
                     // JSON→Map column
                     String json = rs.getString(column);
-                    if (json == null) {
-                        args[i] = Collections.emptyMap();
-                    } else {
-                        args[i] = objectMapper.readValue(
-                                json,
-                                new TypeReference<Map<String,Object>>(){}
-                        );
-                    }
+                    args[i] = (json == null)
+                            ? Collections.emptyMap()
+                            : objectMapper.readValue(json, new TypeReference<Map<String,Object>>() {});
                 } else {
-                    // Simple column → Java type
                     args[i] = rs.getObject(column, type);
                 }
             }
 
-            // 4) Invoke the constructor with all the args
+            // Invoke the constructor with all the args
             return clazz.cast(constructor.newInstance(args));
 
-        } catch (SQLException e) {
-            throw e;  // pass SQL exceptions straight through
         } catch (Exception e) {
-            throw new RuntimeException(
-                    "Failed to create instance of " + clazz.getName(), e);
+            if (e instanceof SQLException) throw (SQLException) e;
+            throw new RuntimeException("Failed to create instance of " + clazz.getName(), e);
         }
     }
 
 
+    /**
+     * Returns the raw PK value
+     */
     @SuppressWarnings("unchecked")
     public K getPrimaryKey(T entity) {
-        try {
-            Object key = primaryKeyField.get(entity);
-            if (!primaryKeyDataType.isInstance(key)) {
-                throw new IllegalStateException("Primary key type mismatch: expected " + primaryKeyDataType + " but got " + key.getClass());
-            }
-            return (K) key;
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        return (K) TableUtils.getPrimaryKeyValue(entity);
     }
 
-    // -- Getters --
+    /**
+     * If you need the actual column name for a single‐field PK.
+     * Throws if you’re using a composite key.
+     */
+    public String getPrimaryKeyColumnName() {
+        if (primaryKeyMember instanceof Field) {
+            return fieldToColumnName.get(primaryKeyMember);
+        }
+        throw new UnsupportedOperationException(
+                "Composite primary key — use getPrimaryKeyColumnNames()");
+    }
 
-    public String getInsertQuery() { return insertQuery; }
-    public String getUpdateQuery() { return updateQuery; }
-    public String getTableName() { return tableName; }
-    public String getPrimaryKeyColumnName() { return primaryKeyColumnName; }
+    /**
+     * If you have a composite key, this returns all column names in declaration order.
+     */
+    public List<String> getPrimaryKeyColumnNames() {
+        return pkFields.stream()
+                .map(fieldToColumnName::get)
+                .collect(Collectors.toList());
+    }
 
-    // -- Debugging --
+    // ——————————————————————————————————————————————————————————
+    //  getters & toString()
+    // ——————————————————————————————————————————————————————————
+
+    public String getInsertQuery()     { return insertQuery; }
+    public String getUpdateQuery()     { return updateQuery; }
+    public String getTableName()       { return tableName; }
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("Table[").append(clazz.getSimpleName()).append("]:\n");
-        sb.append("  Table name: '").append(tableName).append("',\n");
-        sb.append("  PK: ").append(primaryKeyField.getName())
-                .append(" (").append(primaryKeyDataType.getSimpleName()).append("),\n");
-        sb.append("  Fields: [\n");
-
-        for (Map.Entry<Field, String> entry : fieldToColumnName.entrySet()) {
-            Field field = entry.getKey();
-            if (!field.equals(primaryKeyField)) {
-                sb.append("    ")
-                        .append(clazz.getSimpleName()).append(".").append(field.getName())
-                        .append(" -> ").append(tableName).append(".").append(entry.getValue())
-                        .append(": ").append(field.getType().getSimpleName())
-                        .append(",\n");
-            }
-        }
-        if (fieldToColumnName.size() - 1 == 0) { // If fields only PK
-            sb.setLength(sb.length() - 1); // Remove newline
-        } else { // If there are more fields than PK
-            sb.setLength(sb.length() - 2); // Remove trailing comma
-            sb.append("\n  ");
-        }
-        sb.append("]");
-        return sb.toString();
+        return "Table[" + clazz.getSimpleName() + "]:\n" +
+                "  Table name: '" + tableName + "'\n" +
+                "  PK member: " + primaryKeyMember + " (" +
+                primaryKeyDataType.getSimpleName() + ")\n" +
+                "  Columns: " + fieldToColumnName.values() + "\n" +
+                "  INSERT: " + insertQuery + "\n" +
+                "  UPDATE: " + updateQuery + "\n";
     }
 }
-

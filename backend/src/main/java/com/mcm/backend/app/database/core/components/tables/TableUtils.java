@@ -4,7 +4,9 @@ import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -15,23 +17,58 @@ public class TableUtils {
         return annotation != null ? annotation.value() : clazz.getSimpleName().toLowerCase();
     }
 
-    public static Field getPrimaryKeyField(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(PrimaryKey.class))
-                .findFirst()
-                .map(f -> {
-                    f.setAccessible(true);
-                    return f;
-                })
-                .orElseThrow(() -> new IllegalArgumentException("No @PrimaryKey field found in " + clazz.getName()));
+    /**
+     * Returns the primary‐key accessor, which may be either:
+     *  - a Field annotated with {@link PrimaryKey}, or
+     *  - a zero‐arg Method annotated {@link PrimaryKey}
+     */
+    public static AccessibleObject getPrimaryKeyMember(Class<?> clazz) {
+        // 1. look for FIELD @PrimaryKey
+        for (Field f : clazz.getDeclaredFields()) {
+            if (f.isAnnotationPresent(PrimaryKey.class)) {
+                f.setAccessible(true);
+                return f;
+            }
+        }
+        // 2. look for METHOD @PrimaryKey
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.isAnnotationPresent(PrimaryKey.class)) {
+                if (m.getParameterCount() != 0) {
+                    throw new IllegalArgumentException(
+                            "@PrimaryKey method must be zero‐arg: " + m.getName());
+                }
+                m.setAccessible(true);
+                return m;
+            }
+        }
+        throw new IllegalArgumentException(
+                "No @PrimaryKey field or method found in " + clazz.getName());
     }
 
+    /**
+     * Return the Class<?> that the @PrimaryKey says this key is.
+     */
     public static Class<?> getPrimaryKeyType(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(PrimaryKey.class))
-                .findFirst()
-                .map(f -> f.getAnnotation(PrimaryKey.class).value())
-                .orElseThrow(() -> new IllegalArgumentException("Missing @PrimaryKey annotation with type"));
+        AccessibleObject pkMember = getPrimaryKeyMember(clazz);
+        PrimaryKey ann = pkMember.getAnnotation(PrimaryKey.class);
+        return ann.value();
+    }
+
+    /**
+     * Compute/get the actual PK value from an instance,
+     * whether it’s stored in a field or computed by a method.
+     */
+    public static Object getPrimaryKeyValue(Object instance) {
+        AccessibleObject pkMember = getPrimaryKeyMember(instance.getClass());
+        try {
+            if (pkMember instanceof Field) {
+                return ((Field) pkMember).get(instance);
+            } else {
+                return ((Method) pkMember).invoke(instance);
+            }
+        } catch (ReflectiveOperationException e) {
+            throw new RuntimeException("Failed to get primary key value", e);
+        }
     }
 
     public static Map<Field, String> mapFieldToColumnNames(Class<?> clazz) {
@@ -48,10 +85,20 @@ public class TableUtils {
         return map;
     }
 
+    /**
+     * Return all the fields that should be INSERTed/UPDATEd as non-PK columns.
+     * • If the PK is a field, exclude it.
+     * • If the PK is a method, include all @TableField fields.
+     */
     public static List<Field> getNonPrimaryKeyFields(Class<?> clazz) {
-        Field pk = getPrimaryKeyField(clazz);
+        AccessibleObject pkMember = getPrimaryKeyMember(clazz);
+
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> !f.equals(pk) && (f.isAnnotationPresent(TableField.class)))
+                .filter(f -> f.isAnnotationPresent(TableField.class))
+                .filter(f -> {
+                    // exclude if PK is that same field
+                    return !(pkMember instanceof Field && ((Field) pkMember).equals(f));
+                })
                 .peek(f -> f.setAccessible(true))
                 .collect(Collectors.toList());
     }
@@ -62,17 +109,40 @@ public class TableUtils {
         return String.format("INSERT INTO %s (%s) VALUES (%s)", tableName, columns, placeholders);
     }
 
+    /**
+     * Build an UPDATE statement that:
+     *  - sets all non-PK columns
+     *  - if PK is a single field, does "WHERE pk = ?"
+     *  - if PK is method-based, does "WHERE col1 = ? AND col2 = ? …"
+     */
     public static String buildUpdateQuery(Class<?> clazz) {
         String tableName = getTableName(clazz);
-        Map<Field, String> fieldToColumnName = mapFieldToColumnNames(clazz);
-        String primaryKeyColumnName = fieldToColumnName.get(getPrimaryKeyField(clazz));
-        List<Field> nonPkFields = getNonPrimaryKeyFields(clazz);
+        Map<Field, String> fieldToCol = mapFieldToColumnNames(clazz);
 
-        String assignments = nonPkFields.stream()
-                .map(f -> fieldToColumnName.get(f) + " = ?")
+        // 1) figure out which columns go in the WHERE clause
+        AccessibleObject pkMember = getPrimaryKeyMember(clazz);
+        String whereClause;
+        if (pkMember instanceof Field) {
+            // single-column PK
+            String pkCol = fieldToCol.get(pkMember);
+            whereClause = pkCol + " = ?";
+        } else {
+            // method-based PK → treat *all* @TableField fields as the composite key
+            whereClause = fieldToCol.values().stream()
+                    .map(col -> col + " = ?")
+                    .collect(Collectors.joining(" AND "));
+        }
+
+        // 2) build the SET assignments from the non-PK fields
+        List<Field> nonPk = getNonPrimaryKeyFields(clazz);
+        String assignments = nonPk.stream()
+                .map(f -> fieldToCol.get(f) + " = ?")
                 .collect(Collectors.joining(", "));
 
-        return String.format("UPDATE %s SET %s WHERE %s = ?", tableName, assignments, primaryKeyColumnName);
+        return String.format(
+                "UPDATE %s SET %s WHERE %s",
+                tableName, assignments, whereClause
+        );
     }
 
 }
