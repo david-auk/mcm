@@ -10,7 +10,7 @@ import com.mcm.backend.app.api.utils.components.ValidatedBodyResolver;
 
 
 /**
- * Indicates that a field is automatically generated (for example, by the database or framework),
+ * Indicates that a field is okay to leave as null. Null value is okay or value automatically generated (within constructor),
  * such as primary keys or timestamps.
  * <p>
  * Fields annotated with {@link Nullable} will be skipped if empty during request body binding
