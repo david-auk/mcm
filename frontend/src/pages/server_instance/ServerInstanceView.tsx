@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import InitializationPage from './tabs/InitializationPage';
+import InitializationPage from './initalization/InitializationPage';
 import type ServerInstance from './ServerInstance';
 import './ServerInstanceView.css';
 import { useToast } from '../../contexts/ToastContext';
@@ -8,6 +8,8 @@ import { isAdmin } from '../../utils/auth/userDetails';
 import authenticatedFetch from '../../utils/auth/authenticatedFetch';
 import type { Tab } from '../../components/shared/views/TabView';
 import TabView from '../../components/shared/views/TabView';
+import Dashboard from './dashboard/Dashboard';
+import Console from './console/Console';
 
 type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
 
@@ -62,12 +64,12 @@ const ServerInstanceView: React.FC = () => {
   // 3) Build tabs
   const tabs: Tab[] = [];
 
-    const allowedToView = (roleName: RoleName) => {
+  const allowedToView = (roleName: RoleName) => {
 
-      if (admin) return true;
+    if (admin) return true;
 
-      return (roles as Role[]).some(r => r.name === roleName);
-    }
+    return (roles as Role[]).some(r => r.name === roleName);
+  }
 
   // If not initialized and user is admin, show only Initialize
   if (!server.eulaAccepted && admin) {
@@ -79,7 +81,7 @@ const ServerInstanceView: React.FC = () => {
     // Always show Dashboard (or Overview)
     tabs.push({
       label: 'Dashboard',
-      component: <p>Welcome to the dashboard for <strong>{server.name}</strong>.</p>,
+      component: <Dashboard server={server} />,
     });
 
     // If initialized:
@@ -92,8 +94,12 @@ const ServerInstanceView: React.FC = () => {
         });
       } else {
         if (allowedToView('viewer')) tabs.push({
-          label: "Console",
-          component: <p>Placeholder</p>
+          label: 'Console',
+          component: (
+            <Console
+              isOperator={allowedToView('operator')} // or roles.includes('operator') || isAdmin()
+            />
+          ),
         })
         if (allowedToView('editor')) tabs.push({
           label: "Propperties",

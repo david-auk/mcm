@@ -32,6 +32,20 @@ CREATE TABLE server_instances
                       )
 );
 
+-- Server instance sessions
+CREATE TABLE server_instance_sessions
+(
+    id                  UUID PRIMARY KEY        DEFAULT  gen_random_uuid(),
+    server_instance_id  UUID NOT NULL,
+    started_at          TIMESTAMP NOT NULL      DEFAULT CURRENT_TIMESTAMP,
+    started_by_user_id  UUID NOT NULL,
+    stopped_at          TIMESTAMP,
+    stopped_by_user_id  UUID,
+
+    CONSTRAINT fk_started_by_user FOREIGN KEY (started_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_stopped_by_user FOREIGN KEY (stopped_by_user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 
 CREATE TABLE server_instance_properties (
     id               UUID PRIMARY KEY         DEFAULT gen_random_uuid(),
