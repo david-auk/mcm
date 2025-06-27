@@ -93,7 +93,7 @@ export default function InitializationPage({ serverInstance }: InitializationPag
 
         {processId && (
           <>
-            <p><strong>Process ID:</strong> {processId}</p>
+            <p className="init-subheader">Initializing your server… you can monitor progress below.</p>
             <div className="log-console">
               {logs.map((entry, i) => (
                 <div key={i} className="log-entry">
@@ -103,13 +103,8 @@ export default function InitializationPage({ serverInstance }: InitializationPag
             </div>
             {state === 'SUCCESS' && (
               <div className="success-message">
-                ✅ Initialization complete!
-                <button
-                  className="init-button"
-                  onClick={() => navigate('/server-instances')}
-                >
-                  Go Back
-                </button>
+                <span>Initialization complete.</span>
+                <span>Reload to View Server</span>
               </div>
             )}
             {state === 'ERROR' && (

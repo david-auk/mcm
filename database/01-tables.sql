@@ -28,7 +28,7 @@ CREATE TABLE server_instances
     created_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
     allocated_ram_mb  INTEGER                  DEFAULT 1024,
     port              INTEGER NOT NULL CHECK (
-                          port BETWEEN 1024 AND 65535 AND port % 2 = 0
+                          port BETWEEN 1023 AND 65535 AND port % 2 = 0
                       )
 );
 
