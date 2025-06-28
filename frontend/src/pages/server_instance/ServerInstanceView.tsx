@@ -10,6 +10,7 @@ import type { Tab } from '../../components/shared/views/TabView';
 import TabView from '../../components/shared/views/TabView';
 import Dashboard from './dashboard/Dashboard';
 import Console from './console/Console';
+import ServerSettings from './settings/ServerSettings';
 
 type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
 
@@ -105,6 +106,24 @@ const ServerInstanceView: React.FC = () => {
           label: "Propperties",
           component: <p>Placeholder</p>
         })
+        if (allowedToView('maintainer')) {
+          tabs.push({
+            label: 'Settings',
+            component: (
+              <ServerSettings
+                server={server!}
+                onDeleted={() => {
+                  // after deletion, navigate back to list
+                  navigate('/home');
+                }}
+                onUpdated={(updated: ServerInstance) => {
+                  // update local state so view reflects changes
+                  setServer(updated);
+                }}
+              />
+            ),
+          });
+        }
       }
     }
   }

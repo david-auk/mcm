@@ -5,7 +5,7 @@ import './ServerListView.css';
 import type ServerInstance from '../../pages/server_instance/ServerInstance';
 import { useToast } from '../../contexts/ToastContext';
 import authenticatedFetch from '../../utils/auth/authenticatedFetch';
-import AddServerInstanceModal from './AddServerInstance';
+import ServerInstanceModal from './ServerInstanceModal';
 
 interface ServerListViewProps {
   /** API endpoint to GET an array of ServerInstance */
@@ -80,9 +80,10 @@ const ServerListView: React.FC<ServerListViewProps> = ({ endpoint, allowAdd }) =
       )}
 
       {allowAdd && showAdd && (
-        <AddServerInstanceModal
-          onClose={() => setShowAdd(false)}
-          onCreated={() => {
+        <ServerInstanceModal
+          onClose={() => setShowAdd(false)} 
+          isOpen={false} 
+          onSaved={() => {
             setShowAdd(false);
             fetchServers();
           }}
