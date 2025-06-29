@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import './InitializationPage.css';
 import { useToast } from '../../../contexts/ToastContext';
 import authenticatedFetch from '../../../utils/auth/authenticatedFetch';
@@ -20,13 +19,13 @@ interface InitializationPageProps {
 }
 
 export default function InitializationPage({ serverInstance }: InitializationPageProps) {
-  const navigate = useNavigate();
   const toast = useToast();
 
   const [processId, setProcessId] = useState<string | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [state, setState] = useState<ProcessStatus['state']>('RUNNING');
   const [initLoading, setInitLoading] = useState(false);
+  const logConsoleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!processId) return;
@@ -53,6 +52,12 @@ export default function InitializationPage({ serverInstance }: InitializationPag
     }, 1000);
     return () => clearInterval(interval);
   }, [processId, toast]);
+
+  useEffect(() => {
+    if (logConsoleRef.current) {
+      logConsoleRef.current.scrollTop = logConsoleRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   const startInit = async () => {
     setInitLoading(true);
@@ -83,7 +88,7 @@ export default function InitializationPage({ serverInstance }: InitializationPag
 
         {!processId && (
           <button
-            className="init-button"
+            className="btn--primary"
             onClick={startInit}
             disabled={initLoading}
           >
@@ -93,8 +98,8 @@ export default function InitializationPage({ serverInstance }: InitializationPag
 
         {processId && (
           <>
-            <p className="init-subheader">Initializing your server… you can monitor progress below.</p>
-            <div className="log-console">
+            <p className="init-subheader">Initializing your server…</p>
+            <div className="log-console" ref={logConsoleRef}>
               {logs.map((entry, i) => (
                 <div key={i} className="log-entry">
                   [{new Date(entry.timestamp).toLocaleTimeString()}] {entry.message}

@@ -2,7 +2,7 @@ package com.mcm.backend.app.api.controllers.users.auth;
 
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.middlewares.jwt.JwtUtil;
-import com.mcm.backend.app.api.utils.RequestBodyUtil;
+import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.users.Admin;

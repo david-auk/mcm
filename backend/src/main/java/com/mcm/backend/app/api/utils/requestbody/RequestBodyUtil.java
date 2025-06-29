@@ -1,4 +1,4 @@
-package com.mcm.backend.app.api.utils;
+package com.mcm.backend.app.api.utils.requestbody;
 
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 
@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class RequestBodyUtil {
 
@@ -31,6 +32,12 @@ public class RequestBodyUtil {
             return fieldType.cast(((Integer) fieldValue).doubleValue());
         } else if (fieldType == Timestamp.class && fieldValue instanceof String timestampString) { // Convert String to Timestamp
             return fieldType.cast(convertStringToTimestamp(timestampString));
+        } else if (fieldType == UUID.class && fieldValue instanceof String uuidString) { // Convert String to UUID
+            try {
+                return fieldType.cast(UUID.fromString(uuidString));
+            } catch (IllegalArgumentException e) {
+                throw new JsonErrorResponseException(fieldName + " is not a valid UUID");
+            }
         } else {
             throw new JsonErrorResponseException(fieldName + " is not of type " + fieldType.getName());
         }

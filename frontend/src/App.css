@@ -76,3 +76,51 @@ body {
 .read-the-docs {
   color: #888;
 }
+
+/* === Reusable button styles === */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn--primary {
+  background: rgba(52, 152, 219, 0.2);
+  border: 1px solid #3498db;
+  color: #3498db;
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: rgba(52, 152, 219, 0.3);
+}
+
+.btn--primary:disabled {
+  background: rgba(52, 152, 219, 0.1);
+  border-color: rgba(52, 152, 219, 0.5);
+  color: rgba(52, 152, 219, 0.5);
+}
+
+.btn--danger {
+  background: rgba(231, 76, 60, 0.15);
+  border: 1px solid #e74c3c;
+  color: #e74c3c;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: rgba(231, 76, 60, 0.25);
+}
+
+.btn--danger:disabled {
+  background: rgba(231, 76, 60, 0.08);
+  border-color: rgba(231, 76, 60, 0.4);
+  color: rgba(231, 76, 60, 0.4);
+}

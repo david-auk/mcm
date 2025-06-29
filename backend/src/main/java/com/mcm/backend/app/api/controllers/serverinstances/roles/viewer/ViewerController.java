@@ -1,4 +1,4 @@
-package com.mcm.backend.app.api.controllers.serverinstances.roles;
+package com.mcm.backend.app.api.controllers.serverinstances.roles.viewer;
 
 import com.mcm.backend.app.api.utils.annotations.RequireServerInstanceRole;
 import com.mcm.backend.app.database.core.components.daos.DAO;
@@ -11,12 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/server-instances")
-public class RoleController {
+public class ViewerController {
     @GetMapping("/{id}")
     @RequireServerInstanceRole(Role.VIEWER)
     public ResponseEntity<ServerInstance> getServerInstance(@PathVariable UUID id) {

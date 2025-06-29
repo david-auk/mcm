@@ -1,7 +1,7 @@
 package com.mcm.backend.app.api.controllers.users.user;
 
 import com.mcm.backend.app.api.utils.LoggingUtil;
-import com.mcm.backend.app.api.utils.PasswordHashUtil;
+import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
 import com.mcm.backend.app.api.utils.annotations.RequireRole;
 import com.mcm.backend.app.database.core.components.daos.DAO;
@@ -28,14 +28,23 @@ public class UserController {
      */
     @GetMapping
     @RequireRole(Admin.class)
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<?> getAllUsers() {
 
-        // TODO Add bool if admin
+        List<Map<String, Object>> result = new ArrayList<>();
 
         // Get all users from the DB
-        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
-            return ResponseEntity.ok(new ArrayList<>(userDAO.getAll()));
+        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class);
+             DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
+
+            for (User user : userDAO.getAll()) {
+                result.add(Map.of(
+                    "user", user,
+                    "is_admin", adminDAO.existsByPrimaryKey(user.getId())
+                ));
+            }
         }
+
+        return ResponseEntity.ok(result);
     }
 
     /**
@@ -46,7 +55,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     @RequireRole(Admin.class)
-    public ResponseEntity<?> getUser(@PathVariable UUID id) {
+    public ResponseEntity<?> getUser(@PathVariable UUID id) throws JsonErrorResponseException {
         User user;
 
         // Get the user from the DB
@@ -56,13 +65,17 @@ public class UserController {
 
         // Handle User not found
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
         }
 
-        // TODO Add bool if admin
+        // Check if user is an admin
+        boolean isAdmin;
+        try (DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
+            isAdmin = adminDAO.existsByPrimaryKey(user.getId());
+        }
 
-        // Handle User found
-        return ResponseEntity.ok(user);
+        // Send data
+        return ResponseEntity.ok(Map.of("user", user, "is_admin", isAdmin));
     }
 
     /**
@@ -89,13 +102,18 @@ public class UserController {
      */
     @PostMapping
     @RequireRole(Admin.class)
-    public ResponseEntity<User> createUser(@CurrentUser User currentUser, @ValidatedBody(User.class) User user, @CurrentUser Admin admin) throws JsonErrorResponseException {
+    public ResponseEntity<User> createUser(@CurrentUser User currentUser, @ValidatedBody(User.class) User user, RequestBodyUtil requestBodyUtil) throws JsonErrorResponseException {
+        String password = requestBodyUtil.getField("password", String.class);
+
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
 
             // Check if the username is unique
             if (usernameInUse(userDAO, user)) {
                 throw new JsonErrorResponseException("username " + user.getUsername() + " already in use");
             }
+
+            // Set / override password
+            user.setPassword(password);
 
             // Add the user
             userDAO.add(user);
@@ -146,21 +164,14 @@ public class UserController {
                 // Set vars for logging
                 changedField = "username";
                 oldValue = oldUser.getUsername();
-
+                newValue = user.getUsername();
             }
 
-            // If password changed
-            if (!oldUser.getPasswordHash().equals(user.getPasswordHash())) {
-
-                // The password is not hashed yet. however the getPasswordHash method lets it appear that way
-                String password = user.getPasswordHash();
-
-                // Let the user setPassword hash the password and store it
-                user.setPassword(password);
-
-                // Set vars for logging
-                changedField = "password";
-                // Keep values "-" (redacted)
+            // Password logic
+            if (user.getPasswordHash() == null) {
+                user.setPasswordHash(oldUser.getPasswordHash());
+            } else { // If password changed
+                throw new JsonErrorResponseException("Changing password not allowed",  HttpStatus.BAD_REQUEST);
             }
 
             userDAO.update(user);
@@ -175,10 +186,39 @@ public class UserController {
         }
     }
 
+    @PostMapping("/change-password/{id}")
+    @RequireRole(Admin.class)
+    public ResponseEntity<?> changePassword(@PathVariable UUID id, @CurrentUser User currentUser, RequestBodyUtil requestBodyUtil) throws JsonErrorResponseException {
+        String newPassword = requestBodyUtil.getField("password", String.class);
+
+        try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
+            User user = userDAO.get(id);
+            if (user == null) {
+                throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
+            }
+
+            // Set password
+            user.setPassword(newPassword);
+
+            // Update user
+            userDAO.update(user);
+
+            // Log action
+            LoggingUtil.log(ActionType.USER_UPDATE, currentUser, user, Map.of(
+                    "updated_field", "password",
+                    "old_value", "-",
+                    "new_value", "-"
+            ));
+
+            return ResponseEntity.ok().build();
+        }
+
+    }
+
     /**
      * Promote user to admin.
      */
-    @PostMapping("/{id}")
+    @PostMapping("/promote/{id}")
     @RequireRole(Admin.class)
     public ResponseEntity<?> promote(@CurrentUser User currentUser, @PathVariable UUID id) throws JsonErrorResponseException {
         // Get all users from the DB

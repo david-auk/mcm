@@ -27,7 +27,6 @@ public class InitController {
         this.initService = initService;
     }
 
-    // 1) Kick off, return immediately
     @PostMapping("/initialize/{id}")
     @RequireRole(Admin.class)
     public ResponseEntity<Map<String, UUID>> startInit(@PathVariable UUID id)
@@ -47,14 +46,13 @@ public class InitController {
                 throw new JsonErrorResponseException("Already initialized", HttpStatus.CONFLICT);
             }
 
-            // sanity-check serverId exists etc. (you can still do the DAO lookup here synchronously)
+            // sanity-check serverId exists, etc. (you can still do the DAO lookup here synchronously)
             UUID pid = registry.create();
             initService.doInitialization(serverInstance, pid);
             return ResponseEntity.accepted().body(Map.of("processId", pid));
         }
     }
 
-    // 2) Poll for status & logs
     @GetMapping("/initialize/status/{processId}")
     public ResponseEntity<ProcessStatus> getStatus(@PathVariable UUID processId) {
         ProcessStatus status = registry.get(processId);

@@ -1,0 +1,89 @@
+.user-view-container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2rem;
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  color: #eee;
+}
+
+.form-section {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Inline container for admin/promote + delete buttons */
+.user-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-section h3 {
+  margin-top: 0;
+  font-size: 1.25rem;
+  color: #fff;
+  font-weight: 600;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  color: #ccc;
+  font-size: 0.95rem;
+}
+
+input[type="text"],
+input[type="password"] {
+  margin-top: 0.25rem;
+  padding: 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 1rem;
+}
+
+input::placeholder {
+  color: #888;
+}
+
+.danger-zone {
+  border-color: rgba(231, 76, 60, 0.6);
+}
+
+.tab-button {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 0.6rem 1rem;
+  color: #ccc;
+  font-weight: 500;
+  margin-right: 4px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+}
+
+.tab-button.active {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-bottom: none;
+}
+
+.tab-content {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: none;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 0 6px 6px;
+}
+.form-section button {
+  margin-top: 1rem;
+}

@@ -21,19 +21,6 @@ import java.util.UUID;
 @RequestMapping("/api/admins")
 public class AdminController {
 
-
-    /**
-     * List all admins.
-     */
-    @GetMapping
-    @RequireRole(Admin.class)
-    public ResponseEntity<List<Admin>> getAllAdmins() {
-        // Get all admins from the DB
-        try (DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
-            return ResponseEntity.ok(new ArrayList<>(adminDAO.getAll()));
-        }
-    }
-
     /**
      * Demote admin to user.
      */

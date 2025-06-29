@@ -1,11 +1,11 @@
 package com.mcm.backend.app.api.utils.components;
 
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
+import com.mcm.backend.app.api.utils.security.SecurityContextUtil;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -20,31 +20,24 @@ import java.util.UUID;
 public class CurrentUserResolver implements HandlerMethodArgumentResolver {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
-        return parameter.getParameterAnnotation(CurrentUser.class) != null
-                && TableEntity.class.isAssignableFrom(parameter.getParameterType());
+    public boolean supportsParameter(MethodParameter p) {
+        return p.hasParameterAnnotation(CurrentUser.class) && TableEntity.class.isAssignableFrom(p.getParameterType());
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter,
-                                  ModelAndViewContainer mavContainer,
-                                  NativeWebRequest webRequest,
-                                  WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter p, ModelAndViewContainer mav, NativeWebRequest wr,
+                                  WebDataBinderFactory bf) throws Exception {
 
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        assert request != null;
-        UUID userId = (UUID) request.getAttribute("authenticatedUserId");
-
-        if (userId == null) {
-            throw new JsonErrorResponseException("No authentication bearer/info found", HttpStatus.UNAUTHORIZED);
-        }
-
+        UUID userId = SecurityContextUtil.getCurrentUserId();
         @SuppressWarnings("unchecked")
-        Class<? extends TableEntity> entityClass = (Class<? extends TableEntity>) parameter.getParameterType();
+        Class<? extends TableEntity> cls = (Class<? extends TableEntity>) p.getParameterType();
 
-        try (DAO<? extends TableEntity, UUID> dao = DAOFactory.createDAO(entityClass)) {
-            TableEntity entity = dao.get(userId);
-            if (entity == null) throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
+        try (DAO<? extends com.mcm.backend.app.database.core.components.tables.TableEntity, UUID> dao
+                     = DAOFactory.createDAO(cls)) {
+            var entity = dao.get(userId);
+            if (entity == null) {
+                throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
+            }
             return entity;
         }
     }

@@ -18,6 +18,7 @@ public class User implements TableEntity {
     @TableField(type = String.class)
     private String username;
 
+    @Nullable
     @TableField(name = "password_hash", type = String.class)
     private String passwordHash;
 

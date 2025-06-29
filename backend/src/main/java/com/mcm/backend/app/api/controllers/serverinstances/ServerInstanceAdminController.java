@@ -44,6 +44,8 @@ public class ServerInstanceAdminController {
 
             serverInstanceDAO.add(serverInstance);
 
+            // TODO Log
+
             return ResponseEntity.ok().build();
 
         }

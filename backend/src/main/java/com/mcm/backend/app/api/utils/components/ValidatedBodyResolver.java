@@ -1,8 +1,8 @@
 package com.mcm.backend.app.api.utils.components;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mcm.backend.app.api.utils.RequestBodyUtil;
+import com.mcm.backend.app.api.utils.requestbody.RequestBodyCacheUtil;
+import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.database.core.annotations.table.Nullable;
 import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
@@ -18,16 +18,12 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Component
 public class ValidatedBodyResolver implements HandlerMethodArgumentResolver {
@@ -48,18 +44,14 @@ public class ValidatedBodyResolver implements HandlerMethodArgumentResolver {
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory)
-            throws JsonErrorResponseException, IOException, InvocationTargetException, InstantiationException, IllegalAccessException {
+            throws InvocationTargetException, InstantiationException, IllegalAccessException {
 
         HttpServletRequest servletRequest = webRequest.getNativeRequest(HttpServletRequest.class);
         if (servletRequest == null) {
             throw new IllegalStateException("No HttpServletRequest available.");
         }
 
-        String json = new BufferedReader(new InputStreamReader(servletRequest.getInputStream()))
-                .lines()
-                .collect(Collectors.joining(System.lineSeparator()));
-
-        Map<String, Object> rawMap = objectMapper.readValue(json, new TypeReference<>() {});
+        Map<String, Object> rawMap = RequestBodyCacheUtil.getOrParseRawBody(servletRequest, objectMapper);
         RequestBodyUtil bodyUtil = new RequestBodyUtil(rawMap);
 
         Class<? extends TableEntity> targetClass = parameter.getParameterAnnotation(ValidatedBody.class).value();
