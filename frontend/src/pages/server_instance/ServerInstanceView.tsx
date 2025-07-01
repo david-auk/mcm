@@ -73,17 +73,13 @@ const ServerInstanceView: React.FC = () => {
   }
 
   // If not initialized and user is admin, show only Initialize
-  if (!server.eulaAccepted && admin) {
+  if (!server.eulaAccepted && allowedToView('maintainer')) {
     tabs.push({
       label: 'Initialize',
       component: <InitializationPage serverInstance={server} />,
     });
   } else {
     // Always show Dashboard (or Overview)
-    tabs.push({
-      label: 'Dashboard',
-      component: <Dashboard server={server} />,
-    });
 
     // If initialized:
     if (server.eulaAccepted) {
@@ -94,38 +90,46 @@ const ServerInstanceView: React.FC = () => {
           component: <p>Loading your permissions…</p>,
         });
       } else {
-        if (allowedToView('viewer')) tabs.push({
-          label: 'Console',
-          component: (
-            <Console
-              isOperator={allowedToView('operator')} // or roles.includes('operator') || isAdmin()
-            />
-          ),
-        })
+
+        // Viewer tabs
+        if (allowedToView('viewer')) {
+          tabs.push({
+            label: 'Dashboard',
+            component: <Dashboard server={server} />,
+          });
+          tabs.push({
+            label: 'Console',
+            component: (
+              <Console
+                isOperator={allowedToView('operator')} // or roles.includes('operator') || isAdmin()
+              />
+            ),
+          })
+        }
+
+        // Editor tabs
         if (allowedToView('editor')) tabs.push({
           label: "Propperties",
           component: <p>Placeholder</p>
         })
-        if (allowedToView('maintainer')) {
-          tabs.push({
-            label: 'Settings',
-            component: (
-              <ServerSettings
-                server={server!}
-                onDeleted={() => {
-                  // after deletion, navigate back to list
-                  navigate('/home');
-                }}
-                onUpdated={(updated: ServerInstance) => {
-                  // update local state so view reflects changes
-                  setServer(updated);
-                }}
-              />
-            ),
-          });
-        }
       }
     }
+  }
+
+  if (allowedToView('maintainer')) {
+    tabs.push({
+      label: 'Settings',
+      component: (
+        <ServerSettings
+          server={server!}
+          navigate={navigate}
+          onUpdated={(updated: ServerInstance) => {
+            // update local state so view reflects changes
+            setServer(updated);
+          }}
+        />
+      ),
+    });
   }
 
   return (

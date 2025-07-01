@@ -26,6 +26,14 @@ public class DAO<T, K> implements AutoCloseable {
         return primaryKey != null && get(primaryKey) != null;
     }
 
+    public <D> boolean existsByUniqueField(Field uniqueField, D isData) {
+        if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
+            throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
+        }
+        List<T> matches = get(uniqueField, isData);
+        return !matches.isEmpty();
+    }
+
     public boolean exists(T entity) {
         if (entity == null){
             return false;

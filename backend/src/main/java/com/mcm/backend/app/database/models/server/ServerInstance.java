@@ -18,6 +18,7 @@ public class ServerInstance implements TableEntity {
     @PrimaryKey(UUID.class)
     private final UUID id;
 
+    @UniqueField
     @TableField(type = String.class)
     private String name;
 

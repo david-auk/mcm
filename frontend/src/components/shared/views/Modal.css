@@ -217,3 +217,7 @@
 .modal-body input::placeholder {
   color: #777;
 }
+
+.modal-body form input:disabled {
+  color: #4c4c4c;
+}

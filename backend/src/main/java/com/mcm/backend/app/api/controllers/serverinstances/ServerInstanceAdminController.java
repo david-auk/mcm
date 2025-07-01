@@ -50,7 +50,4 @@ public class ServerInstanceAdminController {
 
         }
     }
-
-    // TODO Add putmapping.
-        // TODO if not initalized allow url change
 }

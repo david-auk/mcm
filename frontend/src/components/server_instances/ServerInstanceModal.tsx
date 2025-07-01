@@ -25,7 +25,7 @@ const ServerInstanceModal: React.FC<Props> = ({
   const [description, setDescription] = useState(server?.description ?? '');
   const [minecraftVersion, setMinecraftVersion] = useState(server?.minecraftVersion ?? '');
   const [jarUrl, setJarUrl] = useState(server?.jarUrl ?? '');
-  const [eulaAccepted, setEulaAccepted] = useState(server?.eulaAccepted ?? false);
+  const [eulaAccepted, setEulaAccepted] = useState(false);
   const [allocatedRam, setAllocatedRam] = useState(server?.allocatedRamMB ?? 1024);
   const [port, setPort] = useState(server?.port ?? 1024);
   const [submitting, setSubmitting] = useState(false);
@@ -37,7 +37,7 @@ const ServerInstanceModal: React.FC<Props> = ({
       setDescription(server.description ?? '');
       setMinecraftVersion(server.minecraftVersion);
       setJarUrl(server.jarUrl);
-      setEulaAccepted(server.eulaAccepted);
+      setEulaAccepted(isEdit); // Because in order to edit you need to have accepted.
       setAllocatedRam(server.allocatedRamMB);
       setPort(server.port);
     }
@@ -65,6 +65,7 @@ const ServerInstanceModal: React.FC<Props> = ({
   };
 
   const handleSave = async () => {
+    if (submitting) return;
     const err = getValidationError();
     if (err) {
       toast(err, 'error');
@@ -73,6 +74,7 @@ const ServerInstanceModal: React.FC<Props> = ({
     setSubmitting(true);
     try {
       const payload = {
+        ...(isEdit ? { id: server!.id } : {}), // Add optional id when the ID is known.
         name: name.trim(),
         description: description.trim() || null,
         minecraft_version: minecraftVersion.trim(),
@@ -102,6 +104,7 @@ const ServerInstanceModal: React.FC<Props> = ({
       onConfirm={handleSave}
       confirmText={isEdit ? "Save" : 'Create'}
       cancelText="Cancel"
+
     >
       <div>
         <form
@@ -112,8 +115,7 @@ const ServerInstanceModal: React.FC<Props> = ({
         >
           <h2>Server Instance Details</h2>
 
-          {/* TODO modular */}
-          <fieldset> 
+          <fieldset>
             <legend>Instance Info</legend>
 
             <label>
@@ -155,6 +157,7 @@ const ServerInstanceModal: React.FC<Props> = ({
             <label>
               Server JAR URL
               <input
+                disabled={isEdit && server?.eulaAccepted}
                 type="url"
                 placeholder="https://example.com/server.jar"
                 value={jarUrl}
