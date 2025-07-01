@@ -9,7 +9,3 @@
   display: flex;
   gap: 1rem;
 }
-.server-settings button.danger {
-  background: #c0392b;
-  color: #fff;
-}

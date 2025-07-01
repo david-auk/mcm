@@ -17,7 +17,7 @@ const LogoutButton: React.FC = () => {
 
     return (
         <div className="profile-security-buttons">
-            <button className="logout" onClick={handleLogout}>Logout</button>
+            <button className="success" onClick={handleLogout}>Logout</button>
         </div >
     )
 

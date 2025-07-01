@@ -1,12 +1,12 @@
 package com.mcm.backend.app.api.controllers.users.auth;
 
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
-import com.mcm.backend.app.middlewares.jwt.JwtUtil;
 import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.User;
+import com.mcm.backend.app.middlewares.jwt.JwtUtil;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +62,8 @@ public class LoginController {
             // Return session/user info
             return ResponseEntity.ok().body(Map.of(
                 "token", token,
-                "is_admin", adminUser
+                "is_admin", adminUser,
+                "user_id", user.getId()
             ));
 
         }

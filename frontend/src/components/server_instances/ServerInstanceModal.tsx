@@ -2,10 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import authenticatedFetch from '../../utils/auth/authenticatedFetch';
 import { useToast } from '../../contexts/ToastContext';
-import Modal from '../shared/Modal';
+import Modal from '../shared/views/Modal';
 import type ServerInstance from '../../pages/server_instance/ServerInstance';
-import './ServerInstanceModal.css'
-
 
 interface Props {
   server?: ServerInstance;
@@ -102,26 +100,25 @@ const ServerInstanceModal: React.FC<Props> = ({
       title={isEdit ? 'Edit Server Instance' : 'Add New Server Instance'}
       onClose={onClose}
       onConfirm={handleSave}
-      confirmText={submitting ? 'Creating…' : 'Create'}
+      confirmText={isEdit ? "Save" : 'Create'}
       cancelText="Cancel"
     >
-      <div className="server-container">
+      <div>
         <form
-          className="server-form"
           onSubmit={e => {
             e.preventDefault();
             handleSave();
           }}
         >
-          <h2 className="form-title">Server Instance Details</h2>
+          <h2>Server Instance Details</h2>
 
-          <fieldset className="form-section">
+          {/* TODO modular */}
+          <fieldset> 
             <legend>Instance Info</legend>
 
-            <label htmlFor="si-name">
+            <label>
               Name (unique)
               <input
-                id="si-name"
                 type="text"
                 placeholder="e.g. MyAwesomeServer"
                 value={name}
@@ -130,10 +127,9 @@ const ServerInstanceModal: React.FC<Props> = ({
               />
             </label>
 
-            <label htmlFor="si-description">
+            <label>
               Description (optional)
               <input
-                id="si-description"
                 type="text"
                 placeholder="Short description"
                 value={description}
@@ -142,13 +138,12 @@ const ServerInstanceModal: React.FC<Props> = ({
             </label>
           </fieldset>
 
-          <fieldset className="form-section">
+          <fieldset>
             <legend>Server Settings</legend>
 
-            <label htmlFor="si-version">
+            <label>
               Minecraft Version
               <input
-                id="si-version"
                 type="text"
                 placeholder="e.g. 1.20.1"
                 value={minecraftVersion}
@@ -157,10 +152,9 @@ const ServerInstanceModal: React.FC<Props> = ({
               />
             </label>
 
-            <label htmlFor="si-jar">
+            <label>
               Server JAR URL
               <input
-                id="si-jar"
                 type="url"
                 placeholder="https://example.com/server.jar"
                 value={jarUrl}
@@ -169,10 +163,9 @@ const ServerInstanceModal: React.FC<Props> = ({
               />
             </label>
 
-            <label htmlFor="si-ram">
+            <label>
               Allocated RAM (MB)
               <input
-                id="si-ram"
                 type="number"
                 min={512}
                 placeholder="1024"
@@ -182,10 +175,9 @@ const ServerInstanceModal: React.FC<Props> = ({
               />
             </label>
 
-            <label htmlFor="si-port">
+            <label>
               Port (even, 1024–65535)
               <input
-                id="si-port"
                 type="number"
                 min={1024}
                 max={65534}
@@ -198,17 +190,19 @@ const ServerInstanceModal: React.FC<Props> = ({
             </label>
           </fieldset>
 
-          <fieldset className="form-section checkbox-section">
+          <fieldset>
             <legend>Legal</legend>
-            <label htmlFor="si-eula" className="checkbox-label">
+            <label>
               <input
-                id="si-eula"
                 type="checkbox"
                 checked={eulaAccepted}
                 onChange={e => setEulaAccepted(e.target.checked)}
                 required
               />
-              I accept the Minecraft EULA
+              I accept the{' '}
+              <a href="https://aka.ms/MinecraftEULA" target="_blank" rel="noopener noreferrer">
+                Minecraft EULA
+              </a>
             </label>
           </fieldset>
         </form>

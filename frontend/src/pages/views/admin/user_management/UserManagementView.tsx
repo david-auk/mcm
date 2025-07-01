@@ -41,11 +41,11 @@ const UserManagementView: React.FC = () => {
   return (
     <div className="user-list-container">
       <header className="user-list-header">
-        <h2>Your Users</h2>
+        <h2>Users</h2>
 
         {/* This view always allows adding users */}
         <button
-          className="btn btn--primary"
+          className="secondary"
           onClick={() => setShowAdd(true)}
         >
           + Add User

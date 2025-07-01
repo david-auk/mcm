@@ -88,7 +88,7 @@ export default function InitializationPage({ serverInstance }: InitializationPag
 
         {!processId && (
           <button
-            className="btn--primary"
+            className="primary"
             onClick={startInit}
             disabled={initLoading}
           >

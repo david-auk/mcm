@@ -10,14 +10,6 @@
   color: #eee;
 }
 
-.form-section {
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 8px;
-  padding: 1rem 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
 /* Inline container for admin/promote + delete buttons */
 .user-actions {
   display: flex;
@@ -26,11 +18,23 @@
   margin-bottom: 1.5rem;
 }
 
-.form-section h3 {
+.user-settings h3 {
   margin-top: 0;
   font-size: 1.25rem;
   color: #fff;
   font-weight: 600;
+}
+
+.user-settings form {
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.user-settings form button {
+  margin-top: 1rem;
 }
 
 label {
@@ -56,34 +60,10 @@ input::placeholder {
   color: #888;
 }
 
-.danger-zone {
-  border-color: rgba(231, 76, 60, 0.6);
-}
-
-.tab-button {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 0.6rem 1rem;
-  color: #ccc;
-  font-weight: 500;
-  margin-right: 4px;
-  border-radius: 6px 6px 0 0;
-  cursor: pointer;
-}
-
-.tab-button.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
-  border-bottom: none;
-}
-
 .tab-content {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-top: none;
   padding: 1.5rem;
   background: rgba(255, 255, 255, 0.03);
   border-radius: 0 0 6px 6px;
-}
-.form-section button {
-  margin-top: 1rem;
 }

@@ -6,7 +6,7 @@ import { useToast } from '../../../../contexts/ToastContext';
 import { useNavigate } from 'react-router-dom';
 import '../ProfileView.css';
 import { removeToken } from '../../../../utils/auth/token';
-import Modal from '../../../../components/shared/Modal';
+import Modal from '../../../../components/shared/views/Modal';
 
 const DeleteAccountButton: React.FC = () => {
     const [open, setOpen] = useState(false);
@@ -30,7 +30,7 @@ const DeleteAccountButton: React.FC = () => {
         <>
             <div className="profile-security-buttons">
                 <button
-                    className="delete"
+                    className="danger"
                     onClick={() => setOpen(true)}
                 >
                     Delete Account

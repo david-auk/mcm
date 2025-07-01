@@ -3,14 +3,43 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* color-scheme: light dark;
+  color: #213547;
+  background-color: #ffffff; */
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --btn-hover-darken: 20%;  /* how much “black” to mix in */
+
+
+  /* Color definition */
+  --color-profile--primary-bg: #4864fd;
+  --color-profile--primary-border: #4863fd8d;
+  --color-profile--primary-color: #ffffff;
+
+  --color-profile--secondary-bg: #ffffff;
+  --color-profile--secondary-border: #ffffff;
+  --color-profile--secondary-color: #213547;
+  
+  --color-profile--danger-bg:     #c0392b;
+  --color-profile--danger-border: #e74c3c;
+  --color-profile--danger-color: #ffffff;
+
+  --color-profile--success-bg: #198132;
+  --color-profile--success-border: #28a745;
+  --color-profile--success-color: #ffffff;
+
+  --color-profile--warning-bg: #bd9212;
+  --color-profile--warning-border: #ffbf00;
+  --color-profile--warning-color: #2a2a2a;
+
+  --color-profile--info-bg: #17a2b8;
+  --color-profile--info-border: #17a2b8;
+  --color-profile--info-color: #ffffff;
+
 }
 
 /* Minecraft font */
@@ -46,34 +75,76 @@ h1 {
   line-height: 1.1;
 }
 
+/* Button base styling */
 button {
+  --btn-bg: #ffffff;
+  --btn-border: transparent;
+  --btn-color: #213547;
+
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid var(--btn-border);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--btn-bg);
+  color: var(--btn-color);
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: background-color 0.25s, border-color 0.25s;
 }
-button:hover {
-  border-color: #646cff;
+button:hover:not(:disabled) {
+  background-color: color-mix(in srgb, var(--btn-bg) calc(100% - var(--btn-hover-darken)), black var(--btn-hover-darken));
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+button:disabled,
+button[disabled] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Button variants */
+button.primary {
+  --btn-bg: var(--color-profile--primary-bg);
+  --btn-border: var(--color-profile--primary-border);
+  --btn-color: var(--color-profile--primary-color);
+}
+
+button.secondary {
+  --btn-bg: var(--color-profile--secondary-bg);
+  --btn-border: var(--color-profile--secondary-border);
+  --btn-color: var(--color-profile--secondary-color);
+}
+
+button.danger {
+  --btn-bg: var(--color-profile--danger-bg);
+  --btn-border: var(--color-profile--danger-border);
+  --btn-color: var(--color-profile--danger-color);
+}
+
+button.success {
+  --btn-bg: var(--color-profile--success-bg);
+  --btn-border: var(--color-profile--success-border);
+  --btn-color: var(--color-profile--success-color);
+}
+
+button.warning {
+  --btn-bg: var(--color-profile--warning-bg);
+  --btn-border: var(--color-profile--warning-border);
+  --btn-color: var(--color-profile--warning-color);
+}
+
+button.info {
+  --btn-bg: var(--color-profile--info-bg);
+  --btn-border: var(--color-profile--info-border);
+  --btn-color: var(--color-profile--info-color);
+}
+
+/* Form def */
+
+form input:focus {
+  outline: none;
+  border-color: var(--color-profile--success-border);
 }

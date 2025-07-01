@@ -56,7 +56,8 @@ const ChangePasswordForm: React.FC = () => {
         onChange={e => setConfirm(e.target.value)}
         required
       />
-      <button type="submit">Change Password</button>
+      {/* TODO make disabled if empty... */}
+      <button className="success" type="submit">Change Password</button>
     </form>
   );
 };

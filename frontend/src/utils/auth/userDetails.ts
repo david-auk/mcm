@@ -1,3 +1,11 @@
+export function setUserId(id: string) {
+    localStorage.setItem("user_id", id)
+}
+
+export function getUserId() {   
+    return localStorage.getItem("user_id")
+}
+
 export function setUsername(username: string) {
     localStorage.setItem("username", username)
 }

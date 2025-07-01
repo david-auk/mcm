@@ -43,7 +43,7 @@ const ServerSettings: React.FC<Props> = ({ server, onDeleted, onUpdated }) => {
       </dl>
 
       <div className="actions">
-        <button onClick={() => setShowEdit(true)}>Edit</button>
+        <button className="secondary" onClick={() => setShowEdit(true)}>Edit</button>
         <button className="danger" onClick={confirmAndDelete}>Delete</button>
       </div>
 

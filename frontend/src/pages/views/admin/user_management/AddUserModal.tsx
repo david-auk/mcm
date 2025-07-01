@@ -1,9 +1,8 @@
 // src/pages/views/admin/user_management/AddUserModal.tsx
 import React, { useEffect, useState } from 'react';
-import './AddUserModal.css';
 import { useToast } from '../../../../contexts/ToastContext';
 import authenticatedFetch from '../../../../utils/auth/authenticatedFetch';
-import Modal from '../../../../components/shared/Modal';
+import Modal from '../../../../components/shared/views/Modal';
 
 interface User {
   id: string;
@@ -87,23 +86,24 @@ const AddUserModal: React.FC<Props> = ({ user, isOpen, onClose, onSaved }) => {
       }
       cancelText="Cancel"
     >
-      <div className="user-modal__container">
+      <div>
         <form
-          className="user-form"
+          // className="user-form"
           onSubmit={e => {
             e.preventDefault();
             handleSave();
           }}
         >
-          <h2 className="form-title">User Details</h2>
+          <h2>User Details</h2>
 
-          <fieldset className="form-section">
+          <fieldset
+           className="form-section" // TODO make not required
+          >
             <legend>Account Info</legend>
 
-            <label htmlFor="um-username">
+            <label>
               Username
               <input
-                id="um-username"
                 type="text"
                 placeholder="johndoe"
                 value={username}
@@ -112,12 +112,11 @@ const AddUserModal: React.FC<Props> = ({ user, isOpen, onClose, onSaved }) => {
               />
             </label>
 
-            <label htmlFor="um-password">
+            <label>
               {isEdit
                 ? 'New Password (leave blank to keep current)'
                 : 'Password'}
               <input
-                id="um-password"
                 type="password"
                 placeholder={
                   isEdit ? '••••••••' : 'Choose a strong password'

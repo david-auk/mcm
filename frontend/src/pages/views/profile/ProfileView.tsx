@@ -15,9 +15,11 @@ const ProfileView: React.FC = () => {
       label: 'Security',
       component: (
         <>
-          <ChangePasswordForm />
-          <LogoutButton />
-          <DeleteAccountButton />
+          <div className='security'>
+            <ChangePasswordForm />
+            <LogoutButton />
+            <DeleteAccountButton />
+          </div>
         </>
       ),
     },

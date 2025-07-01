@@ -43,10 +43,7 @@ const ServerListView: React.FC<ServerListViewProps> = ({ endpoint, allowAdd }) =
       <header className="server-list-header">
         <h2>Your Servers</h2>
         {allowAdd && (
-          <button
-            className="btn btn--primary"
-            onClick={() => setShowAdd(true)}
-          >
+          <button className="secondary" onClick={() => setShowAdd(true)}>
             + Add Server
           </button>
         )}
@@ -57,8 +54,7 @@ const ServerListView: React.FC<ServerListViewProps> = ({ endpoint, allowAdd }) =
       ) : servers.length === 0 ? (
         <p>
           No servers found.
-          {allowAdd && ' Click “Add Server” to get started.'}
-          {!allowAdd && ' Ask an admin for access.'}
+          {allowAdd ? ' Click “Add Server” to get started.': ' Ask an admin for access.'}
         </p>
       ) : (
         <ul className="server-list">

@@ -14,11 +14,7 @@
   border-radius: 12px;
   padding: 2rem;
   background: rgba(255, 255, 255, 0.1);
-  box-shadow:
-    0 8px 32px 0 rgba(31, 38, 135, 0.37),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #fff;
   text-align: center;
@@ -37,32 +33,6 @@
   color: #ccc;
   margin-bottom: 1rem;
 }
-
-/* .init-button {
-  padding: 0.8rem 1.6rem;
-  font-size: 1rem;
-  border-radius: 8px;
-  border: none;
-  background: linear-gradient(135deg, rgba(0, 123, 255, 0.85), rgba(0, 90, 200, 0.9));
-  color: #f0f8ff;
-  cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
-  backdrop-filter: blur(4px);
-  font-weight: 500;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
-} */
-
-/* .init-button:hover {
-  background: rgba(0, 123, 255, 1);
-  transform: scale(1.03);
-}
-
-.init-button.outline {
-  background: transparent;
-  border: 2px solid rgba(0, 123, 255, 0.6);
-  color: rgba(0, 123, 255, 0.9);
-} */
 
 .error-message {
   color: #ff6b6b;

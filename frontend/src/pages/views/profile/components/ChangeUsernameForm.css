@@ -24,8 +24,10 @@
 
 /* success vs. error coloring */
 .availability.success {
-  color: #3fba54;
+  color: var(--color-profile--success-bg);
 }
 .availability.error {
-  color: #ba3f3f;
+  color: var(--color-profile--danger-bg);
 }
+
+/* TODO Make it so the avalibility spacing and button spacing is equal */
