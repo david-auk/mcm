@@ -1,9 +1,7 @@
 package com.mcm.backend.app.database.models.server;
 
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
-import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.api.utils.process.ProcessStatus;
+import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
@@ -20,9 +18,11 @@ public class ServerInstance implements TableEntity {
     @PrimaryKey(UUID.class)
     private final UUID id;
 
+    @UniqueField
     @TableField(type = String.class)
     private String name;
 
+    @Nullable
     @TableField(type = String.class)
     private String description;
 
@@ -35,6 +35,7 @@ public class ServerInstance implements TableEntity {
     @TableField(type = Boolean.class, name = "eula_accepted")
     private Boolean eulaAccepted;
 
+    @Nullable // Will be generated within constructor
     @TableField(type = Timestamp.class, name = "created_at")
     private final Timestamp createdAt;
 
@@ -135,8 +136,8 @@ public class ServerInstance implements TableEntity {
     }
 
     public void setPort(Integer port) {
-        if (port == null || !(port > 1024 && port < 65535)) {
-            throw new IllegalArgumentException("Port must be between 1024 and 65535");
+        if (port == null || !(port > 1023 && port < 65535)) {
+            throw new IllegalArgumentException("Port must be between 1023 and 65535");
         } else if (!isEven(port)) {
             throw new IllegalArgumentException("Port must be even (so uneven port is reseved for rcon)");
         }
@@ -168,11 +169,11 @@ public class ServerInstance implements TableEntity {
         start();
     }
 
-    public List<ServerInstanceProperty> initialize() throws RuntimeException, IOException, InterruptedException {
+    public List<ServerInstanceProperty> initialize(ProcessStatus ps) throws RuntimeException, IOException, InterruptedException {
         if (eulaAccepted) {
             throw new RuntimeException("Eula already accepted; Already initialized.");
         }
-        return ServerInitializerUtil.initialize(this);
+        return ServerInitializerUtil.initialize(this, ps);
     }
 
     public String sendCommand(String command) throws RuntimeException {

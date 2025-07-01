@@ -131,8 +131,7 @@ const ChangeUsernameForm: React.FC = () => {
                 </p>
             )}
 
-            <button
-                type="submit"
+            <button className="success" type="submit"
                 disabled={
                     !available ||
                     !newUsername ||

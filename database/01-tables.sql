@@ -28,8 +28,22 @@ CREATE TABLE server_instances
     created_at        TIMESTAMP                DEFAULT CURRENT_TIMESTAMP,
     allocated_ram_mb  INTEGER                  DEFAULT 1024,
     port              INTEGER NOT NULL CHECK (
-                          port BETWEEN 1024 AND 65535 AND port % 2 = 0
+                          port BETWEEN 1023 AND 65535 AND port % 2 = 0
                       )
+);
+
+-- Server instance sessions
+CREATE TABLE server_instance_sessions
+(
+    id                  UUID PRIMARY KEY        DEFAULT  gen_random_uuid(),
+    server_instance_id  UUID NOT NULL,
+    started_at          TIMESTAMP NOT NULL      DEFAULT CURRENT_TIMESTAMP,
+    started_by_user_id  UUID NOT NULL,
+    stopped_at          TIMESTAMP,
+    stopped_by_user_id  UUID,
+
+    CONSTRAINT fk_started_by_user FOREIGN KEY (started_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT fk_stopped_by_user FOREIGN KEY (stopped_by_user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 
@@ -47,24 +61,32 @@ CREATE TABLE server_instance_properties (
 -- Roles
 CREATE TABLE roles
 (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    name        VARCHAR(100) NOT NULL UNIQUE,
+    name        VARCHAR(100) PRIMARY KEY,
     description TEXT
 );
 
+CREATE TABLE role_inheritance
+(
+    role_name          VARCHAR(100) NOT NULL
+      REFERENCES roles(name) ON DELETE CASCADE,
+    inherits_role_name VARCHAR(100) NOT NULL
+      REFERENCES roles(name) ON DELETE CASCADE,
+    PRIMARY KEY (role_name, inherits_role_name)
+);
 -- User Role Assignments (many-to-many per instance)
 CREATE TABLE user_role_assignments
 (
     id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id     UUID NOT NULL,
     instance_id UUID NOT NULL,
-    role_id     UUID NOT NULL,
+    role        VARCHAR(100) NOT NULL,
 
     CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     CONSTRAINT fk_instance FOREIGN KEY (instance_id) REFERENCES server_instances (id) ON DELETE CASCADE,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES roles (id) ON DELETE CASCADE,
+    CONSTRAINT fk_role FOREIGN KEY (role) REFERENCES roles(name) ON DELETE CASCADE,
 
-    UNIQUE (user_id, instance_id, role_id) -- Prevent duplicate assignments
+    UNIQUE (user_id, instance_id) -- Make constraint rule: only 1 role assignment per instance.
+    --UNIQUE (user_id, instance_id, role) -- Prevent duplicate assignments
 );
 
 -- Types of actions (for the user_action_logs tableOld)

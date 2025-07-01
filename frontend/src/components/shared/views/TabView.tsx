@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TabView.css';
 
-interface Tab {
+export interface Tab {
   label: string;
   component: React.ReactNode;
 }

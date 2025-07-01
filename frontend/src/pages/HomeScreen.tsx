@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { getUsername, isAdmin } from '../utils/auth/userDetails';
 import AdminView from './views/admin/AdminView';
 import ProfileView from './views/profile/ProfileView';
-import TabView from '../components/shared/views/TabView';
+import TabView, { type Tab } from '../components/shared/views/TabView';
+import ServerListView from '../components/server_instances/ServerListView';
 
 const HomeScreen: React.FC = () => {
   // state to hold current username
@@ -20,18 +21,24 @@ const HomeScreen: React.FC = () => {
   }, []);
 
   const welcomeMessage = `Welcome ${username}`;
-  const tabs = [];
+  const tabs: Tab[] = [];
 
   if (isAdmin()) {
     tabs.push({
-      label: 'Admin View',
-      path: 'admin',
+      label: 'Admin',
       component: <AdminView />,
     });
+  } else {
+    tabs.push({
+      label: 'Servers',
+      component: <ServerListView
+        endpoint="/server-instances/me"
+        allowAdd={false}
+      />
+    })
   }
   tabs.push({
     label: 'Account',
-    path: 'profile',
     component: <ProfileView />,
   });
 
@@ -39,9 +46,9 @@ const HomeScreen: React.FC = () => {
     <main>
       {tabs.length > 0 ? (
         <TabView
-            tabs={tabs}
-            title="Minecraft Manager"
-            subtitle={welcomeMessage}
+          tabs={tabs}
+          title="Minecraft Manager"
+          subtitle={welcomeMessage}
         />
       ) : (
         <p>No tabs found... please report this as a bug.</p>

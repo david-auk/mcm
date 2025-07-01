@@ -5,6 +5,7 @@ import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
 import com.mcm.backend.app.database.core.annotations.table.TableField;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.daos.DAO;
+import com.mcm.backend.app.api.utils.annotations.ValidatedBody;
 
 /**
  * Marker interface for classes that can be used with {@link DAO} and {@link ValidatedBody}.

@@ -1,15 +1,25 @@
 import React from 'react';
 import TabView from '../../../components/shared/views/TabView';
+import SystemView from './system/SystemView';
+import ServerListView from '../../../components/server_instances/ServerListView';
+import UserManagementView from './user_management/UserManagementView';
 
 const tabs = [
   {
-    label: "User Management",
-    component: <p>User Management Panel (placeholder)</p>,
+    label: "Server Overview",
+    component: <ServerListView
+      endpoint="/server-instances"
+      allowAdd={true}
+    />,
   },
   {
-    label: "Server Overview",
-    component: <p>Server Overview Panel (placeholder)</p>,
+    label: "User Management",
+    component: <UserManagementView />,
   },
+  {
+    label: "System",
+    component: <SystemView />,
+  }
 ];
 
 const AdminView: React.FC = () => {

@@ -5,6 +5,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PrivateRoute from './components/routing/PrivateRoute';
 import LoginScreen from './pages/LoginScreen';
 import HomeScreen from './pages/HomeScreen';
+import ServerInstanceView from './pages/server_instance/ServerInstanceView';
+import UserView from './pages/users/UserView';
 
 import { ToastProvider } from './contexts/ToastContext';
 import './App.css';
@@ -34,6 +36,23 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <HomeScreen />
+              </PrivateRoute>
+            }
+          />
+          {/* new server-instance detail route */}
+          <Route
+              path="/server-instance/:id"
+              element={
+                <PrivateRoute>
+                  <ServerInstanceView />
+                </PrivateRoute>
+              }
+          />
+          <Route
+            path="/user/:id"
+            element={
+              <PrivateRoute>
+                <UserView />
               </PrivateRoute>
             }
           />

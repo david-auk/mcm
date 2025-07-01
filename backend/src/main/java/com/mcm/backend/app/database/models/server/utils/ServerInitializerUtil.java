@@ -1,5 +1,7 @@
 package com.mcm.backend.app.database.models.server.utils;
 
+import com.mcm.backend.app.api.utils.process.LogEntry;
+import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.ServerInstanceProperty;
 import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
@@ -27,29 +29,37 @@ public class ServerInitializerUtil {
      * @throws IllegalStateException if expected steps fail
      * @throws InterruptedException  if subprocess is interrupted
      */
-    public static List<ServerInstanceProperty> initialize(ServerInstance instance) throws IOException, InterruptedException {
+    public static List<ServerInstanceProperty> initialize(ServerInstance instance, ProcessStatus ps)
+    throws IOException, InterruptedException {
         Path serverDir = Paths.get(ServerCoreUtil.getServerInstanceDirectory(instance));
         Path jarPath = serverDir.resolve("server.jar");
 
         // Step 1: Create the server directory
+        ps.getLogs().add(new LogEntry("Creating server directory"));
         Files.createDirectories(serverDir);
 
         // Step 2: Download the server JAR
+        ps.getLogs().add(new LogEntry("Downloading server JAR from: " + instance.getJarUrl()));
         downloadServerJar(instance.getJarUrl(), jarPath);
 
         // Step 3: Run server until eula.txt exists (max 60s)
+        ps.getLogs().add(new LogEntry("Running server to generate eula.txt (This could take a while...)"));
         runUntilFileExists(serverDir, "eula.txt", 60_000);
 
         // Step 4: Accept EULA by modifying eula.txt
+        ps.getLogs().add(new LogEntry("Accepting EULA"));
         acceptEula(serverDir);
 
         // Step 5: Wait for server.properties to appear (max 60s)
         Path propsPath = serverDir.resolve("server.properties");
         if (!Files.exists(propsPath)) {
+            ps.getLogs().add(new LogEntry("Waiting for server.properties"));
             runUntilFileExists(serverDir, "server.properties", 60_000);
+            ps.getLogs().add(new LogEntry("server.properties generated"));
         }
 
         // Step 6: Read, enrich and write back server.properties with specials
+        ps.getLogs().add(new LogEntry("Initializing properties"));
         List<ServerInstanceProperty> initializedProperties = ServerPropertiesUtil.initialize(instance);
         ServerPropertiesUtil.write(instance, initializedProperties);
 
@@ -60,7 +70,6 @@ public class ServerInitializerUtil {
     }
 
     private static void downloadServerJar(String url, Path destination) throws IOException {
-        System.out.println("Downloading server JAR from: " + url);
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.setRequestProperty("User-Agent", "Minecraft-Server-Initializer");
 
@@ -81,7 +90,6 @@ public class ServerInitializerUtil {
         pb.redirectErrorStream(true);
 
         Process process = pb.start();
-        System.out.println("Running server to generate: " + expectedFilename);
 
         Path targetFile = serverDir.resolve(expectedFilename);
         long start = System.currentTimeMillis();

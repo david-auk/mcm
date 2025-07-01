@@ -2,7 +2,7 @@ package com.mcm.backend.app.api.controllers.users.user;
 
 import com.mcm.backend.app.api.utils.LoggingUtil;
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
-import com.mcm.backend.app.api.utils.RequestBodyUtil;
+import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
 import com.mcm.backend.app.api.utils.annotations.RequireRole;
 import com.mcm.backend.app.database.core.components.daos.DAO;
@@ -31,10 +31,9 @@ public class UserMeController {
 
     @RequireRole(User.class)
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@CurrentUser User user, @RequestBody Map<String, ?> body) throws JsonErrorResponseException {
+    public ResponseEntity<?> changePassword(@CurrentUser User user, RequestBodyUtil requestBodyUtil) throws JsonErrorResponseException {
 
         // Get the passwords
-        RequestBodyUtil requestBodyUtil = new RequestBodyUtil(body);
         String currentPassword = requestBodyUtil.getField("current_password", String.class);
         String newPassword = requestBodyUtil.getField("new_password", String.class);
 
@@ -70,10 +69,9 @@ public class UserMeController {
 
     @RequireRole(User.class)
     @PostMapping("/change-username")
-    public ResponseEntity<?> changeUsername(@CurrentUser User user, @RequestBody Map<String, ?> body) throws JsonErrorResponseException {
+    public ResponseEntity<?> changeUsername(@CurrentUser User user, RequestBodyUtil requestBodyUtil) throws JsonErrorResponseException {
 
         // Get the new username
-        RequestBodyUtil requestBodyUtil = new RequestBodyUtil(body);
         String newUsername = requestBodyUtil.getField("new_username", String.class);
 
         try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {

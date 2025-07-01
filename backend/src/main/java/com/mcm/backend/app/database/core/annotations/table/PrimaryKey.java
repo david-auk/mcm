@@ -6,15 +6,21 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation for marking primary keys
+ * Marks the primary‐key provider for this entity.
  * <p>
- * Field name must be the same as the column name.
+ * Can be placed on:
+ * <ul>
+ *   <li>a field, in which case that field’s value is used directly as the PK</li>
+ *   <li>a zero‐argument method, in which case its return value is used as the PK</li>
+ * </ul>
+ * <p>
+ * The field or method must uniquely identify a row in the table.
  */
-
-
-// TODO Write (Better) JAVADOC
-@Target({ElementType.FIELD})
+@Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PrimaryKey {
-    Class<?> value(); // to specify the type of the primary key
+    /**
+     * The Java type of the primary key value (e.g. UUID.class, String.class).
+     */
+    Class<?> value();
 }

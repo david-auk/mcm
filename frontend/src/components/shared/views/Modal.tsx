@@ -27,6 +27,22 @@ const Modal: React.FC<ModalProps> = ({
     };
   }, []);
 
+  // Handle Escape to cancel and Enter to confirm
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      } else if (e.key === 'Enter') {
+        onConfirm();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose, onConfirm]);
+
+
   // Render modal into #modal-root (add a <div id="modal-root"/> in index.html)
   return ReactDOM.createPortal(
     <div className="modal-overlay" onClick={onClose}>

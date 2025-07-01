@@ -26,6 +26,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 UUID userId = JwtUtil.validateTokenAndGetUserId(token);
                 request.setAttribute("authenticatedUserId", userId);
             } catch (Exception e) {
+                // TODO Make this return map "error": "..."
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
                 return;

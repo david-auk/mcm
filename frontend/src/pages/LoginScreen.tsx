@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { setToken } from '../utils/auth/token';
-import { setUserIsAdmin, setUsername as setLocalUsername } from '../utils/auth/userDetails';
+import { setUserIsAdmin, setUsername as setLocalUsername, setUserId } from '../utils/auth/userDetails';
 import { useToast } from '../contexts/ToastContext'
 
 
@@ -36,11 +36,9 @@ const LoginScreen: React.FC = () => {
                 return
             }
 
-
-            const token = data.token;
-
             // Store values
-            setToken(token);
+            setUserId(data.user_id)
+            setToken(data.token);
             setUserIsAdmin(data.is_admin)
             setLocalUsername(username)
 
@@ -76,7 +74,7 @@ const LoginScreen: React.FC = () => {
                         onChange={e => setPassword(e.target.value)}
                         required
                     />
-                    <button type="submit">Login</button>
+                    <button className="success" type="submit">Login</button>
                 </form>
             </div>
         </main>

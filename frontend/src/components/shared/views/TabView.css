@@ -8,7 +8,7 @@
 
 /* Inline nav “steals” the parent’s window frame, so no separation */
 .tab-view__nav--inline {
-  margin-top: -1px;            /* pull up to parent border */
+  margin-top: -20px;            /* pull up to parent border */
   border-top: none;
 }
 
@@ -27,6 +27,10 @@
 }
 .tab-view__tab:hover {
   color: #fafafa;
+  background-color: transparent !important;
+  background-image: none !important;
+  filter: none !important;
+  border-color: transparent !important;
 }
 .tab-view__tab--active {
   color: #fafafa;

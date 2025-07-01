@@ -1,20 +1,3 @@
-/* ProfileView.css */
-
-/* —— Color Variables —— */
-:root {
-  /* Softer, darker primary green */
-  --btn-green: #2a8a3f;
-  /* A gentle tint for hover */
-  --btn-green-hover: #3fa859;
-  /* A deeper shade for the “pressed” shadow */
-  --btn-green-active: #1e392e;
-  /* Softer, darker primary red */
-  --btn-red: #a13b3b;
-  /* A gentle tint for hover (~25% lighter) */
-  --btn-red-hover: #c15757;
-  /* A deeper shade for the “pressed” shadow (~20% darker) */
-  --btn-red-active: #7c2c2c;
-}
 
 /* —— Profile Form Layout —— */
 .profile-form {
@@ -50,11 +33,6 @@
   box-sizing: border-box;
 }
 
-.profile-form input:focus {
-  outline: none;
-  border-color: var(--btn-green);
-}
-
 .profile-form .availability {
   display: inline-flex;
   align-items: center;
@@ -70,72 +48,20 @@
 }
 
 .profile-form .availability.success {
-  color: var(--btn-green);
+  color: var(--color-profile--success-border);
 }
 
 .profile-form .availability.error {
-  color: var(--btn-red);
+  color: var(--color-profile--danger-border);
 }
 
-/* —— Primary Buttons (Change username, Change password, Logout) —— */
-.profile-form button,
-.profile-security-buttons button:not(.delete) {
+.security button{
   width: 100%;
-  padding: 12px;
-  background: var(--btn-green);
-  color: #fafafa;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 3px 0 var(--btn-green-active);
-  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
-}
+  gap: 12px;
 
-.profile-form button:hover,
-.profile-security-buttons button:not(.delete):hover {
-  background: var(--btn-green-hover);
-}
-
-.profile-form button:disabled,
-.profile-security-buttons button:not(.delete):disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.profile-form button:active,
-.profile-security-buttons button:not(.delete):active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 var(--btn-green-active);
-}
-
-/* —— Delete Button —— */
-.profile-security-buttons {
   display: flex;
   flex-direction: column;
   gap: 12px;
   max-width: 400px;
   margin: 16px auto 0;
-}
-
-.profile-security-buttons button.delete {
-  width: 100%;
-  padding: 12px;
-  background: var(--btn-red);
-  color: #fafafa;
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #7b2c2c;
-  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
-}
-
-.profile-security-buttons button.delete:hover {
-  background: var(--btn-red-hover);
-}
-
-.profile-security-buttons button.delete:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #7b2c2c;
 }

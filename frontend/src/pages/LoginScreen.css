@@ -91,11 +91,6 @@ select:-webkit-autofill:focus {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-.container-login input::placeholder {
-  color: var(--text-secondary);
-  opacity: 1;
-}
-
 .container-login input:focus {
   outline: none;
   border-color: var(--accent-green);
@@ -104,27 +99,4 @@ select:-webkit-autofill:focus {
 /* — button — */
 .container-login button {
   width: 100%;
-  margin-top: 12px;
-  padding: 12px;
-  background: var(--accent-green);
-  color: var(--text-primary);
-  border: none;
-  border-radius: 4px;
-  font-size: 1rem;
-  cursor: pointer;
-  box-shadow: 0 3px 0 #2a8a3f;
-  transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
-  display: flex;                      /* center text */
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-}
-
-.container-login button:hover {
-  background: #5fc066;
-}
-
-.container-login button:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #2a8a3f;
 }

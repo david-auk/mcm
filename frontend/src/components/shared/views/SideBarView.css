@@ -1,14 +1,14 @@
 /* SideBarView.css */
 
 /* reuse your dark/glassy variables if you have them in :root, otherwise these work standalone */
-:root {
-  --glass-bg: rgba(20,20,20,0.75);
+/* :root {
+  --glass-bg: rgba(20, 20, 20, 0.75);
   --glass-blur: blur(12px);
-  --border-light: rgba(255,255,255,0.25);
+  --border-light: rgba(255, 255, 255, 0.25);
   --text-light: #fafafa;
   --text‐dim: #cccccc;
-  --accent-green: rgba(63,186,84,0.6);
-}
+  --accent-green: rgba(63, 186, 84, 0.6);
+} */
 
 /* outer container mimics TabView window */
 .sidebar-view {
@@ -21,7 +21,7 @@
   border: 1px solid var(--border-light);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
 }
 
 /* sidebar nav panel */
@@ -30,7 +30,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px;
-  background-color: rgba(30,30,30,0.6);
+  background-color: rgba(30, 30, 30, 0.6);
   backdrop-filter: blur(8px);
   border-right: 1px solid var(--border-light);
 }
@@ -59,13 +59,19 @@
 }
 
 .sidebar-view__button:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   color: var(--text-light);
+  background-color: transparent !important;
+  background-image: none !important;
+  filter: none !important;
+  border-color: transparent !important;
 }
 
 .sidebar-view__button--active {
-  background: var(--accent-green);
-  color: var(--text-light);
+  background: var(--color-profile--success-bg);
+  color: var(--color-profile--success-color);
+  /* background: var(--accent-green);
+  color: var(--text-light); */
 }
 
 /* content region */
