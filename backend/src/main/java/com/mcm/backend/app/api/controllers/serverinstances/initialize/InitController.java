@@ -36,7 +36,7 @@ public class InitController {
         try (DAO<ServerInstance, UUID> serverInstanceDAO = DAOFactory.createDAO(ServerInstance.class)) {
             ServerInstance serverInstance = serverInstanceDAO.get(id);
 
-            // Check if server instance exists
+            // Check if the server instance exists
             if (serverInstance == null) {
                 throw new JsonErrorResponseException("Server Instance not found", HttpStatus.NOT_FOUND);
             }

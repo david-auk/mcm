@@ -1,17 +1,26 @@
 import React, { useState } from 'react';
 import './Console.css';
+import authenticatedFetch from '../../../utils/auth/authenticatedFetch';
+import { useToast } from '../../../contexts/ToastContext';
 
 interface ConsoleProps {
   /** whether to show the command input bar */
   isOperator: boolean;
+  /** ID of the server instance */
+  serverInstanceId: string;
 }
 
-const Console: React.FC<ConsoleProps> = ({ isOperator }) => {
+const Console: React.FC<ConsoleProps> = ({ isOperator, serverInstanceId }) => {
   const [command, setCommand] = useState('');
+  const toast = useToast();
 
-  const handleAction = (action: 'start' | 'stop' | 'restart') => {
-    // TODO: wire up real fetch calls
-    console.log(`Clicked ${action}`);
+  const handleAction = async (action: 'start' | 'stop' | 'restart') => {
+    try {
+      await authenticatedFetch.post<void>(`/server-instances/${serverInstanceId}/${action}`);
+      toast(`Server ${action}ed successfully`, 'success');
+    } catch (err: any) {
+      toast(err.response?.data?.error || `Could not ${action} server`, 'error');
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

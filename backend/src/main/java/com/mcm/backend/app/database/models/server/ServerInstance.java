@@ -162,12 +162,12 @@ public class ServerInstance implements TableEntity {
         TmuxUtil.stopServerInstance(this);
     }
 
-    public void restart() throws RuntimeException, InterruptedException {
-        if (isRunning()) {
-            stop();
-        } // TODO Implement wait for complete down
-        start();
-    }
+//    public void restart() throws RuntimeException, InterruptedException {
+//        if (isRunning()) {
+//            stop();
+//        } // TODO Implement wait for complete down
+//        start();
+//    }
 
     public List<ServerInstanceProperty> initialize(ProcessStatus ps) throws RuntimeException, IOException, InterruptedException {
         if (eulaAccepted) {

@@ -25,6 +25,7 @@ const ServerInstanceView: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState<Role[]>([]);
   const [rolesLoading, setRolesLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -76,7 +77,10 @@ const ServerInstanceView: React.FC = () => {
   if (!server.eulaAccepted && allowedToView('maintainer')) {
     tabs.push({
       label: 'Initialize',
-      component: <InitializationPage serverInstance={server} />,
+      component: <InitializationPage serverInstance={server} 
+      isInitializing={isInitializing}
+      setIsInitializing={setIsInitializing}
+      />,
     });
   } else {
     // Always show Dashboard (or Overview)
@@ -102,6 +106,7 @@ const ServerInstanceView: React.FC = () => {
             component: (
               <Console
                 isOperator={allowedToView('operator')} // or roles.includes('operator') || isAdmin()
+                serverInstanceId={id!}             
               />
             ),
           })
@@ -119,6 +124,7 @@ const ServerInstanceView: React.FC = () => {
   if (allowedToView('maintainer')) {
     tabs.push({
       label: 'Settings',
+      disabled: isInitializing,
       component: (
         <ServerSettings
           server={server!}

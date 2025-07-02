@@ -8,12 +8,14 @@ import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.roles.Role;
 import com.mcm.backend.app.database.models.server.ServerInstance;
+import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 import com.mcm.backend.app.database.models.users.User;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @RestController
@@ -81,15 +83,23 @@ public class MaintainerController {
     @RequireServerInstanceRole(Role.MAINTAINER)
     public ResponseEntity<?> deleteServerInstance(@CurrentUser User currentUser, @PathVariable UUID id) throws JsonErrorResponseException {
         try (DAO<ServerInstance, UUID> serverInstanceDAO = DAOFactory.createDAO(ServerInstance.class)) {
-            if (!serverInstanceDAO.existsByPrimaryKey(id)) {
+            ServerInstance serverInstance = serverInstanceDAO.get(id);
+
+            if (!serverInstanceDAO.exists(serverInstance)) {
                 throw new JsonErrorResponseException("Server Instance not found", HttpStatus.NOT_FOUND);
             }
 
             //LoggingUtil.log(ActionType.DELETE_SERVER);
 
-            serverInstanceDAO.delete(id);
+            // Clean Dirs
+            ServerCoreUtil.cleanServerInstance(serverInstance);
+
+            // Delete db info
+            serverInstanceDAO.delete(serverInstance.getId());
 
             return ResponseEntity.ok("Server Instance deleted");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }
