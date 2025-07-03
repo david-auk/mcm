@@ -1,10 +1,15 @@
 package com.mcm.backend.app.database.models.server;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.core.annotations.table.*;
+import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
+import com.mcm.backend.app.database.models.server.utils.rcon.RconClient;
+import com.mcm.backend.app.database.models.server.utils.rcon.RconUtils;
 
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -44,6 +49,10 @@ public class ServerInstance implements TableEntity {
 
     @TableField(type = Integer.class)
     private Integer port;
+
+    @TableIgnore
+    // RCON client instance, initialized when the server is initialized
+    private RconClient rconClient;
 
     @TableConstructor
     public ServerInstance(UUID id, String name, String description, String minecraftVersion, String jarUrl, Boolean eulaAccepted, Timestamp createdAt, Integer allocatedRamMB, Integer port) {
@@ -158,8 +167,37 @@ public class ServerInstance implements TableEntity {
         TmuxUtil.startServerInstance(this);
     }
 
+    /**
+     * Gracefully stops the server by sending the RCON 'stop' command,
+     * waiting up to a timeout for the process to exit, then falling back
+     * to force-stopping via TMUX if still running.
+     */
     public void stop() throws RuntimeException {
-        TmuxUtil.stopServerInstance(this);
+        // If server not running, nothing to do
+        if (!isRunning()) {
+            return;
+        }
+        // Attempt graceful shutdown via RCON
+        try {
+            sendCommand("stop");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to send stop command via RCON", e);
+        }
+        // Wait for shutdown up to timeout
+        long timeoutMillis = 30_000;
+        long startTime = System.currentTimeMillis();
+        while (isRunning() && System.currentTimeMillis() - startTime < timeoutMillis) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        // If still running after timeout, force stop via TMUX
+        if (isRunning()) {
+            TmuxUtil.stopServerInstance(this);
+        }
     }
 
 //    public void restart() throws RuntimeException, InterruptedException {
@@ -177,6 +215,20 @@ public class ServerInstance implements TableEntity {
     }
 
     public String sendCommand(String command) throws RuntimeException {
-        return null;
+        return getRconClient().sendCommand(command);
+    }
+
+    private void setRconClient(RconClient rconClient) {
+        this.rconClient = rconClient;
+    }
+
+    /**
+     * Returns the RCON client, initializing it if necessary.
+     */
+    private RconClient getRconClient() {
+        if (rconClient == null) {
+            setRconClient(RconUtils.buildRconClient(this));
+        }
+        return rconClient;
     }
 }

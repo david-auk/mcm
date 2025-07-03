@@ -10,7 +10,7 @@ export interface Tab {
 interface TabViewProps {
   tabs: Tab[];
   title?: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
 }
 
 const TabView: React.FC<TabViewProps> = ({ tabs, title, subtitle }) => {

@@ -31,10 +31,7 @@ const ServerInstanceView: React.FC = () => {
   const navigate = useNavigate();
   const admin = isAdmin();
 
-  // 1) Load the server
-  useEffect(() => {
-    if (!id) return;
-    setLoading(true);
+  const loadServer = () => {
     authenticatedFetch
       .get<ServerInstance>(`/server-instances/${id}`)
       .then(({ data }) => setServer(data))
@@ -42,8 +39,15 @@ const ServerInstanceView: React.FC = () => {
         console.error(err);
         toast(err.response?.data?.error || 'Failed to load server', 'error');
         navigate('/servers');
-      })
-      .finally(() => setLoading(false));
+      });
+  }
+
+  // 1) Load the server
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    loadServer();
+    setLoading(false);
   }, [id, navigate, toast]);
 
   // 2) If non-admin and initialized, fetch roles once
@@ -77,9 +81,9 @@ const ServerInstanceView: React.FC = () => {
   if (!server.eulaAccepted && allowedToView('maintainer')) {
     tabs.push({
       label: 'Initialize',
-      component: <InitializationPage serverInstance={server} 
-      isInitializing={isInitializing}
-      setIsInitializing={setIsInitializing}
+      component: <InitializationPage serverInstance={server}
+        isInitializing={isInitializing}
+        setIsInitializing={setIsInitializing}
       />,
     });
   } else {
@@ -105,8 +109,9 @@ const ServerInstanceView: React.FC = () => {
             label: 'Console',
             component: (
               <Console
-                isOperator={allowedToView('operator')} // or roles.includes('operator') || isAdmin()
-                serverInstanceId={id!}             
+                isOperator={allowedToView('operator')}
+                serverInstance={server}
+                fetchServerInstance={loadServer} // To update state when starting/stopping
               />
             ),
           })
@@ -144,9 +149,14 @@ const ServerInstanceView: React.FC = () => {
         tabs={tabs}
         title={server.name}
         subtitle={
-          server.eulaAccepted
-            ? server.description
-            : 'Not initialized'
+          server.eulaAccepted ?
+            <span className="server-status">
+              <span
+                className={`status-indicator__dot ${server.running ? 'status--running' : 'status--stopped'
+                  }`}
+              />
+              {server.running ? 'Running' : 'Stopped'}
+            </span> : "Uninitialized"
         }
       />
     </main>

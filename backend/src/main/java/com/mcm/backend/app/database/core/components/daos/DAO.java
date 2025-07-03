@@ -35,26 +35,26 @@ public class DAO<T, K> implements AutoCloseable {
     }
 
     public boolean exists(T entity) {
-        if (entity == null){
+        if (entity == null) {
             return false;
         }
         return existsByPrimaryKey(table.getPrimaryKey(entity));
     }
 
     public void add(T entity) {
-        if (!exists(entity)){
+        if (!exists(entity)) {
             try {
                 PreparedStatement addStatement = connection.prepareStatement(table.getInsertQuery());
                 table.prepareInsertStatement(addStatement, entity);
                 addStatement.executeUpdate();
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
     public void update(T entity) {
-        if (!exists(entity)){
+        if (!exists(entity)) {
             throw new RuntimeException("Entity does not exist.");
         }
         try {
@@ -81,7 +81,7 @@ public class DAO<T, K> implements AutoCloseable {
             preparedStatement.setObject(1, primaryKey);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                 entity = table.buildFromTableWildcardQuery(resultSet);
+                entity = table.buildFromTableWildcardQuery(resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -92,10 +92,10 @@ public class DAO<T, K> implements AutoCloseable {
     /**
      * Retrieve entities by multiple filter criteria and optional ordering.
      *
-     * @param filters       the list of filter criteria (each with its own wildcard flag);
-     *                      any criterion whose value is null will be skipped
-     * @param orderByField  the entity Field to sort by (or null for no ordering)
-     * @param ascending     true for ASC, false for DESC
+     * @param filters      the list of filter criteria (each with its own wildcard flag);
+     *                     any criterion whose value is null will be skipped
+     * @param orderByField the entity Field to sort by (or null for no ordering)
+     * @param ascending    true for ASC, false for DESC
      * @return a List of matching entities
      * @throws RuntimeException         if a SQL error occurs
      * @throws IllegalArgumentException if any Field is invalid for this entity
@@ -129,8 +129,9 @@ public class DAO<T, K> implements AutoCloseable {
 
     /**
      * Get method that builds a where query
+     *
      * @param whereField The field you are sorting for
-     * @param isData The data you want to match
+     * @param isData     The data you want to match
      * @return Entities from query
      */
     public <D> List<T> get(Field whereField, D isData) {
@@ -143,11 +144,14 @@ public class DAO<T, K> implements AutoCloseable {
         if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
             throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
         }
-        List<T> matches = get(uniqueField, isData);
-        if (matches.isEmpty()) {
+        List<T> results = get(uniqueField, isData);
+        if (results.size() > 1) {
+            throw new IllegalStateException("Multiple results found for unique field: " + uniqueField.getName() + " with value: " + isData.toString());
+        } else if (results.isEmpty()) {
             return null;
+        } else {
+            return results.getFirst();
         }
-        return matches.getFirst();
     }
 
     public void delete(K primaryKey) {
@@ -185,6 +189,7 @@ public class DAO<T, K> implements AutoCloseable {
 
     /**
      * Helper method to convert a resultSet (list) into an entity list
+     *
      * @param resultSet A resultSet from a wildcard query, so it can be built using the  buildFromTableWildcardQuery
      * @return A list of entities representing the query results
      * @throws SQLException Exception that is meant to be caught by implementing methods
