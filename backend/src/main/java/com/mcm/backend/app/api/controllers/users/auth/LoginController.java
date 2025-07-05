@@ -23,12 +23,9 @@ import java.util.UUID;
 public class LoginController {
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, ?> requestBody) throws JsonErrorResponseException, NoSuchFieldException {
+    public ResponseEntity<?> login(RequestBodyUtil requestBodyUtil) throws JsonErrorResponseException, NoSuchFieldException {
 
-        // Build the RBU
-        RequestBodyUtil requestBodyUtil = new RequestBodyUtil(requestBody);
-
-        // Get values from request
+        // Get values from the request
         String providedUsername = requestBodyUtil.getField("username", String.class);
         String providedPassword = requestBodyUtil.getField("password", String.class);
 
@@ -45,19 +42,21 @@ public class LoginController {
                 throw new JsonErrorResponseException("User not found", HttpStatus.NOT_FOUND);
             }
 
-            // Check if password hash matches
+            // Check if the password hash matches
             if (!user.getPasswordHash().equals(providedPasswordHash)) {
                 throw new JsonErrorResponseException("Invalid credentials", HttpStatus.UNAUTHORIZED);
             }
 
-            // Create new token
+            // Create a new token
             String token = JwtUtil.generateToken(user.getId());
 
-            // Check if user is admin
+            // Check if the user is admin
             boolean adminUser;
             try (DAO<Admin, UUID> adminDAO = DAOFactory.createDAO(Admin.class)) {
                 adminUser = adminDAO.existsByPrimaryKey(user.getId());
             }
+
+            // TODO Redirect to next
 
             // Return session/user info
             return ResponseEntity.ok().body(Map.of(

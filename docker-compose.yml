@@ -29,11 +29,14 @@ services:
     container_name: mcm_backend
     expose:
       - "8080"
+    ports:
+      - "2000-4000:2000-4000" # Map server ports to host
     depends_on:
       db:
         condition: service_healthy
     volumes:
       - ./backend:/app
+      - ./server_instances:/home/gradle/server_instances
     environment:
       DEFAULT_USER_PASSWORD: ${FRONTEND_DEFAULT_USER_PASSWORD}
       DATASOURCE_URL: jdbc:postgresql://db:5432/${DB_NAME}

@@ -2,6 +2,7 @@ package com.mcm.backend.app;
 
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.database.core.components.daos.DAO;
+import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.User;
@@ -27,7 +28,9 @@ public class InitializeUtil {
             // Check if any admins exist
             if (admins.isEmpty()) {
 
-                User userCalledAdmin = userDAO.getUnique(User.class.getDeclaredField("username"), "admin");
+                User userCalledAdmin = new QueryBuilder<>(userDAO)
+                        .where(User.class.getDeclaredField("username"), "admin")
+                        .getUnique();
 
                 if (userCalledAdmin == null) {
 
@@ -39,9 +42,6 @@ public class InitializeUtil {
 
                     // Add the default user to the user table
                     userDAO.add(userCalledAdmin);
-
-                    // Delete that user
-                    userDAO.delete(userCalledAdmin.getId());
                 }
 
                 // Add the default user to the admin table

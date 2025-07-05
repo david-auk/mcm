@@ -11,6 +11,8 @@ import TabView from '../../components/shared/views/TabView';
 import Dashboard from './dashboard/Dashboard';
 import Console from './console/Console';
 import ServerSettings from './settings/ServerSettings';
+import ProppertiesView from './properties/PropertiesView';
+import PropertiesView from './properties/PropertiesView';
 
 type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
 
@@ -118,10 +120,12 @@ const ServerInstanceView: React.FC = () => {
         }
 
         // Editor tabs
-        if (allowedToView('editor')) tabs.push({
-          label: "Propperties",
-          component: <p>Placeholder</p>
-        })
+        if (allowedToView('editor')) {
+          tabs.push({
+            label: 'Properties',
+            component: <PropertiesView />
+          });
+        }
       }
     }
   }

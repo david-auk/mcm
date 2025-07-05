@@ -16,6 +16,11 @@ const Console: React.FC<ConsoleProps> = ({ isOperator, serverInstance, fetchServ
   const [logs, setLogs] = useState<string[]>([]);
   const logConsoleRef = useRef<HTMLDivElement>(null);
   const [isFollowing, setIsFollowing] = useState(true);
+  const logsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    logsRef.current = logs;
+  }, [logs]);
   const toast = useToast();
 
   const handleAction = async (action: 'start' | 'stop' | 'restart') => {
@@ -59,36 +64,47 @@ const Console: React.FC<ConsoleProps> = ({ isOperator, serverInstance, fetchServ
     setIsFollowing(atBottom);
   };
 
-useEffect(() => {
-  let intervalId: number;
-  const fetchLogs = async () => {
-    try {
-      const { data } = await authenticatedFetch.get<string[]>(
-        `/server-instances/${serverInstance.id}/log?fromHead=${logs.length}`
-      );
-      if (data) {
-        setLogs(prevLogs => [...prevLogs, ...data]);
+  useEffect(() => {
+    let intervalId: number | undefined;
+
+    const fetchInitialLogs = async () => {
+      try {
+        const { data } = await authenticatedFetch.get<string[]>(
+          `/server-instances/${serverInstance.id}/log`
+        );
+        setLogs(data);
+      } catch (err) {
+        toast('Could not fetch logs', 'error');
       }
-    } catch (err) {
-      toast('Could not fetch logs', 'error');
-    }
-  };
+    };
 
-  if (serverInstance.running) {
-    // Active server: initial fetch and polling
-    fetchLogs();
-    intervalId = window.setInterval(fetchLogs, 500);
-  } else if (logs.length === 0) {
-    // Server down on initial load: fetch entire log once
-    fetchLogs();
-  }
+    const fetchNewLogs = async () => {
+      try {
+        const { data } = await authenticatedFetch.get<string[]>(
+          `/server-instances/${serverInstance.id}/log?fromHead=${logsRef.current.length}`
+        );
+        if (data.length) {
+          setLogs(prevLogs => [...prevLogs, ...data]);
+        }
+      } catch (err) {
+        toast('Could not fetch logs', 'error');
+      }
+    };
 
-  return () => {
-    if (intervalId) {
-      clearInterval(intervalId);
+    // Always fetch the full log on mount or when serverInstance changes
+    fetchInitialLogs();
+
+    // If server is running, start polling for new entries
+    if (serverInstance.running) {
+      intervalId = window.setInterval(fetchNewLogs, 500);
     }
-  };
-}, [serverInstance.id, serverInstance.running, logs.length]);
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [serverInstance.id, serverInstance.running]);
 
   useEffect(() => {
     const div = logConsoleRef.current;
