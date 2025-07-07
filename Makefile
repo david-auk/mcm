@@ -1,4 +1,16 @@
-.PHONY: setup up
+# ----------  OS detection ----------
+UNAME_S := $(shell uname -s)
+IS_MAC  := $(filter Darwin,$(UNAME_S))
+IS_LINUX:= $(filter Linux,$(UNAME_S))
+
+# ----------  Compose file list ----------
+COMPOSE_FILES = -f docker-compose.yml
+ifeq ($(IS_LINUX),Linux)
+COMPOSE_FILES += -f docker-compose.override.yml
+endif
+
+# ----------  Targets ----------
+.PHONY: setup up down
 
 setup:
 	@if [ ! -f .env ]; then \
@@ -12,29 +24,51 @@ setup:
 		DB_PASSWORD=$$(openssl rand -base64 32); \
 		DB_NAME=mcm_db; \
 		DB_USER=mcm_db_user; \
-		echo "# Custom environment variables for MCM" > .env; \
-		echo "" >> .env; \
-		echo "# Front-end variables:" >> .env; \
-		echo "FRONTEND_PORT=$$FRONTEND_PORT" >> .env; \
-		echo "FRONTEND_DEFAULT_USER_PASSWORD=\"$$FRONTEND_DEFAULT_USER_PASSWORD\" # NOTE: If changed the db_volume must be deleted in order for this to be updated" >> .env; \
-		echo "" >> .env; \
-        echo "# Database variables:" >> .env; \
-		echo "DB_NAME=\"$$DB_NAME\"" >> .env; \
-		echo "DB_USER=\"$$DB_USER\"" >> .env; \
-		echo "DB_PASSWORD=\"$$DB_PASSWORD\"" >> .env; \
+		{ \
+		  echo "# Custom environment variables for MCM"; \
+		  echo ""; \
+		  echo "# Front-end variables:"; \
+		  echo "FRONTEND_PORT=$$FRONTEND_PORT"; \
+		  echo "FRONTEND_DEFAULT_USER_PASSWORD=\"$$FRONTEND_DEFAULT_USER_PASSWORD\" # NOTE: If changed the db_volume must be deleted"; \
+		  echo ""; \
+		  echo "# Database variables:"; \
+		  echo "DB_NAME=\"$$DB_NAME\""; \
+		  echo "DB_USER=\"$$DB_USER\""; \
+		  echo "DB_PASSWORD=\"$$DB_PASSWORD\""; \
+		} > .env; \
 		echo ""; \
-		echo "-----"; \
-		echo ""; \
-		echo "Created environments, you can always change them at .env"; \
-		echo ""; \
-		echo "Once MCM is running you can login at:"; \
-		echo "Host: http://localhost:$$FRONTEND_PORT"; \
-		echo "Username: $$FRONTEND_DEFAULT_USERNAME"; \
-		echo "Password: $$FRONTEND_DEFAULT_USER_PASSWORD"; \
-		echo ""; \
+		echo "Created .env."; \
+		echo "Once running, browse to http://localhost:$$FRONTEND_PORT"; \
+		echo "Login → user: $$FRONTEND_DEFAULT_USERNAME | pwd: $$FRONTEND_DEFAULT_USER_PASSWORD"; \
 	else \
-		echo ".env file already exists. Delete it to reconfigure."; \
+		echo ".env exists – skipping."; \
 	fi
 
+# ----------  Colima helpers (macOS only) ----------
+ifeq ($(IS_MAC),Darwin)
+define ensure_colima
+	@if ! command -v colima >/dev/null 2>&1; then \
+		echo " ❌  Colima not found. Install it first:  brew install colima docker"; \
+		exit 1; \
+	fi
+	@if ! colima status &>/dev/null ; then \
+		echo " ▶️  Starting Colima in bridged mode (first run may take a minute)…"; \
+		colima start --network-address; \
+	fi
+	@echo " ✅  Colima is running."
+endef
+define stop_colima
+	@if colima status &>/dev/null; then \
+		echo "Stopping Colima..."; \
+		colima stop; \
+	fi
+endef
+endif
+
 up: setup
-	docker compose --env-file .env up -d
+	$(if $(IS_MAC),$(call ensure_colima))
+	docker compose $(COMPOSE_FILES) --env-file .env up -d
+
+down:
+	docker compose $(COMPOSE_FILES) --env-file .env down
+	$(if $(IS_MAC),$(call stop_colima))

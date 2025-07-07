@@ -41,11 +41,11 @@ const PropertiesView: React.FC = () => {
     setChangedProps(prev => new Set(prev).add(propertyId));
   };
 
-  const saveProperty = (propertyId: string) => {
+  const saveProperty = async (propertyId: string) => {
     const prop = properties?.find(p => p.id === propertyId);
     if (!prop) return;
-    authenticatedFetch
-      .post<Property[]>(`/server-instances/${id}/property/${propertyId}`, {value: prop.value})
+    await authenticatedFetch
+      .post<Property[]>(`/server-instances/${id}/property/${propertyId}`, { value: prop.value })
       // .then(() => toast(`Updated ${prop.key}`, 'success'))
       .catch(err => {
         console.error(err);
@@ -53,9 +53,9 @@ const PropertiesView: React.FC = () => {
       });
   };
 
-  const writeProperties = () => {
+  const writeProperties = async () => {
     if (!properties) return;
-    authenticatedFetch
+    await authenticatedFetch
       .post<Property[]>(`/server-instances/${id}/write-properties`)
       .then(() => toast('All properties saved', 'success'))
       .catch(err => {
@@ -64,10 +64,14 @@ const PropertiesView: React.FC = () => {
       });
   };
 
-  const saveAllProperties = () => {
+  const saveAllProperties = async () => {
     if (!properties || changedProps.size === 0) return;
-    Array.from(changedProps).forEach(id => saveProperty(id));
-    writeProperties();
+    // Save all changed properties to the database in parallel
+    await Promise.all(
+      Array.from(changedProps).map(propertyId => saveProperty(propertyId))
+    );
+    // After database updates complete, write properties to file
+    await writeProperties();
     setChangedProps(new Set());
   };
 

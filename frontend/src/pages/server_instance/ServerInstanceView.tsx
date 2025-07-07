@@ -11,8 +11,8 @@ import TabView from '../../components/shared/views/TabView';
 import Dashboard from './dashboard/Dashboard';
 import Console from './console/Console';
 import ServerSettings from './settings/ServerSettings';
-import ProppertiesView from './properties/PropertiesView';
 import PropertiesView from './properties/PropertiesView';
+import ServerImageView from './properties/ServerImageView';
 
 type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
 
@@ -123,7 +123,10 @@ const ServerInstanceView: React.FC = () => {
         if (allowedToView('editor')) {
           tabs.push({
             label: 'Properties',
-            component: <PropertiesView />
+            component: <TabView tabs={[
+              { label: 'Properties', component: <PropertiesView /> },
+              { label: 'Server Image', component: <ServerImageView serverId={id!} /> },
+            ]} />
           });
         }
       }
