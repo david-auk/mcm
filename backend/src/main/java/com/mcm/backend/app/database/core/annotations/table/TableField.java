@@ -7,5 +7,10 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 public @interface TableField {
     String name() default "";            // Optional override for column name
-    Class<?> type();                     // Required: the field's data type
+
+    /**
+     * Required: the field's data type. Must be a non-primitive class
+     * (use wrapper types like {@code Boolean.class} instead of {@code boolean.class}).
+     */
+    Class<?> type();
 }

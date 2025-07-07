@@ -7,7 +7,7 @@ VALUES
     -- Operator operations
     ('execute_command', '${user} executed a console command: ${command} on ${server_instance}', 'info'),
     ('start_server', '${user} started server: ${server_instance}', 'info'),
-    ('stop_server', '${user} executed a console command: ${command} on ${server_instance}', 'info'),
+    ('stop_server', '${user} stopped server: ${server_instance}', 'info'),
 
     -- Editor operations
     ('edit_property', '${user} edited a property: ${property_name} ${old_value} -> ${new_value} for ${server_instance}', 'info'),

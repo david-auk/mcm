@@ -19,7 +19,7 @@ public class ServerInstanceProperty implements TableEntity {
     private final UUID serverInstanceId;
 
     @TableField(type = Boolean.class)
-    private boolean hidden;
+    private Boolean hidden;
 
     @TableField(type = String.class)
     private String type;
@@ -32,7 +32,7 @@ public class ServerInstanceProperty implements TableEntity {
 
 
     @TableConstructor
-    public ServerInstanceProperty(UUID id, UUID serverInstanceId, boolean hidden, String type, String value, String key) {
+    public ServerInstanceProperty(UUID id, UUID serverInstanceId, Boolean hidden, String type, String value, String key) {
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
         this.serverInstanceId = serverInstanceId;
         this.hidden = hidden;
@@ -71,11 +71,11 @@ public class ServerInstanceProperty implements TableEntity {
         this.type = type;
     }
 
-    public boolean isHidden() {
+    public Boolean isHidden() {
         return hidden;
     }
 
-    public void setHidden(boolean hidden) {
+    public void setHidden(Boolean hidden) {
         this.hidden = hidden;
     }
 

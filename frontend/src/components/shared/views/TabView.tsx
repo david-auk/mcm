@@ -4,12 +4,13 @@ import './TabView.css';
 export interface Tab {
   label: string;
   component: React.ReactNode;
+  disabled?: boolean;
 }
 
 interface TabViewProps {
   tabs: Tab[];
   title?: string;
-  subtitle?: string;
+  subtitle?: string | React.ReactNode;
 }
 
 const TabView: React.FC<TabViewProps> = ({ tabs, title, subtitle }) => {
@@ -24,8 +25,9 @@ const TabView: React.FC<TabViewProps> = ({ tabs, title, subtitle }) => {
           {tabs.map((tab, i) => (
             <button
               key={i}
-              className={`tab-view__tab${activeIndex === i ? ' tab-view__tab--active' : ''}`}
-              onClick={() => setActiveIndex(i)}
+              disabled={tab.disabled ?? false}
+              className={`tab-view__tab${activeIndex === i ? ' tab-view__tab--active' : ''}${tab.disabled ?? false ? ' tab-view__tab--disabled' : ''}`}
+              onClick={() => { if (!(tab.disabled ?? false)) setActiveIndex(i); }}
             >
               {tab.label}
             </button>
@@ -52,8 +54,9 @@ const TabView: React.FC<TabViewProps> = ({ tabs, title, subtitle }) => {
         {tabs.map((tab, i) => (
           <button
             key={i}
-            className={`tab-view__tab${activeIndex === i ? ' tab-view__tab--active' : ''}`}
-            onClick={() => setActiveIndex(i)}
+            disabled={tab.disabled ?? false}
+            className={`tab-view__tab${activeIndex === i ? ' tab-view__tab--active' : ''}${tab.disabled ?? false ? ' tab-view__tab--disabled' : ''}`}
+            onClick={() => { if (!(tab.disabled ?? false)) setActiveIndex(i); }}
           >
             {tab.label}
           </button>

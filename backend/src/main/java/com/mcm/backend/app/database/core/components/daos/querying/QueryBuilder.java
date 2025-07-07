@@ -74,5 +74,16 @@ public class QueryBuilder<T, K> {
     public List<T> get() {
         return dao.get(filters, orderByField, ascending);
     }
+
+    public T getUnique() {
+        List<T> results = dao.get(filters, orderByField, ascending);
+        if (results.size() > 1) {
+            throw new IllegalStateException("Multiple results found for query: " + filters);
+        } else if (results.isEmpty()) {
+            return null;
+        } else {
+            return results.getFirst();
+        }
+    }
 }
 

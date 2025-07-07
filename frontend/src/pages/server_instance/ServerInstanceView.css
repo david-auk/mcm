@@ -20,3 +20,28 @@
 .details-panel p {
   margin: 8px 0;
 }
+
+/* Inline status subtitle styling */
+.server-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+}
+
+/* bump dot up a few pixels */
+.status-indicator__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-bottom: 5px;
+}
+
+.status--running {
+  background: #3fba54;
+}
+
+.status--stopped {
+  background: #ba3f3f;
+}

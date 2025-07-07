@@ -85,3 +85,14 @@
   font-size: 0.95rem;
   color: #cccccc;
 }
+
+.tab-view__tab--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.tab-view__tab--disabled:hover {
+  color: #cccccc;
+  background: transparent !important;
+  filter: none !important;
+  border-color: transparent !important;
+}

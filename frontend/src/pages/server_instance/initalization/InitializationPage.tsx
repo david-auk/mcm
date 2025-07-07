@@ -16,15 +16,16 @@ interface ProcessStatus {
 
 interface InitializationPageProps {
   serverInstance: ServerInstance;
+  isInitializing: boolean;
+  setIsInitializing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export default function InitializationPage({ serverInstance }: InitializationPageProps) {
+export default function InitializationPage({ serverInstance, isInitializing, setIsInitializing }: InitializationPageProps) {
   const toast = useToast();
 
   const [processId, setProcessId] = useState<string | null>(null);
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [state, setState] = useState<ProcessStatus['state']>('RUNNING');
-  const [initLoading, setInitLoading] = useState(false);
   const logConsoleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,16 +39,19 @@ export default function InitializationPage({ serverInstance }: InitializationPag
         setState(status.state);
         if (status.state === 'ERROR') {
           toast('Initialization failed. Check logs for details.', 'error');
+          setIsInitializing(false);
         }
         if (status.state !== 'RUNNING') {
           clearInterval(interval);
           if (status.state === 'SUCCESS') {
             toast('Initialization complete!', 'success');
+            setIsInitializing(false);
           }
         }
       } catch (error: any) {
         clearInterval(interval);
         toast(error.message || 'Error polling status', 'error');
+        setIsInitializing(false);
       }
     }, 1000);
     return () => clearInterval(interval);
@@ -60,7 +64,7 @@ export default function InitializationPage({ serverInstance }: InitializationPag
   }, [logs]);
 
   const startInit = async () => {
-    setInitLoading(true);
+    setIsInitializing(true);
     try {
       const response = await authenticatedFetch.post<{ processId: string }>(
         `/server-instances/initialize/${serverInstance.id}`
@@ -70,8 +74,6 @@ export default function InitializationPage({ serverInstance }: InitializationPag
       toast('Initialization started.', 'info');
     } catch (error: any) {
       toast(error.response?.data?.error || 'Failed to start initialization', 'error');
-    } finally {
-      setInitLoading(false);
     }
   };
 
@@ -90,9 +92,9 @@ export default function InitializationPage({ serverInstance }: InitializationPag
           <button
             className="primary"
             onClick={startInit}
-            disabled={initLoading}
+            disabled={isInitializing}
           >
-            {initLoading ? 'Starting...' : 'Start Initialization'}
+            {isInitializing ? 'Starting...' : 'Start Initialization'}
           </button>
         )}
 

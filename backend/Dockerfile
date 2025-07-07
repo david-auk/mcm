@@ -17,6 +17,9 @@ COPY --chown=gradle:gradle build.gradle.kts settings.gradle.kts ./
 COPY --chown=gradle:gradle gradle gradle/
 COPY --chown=gradle:gradle src src/
 
+# Suspress OpenJDK 64-Bit Server VM warning: Unable to get SVE vector length on this system
+ENV JAVA_TOOL_OPTIONS="-XX:UseSVE=0"
+
 # Build the project
 RUN gradle --no-daemon build
 

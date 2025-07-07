@@ -1,0 +1,43 @@
+.server-image-view {
+    /* font-family: Arial, sans-serif; */
+    padding: 10px;
+}
+
+.server-image-view h3 {
+    margin-bottom: 10px;
+}
+
+.server-image-view .error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+.server-image-view .loading {
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.server-image-view .current-image,
+.server-image-view .no-image {
+    margin-bottom: 10px;
+}
+
+.server-image-view img {
+    display: block;
+    margin: auto;
+    width: 30%;
+    height: 30%;
+    border: 1px solid #ccc;
+
+    border-radius: 4px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.server-image-view .upload-section {
+    margin-top: 15px;
+}
+
+.server-image-view .preview {
+    margin-top: 10px;
+}

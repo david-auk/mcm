@@ -57,20 +57,24 @@
 
 /* — Type-specific colors & icons — */
 .toast--success {
-  background-color: rgba(63, 186, 84, 0.8);
+  background-color: var(--color-profile--success-bg);
+  /* background-color: rgba(63, 186, 84, 0.8); */
 }
 .toast--success .toast__icon {
   background-color: white;
-  color: #3fba54;
+  /* color: #3fba54; */
+  color: var(--color-profile--success-bg);
 }
 .toast--success .toast__icon::before {
   content: '✔';
 }
 
 .toast--error {
+  /* TODO improve color */
   background-color: rgba(186, 63, 63, 0.8);
 }
 .toast--error .toast__icon {
+  /* TODO improve color */
   background-color: white;
   color: #ba3f3f;
 }

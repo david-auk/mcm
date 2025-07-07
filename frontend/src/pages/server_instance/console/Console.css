@@ -13,26 +13,9 @@
   gap: 8px;
   justify-content: center;
 }
-.console-btn {
+.console-controls button {
   flex: 1;
-  padding: 8px 12px;
-  font-family: inherit;
-  font-size: 0.9rem;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
-  background: rgba(30,30,30,0.7);
-  color: #fafafa;
-  backdrop-filter: blur(6px);
-  cursor: pointer;
-  transition: background 0.1s;
 }
-.console-btn:hover {
-  background: rgba(30,30,30,0.9);
-}
-.console-btn--start   { /* green */ }
-.console-btn--stop    { /* red */ }
-.console-btn--restart { /* yellow */ }
 
 /* 2. Console screen */
 .console-screen {
@@ -57,28 +40,20 @@
 }
 .console-input input {
   flex: 1;
-  padding: 8px 12px;
+  margin-top: auto;
   border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 6px;
+  border-radius: 8px !important;
   background: rgba(30,30,30,0.6);
   color: #fafafa;
   font-family: inherit;
-  font-size: 0.9rem;
-  backdrop-filter: blur(6px);
 }
-.console-input input:focus {
-  outline: none;
-  border-color: #49d860;
+
+.console-input input:disabled {  
+  background: rgba(30,30,30,0.3);
+  color: #555;
+  cursor: not-allowed;
 }
-.console-send-btn {
-  padding: 8px 16px;
-  background: rgba(63,186,84,0.8);
-  color: #fafafa;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.1s;
-}
-.console-send-btn:hover {
-  background: #5fc066;
+
+.console-input button {
+  margin-top: auto;
 }

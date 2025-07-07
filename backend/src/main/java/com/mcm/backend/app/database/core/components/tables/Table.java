@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
+import com.mcm.backend.app.database.core.annotations.table.TableIgnore;
 import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterion;
 
 import java.lang.reflect.*;
@@ -177,6 +178,9 @@ public class Table<T, K> {
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
         try {
             // unchanged from your original
+            Field[] fields = Arrays.stream(clazz.getDeclaredFields())
+                    .filter(f -> !f.isAnnotationPresent(TableIgnore.class))
+                    .toArray(Field[]::new);
             Constructor<?> constructor = Arrays.stream(clazz.getDeclaredConstructors())
                     .filter(c -> c.isAnnotationPresent(TableConstructor.class))
                     .findFirst()
@@ -185,7 +189,6 @@ public class Table<T, K> {
             constructor.setAccessible(true);
 
             // Match up fields ↔ constructor parameters
-            Field[] fields     = clazz.getDeclaredFields();
             Parameter[] params = constructor.getParameters();
             if (params.length != fields.length) {
                 throw new RuntimeException(

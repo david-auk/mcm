@@ -53,3 +53,4 @@ Thumbs.db
 
 # user vars
 .env
+server_instances

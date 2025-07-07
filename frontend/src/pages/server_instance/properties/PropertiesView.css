@@ -1,0 +1,97 @@
+.properties-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.properties-container h2 {
+  margin: 0;
+  padding: 1rem 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #ececec;
+  text-align: center;
+  margin-top: -1.5rem;
+}
+
+.form-section {
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1rem 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.form-section legend {
+  padding: 0 0.5rem;
+  font-weight: 500;
+  color: #ddd;
+}
+
+/* .properties-container label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+  color: #ccc;
+} */
+
+.properties-container input[type="text"],
+.properties-container input[type="number"],
+.properties-container input[type="checkbox"] {
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.properties-container label:has(input[type="checkbox"]) {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+}
+
+.properties-container input::placeholder {
+  color: #777;
+}
+
+.properties-container input:disabled {
+  color: #4c4c4c;
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-auto-rows: min-content;
+  gap: 0.5rem;
+}
+
+.property-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+  padding: 0.25rem 0;
+}
+
+.property-row label {
+  flex: 1;
+  margin-right: 0.5rem;
+  font-weight: 500;
+  color: #ddd;
+  /* padding-top: 20px; Push text down slightly */
+}
