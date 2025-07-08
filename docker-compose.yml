@@ -22,6 +22,8 @@ services:
   backend:
     build:
       context: backend
+      args:
+        JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:-}
     container_name: mcm_backend
 
     # ← host‐network mode: your backend and any game‐server children now
