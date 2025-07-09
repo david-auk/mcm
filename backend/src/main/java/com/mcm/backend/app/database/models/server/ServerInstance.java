@@ -4,14 +4,17 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.daos.DAO;
+import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
+import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconClient;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
@@ -230,5 +233,15 @@ public class ServerInstance implements TableEntity {
             setRconClient(RconUtils.buildRconClient(this));
         }
         return rconClient;
+    }
+
+    public Path getPath() {
+        return ServerCoreUtil.getServerInstanceDirectory(this);
+    }
+
+    public List<ServerInstanceProperty> getProperties(DAO<ServerInstanceProperty, UUID> sipDAO) throws NoSuchFieldException {
+        return new QueryBuilder<>(sipDAO)
+                .where(ServerInstanceProperty.class.getDeclaredField("serverInstanceId"), id)
+                .get();
     }
 }

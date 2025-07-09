@@ -5,6 +5,7 @@ import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.UUID;
 
 /**
@@ -47,7 +48,7 @@ public class TmuxUtil {
         ServerCoreUtil.validateServerInstanceEnvironment(instance);
 
         String sessionName = instance.getId().toString();
-        String workingDir = ServerCoreUtil.getServerInstanceDirectory(instance);
+        Path workingDir = instance.getPath();
         String startCommand = ServerCoreUtil.getServerStartCommand(instance);
         String fullCommand = String.format("cd %s && %s >> latest.log 2>&1", workingDir, startCommand);
 

@@ -26,8 +26,9 @@ public class ServerCoreUtil {
      * @param serverInstance the server instance for which to resolve the directory
      * @return the absolute path to the instance's working directory
      */
-    public static String getServerInstanceDirectory(ServerInstance serverInstance) {
-        return String.format("%s/%s", SERVER_ROOT, serverInstance.getId());
+    public static Path getServerInstanceDirectory(ServerInstance serverInstance) {
+        return Path.of(SERVER_ROOT, serverInstance.getName());
+        //return String.format("%s/%s", SERVER_ROOT, serverInstance.getId());
     }
 
     /**
@@ -52,7 +53,7 @@ public class ServerCoreUtil {
      * @return absolute path to latest.log
      */
     public static Path getLogFilePath(ServerInstance serverInstance) {
-        return Path.of(getServerInstanceDirectory(serverInstance), "latest.log");
+        return getServerInstanceDirectory(serverInstance).resolve("latest.log");
     }
 
     /**
@@ -65,16 +66,16 @@ public class ServerCoreUtil {
 
         // Validate server structure
 
-        String dirPath = getServerInstanceDirectory(serverInstance);
-        File dir = new File(dirPath);
+        //String dirPath = getServerInstanceDirectory(serverInstance);
+        File dir = getServerInstanceDirectory(serverInstance).toFile();
 
         if (!dir.exists() || !dir.isDirectory()) {
-            throw new IllegalStateException("Server directory does not exist: " + dirPath);
+            throw new IllegalStateException("Server directory does not exist: " + dir.getAbsolutePath());
         }
 
         File jarFile = new File(dir, "server.jar");
         if (!jarFile.exists() || !jarFile.isFile()) {
-            throw new IllegalStateException("Missing server.jar in: " + dirPath);
+            throw new IllegalStateException("Missing server.jar in: " + dir.getAbsolutePath());
         }
 
         // Validate ports
@@ -98,7 +99,7 @@ public class ServerCoreUtil {
      * @throws IOException if deletion fails
      */
     public static void cleanServerInstance(ServerInstance instance) throws IOException {
-        Path instanceDir = Path.of(getServerInstanceDirectory(instance));
+        Path instanceDir = getServerInstanceDirectory(instance);
 
         if (!Files.exists(instanceDir)) return; // nothing to delete
 

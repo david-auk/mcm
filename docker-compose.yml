@@ -34,9 +34,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    #user: "1000:1000"
     volumes:
       - ./backend:/app
-      - ./server_instances:/home/gradle/server_instances
+    #  - ./server_instances:/home/gradle/server_instances
     environment:
       DEFAULT_USER_PASSWORD: ${FRONTEND_DEFAULT_USER_PASSWORD}
       # point to localhost since both DB + backend share the host network

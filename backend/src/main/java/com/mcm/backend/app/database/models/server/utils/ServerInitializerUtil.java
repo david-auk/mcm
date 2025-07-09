@@ -36,7 +36,7 @@ public class ServerInitializerUtil {
 
         // Step 1: Create the server directory
         ps.getLogs().add(new LogEntry("Creating server directory"));
-        Files.createDirectories(serverDir);
+        Files.createDirectory(serverDir);
 
         // Step 2: Download the server JAR
         ps.getLogs().add(new LogEntry("Downloading server JAR from: " + instance.getJarUrl()));

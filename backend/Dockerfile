@@ -21,6 +21,10 @@ COPY --chown=gradle:gradle src src/
 ARG JAVA_TOOL_OPTIONS
 ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS
 
+# Create empty skel
+RUN mkdir /home/gradle/server_instances
+RUN touch /home/gradle/server_instances/touchfile
+
 # Build the project
 RUN gradle --no-daemon build
 
