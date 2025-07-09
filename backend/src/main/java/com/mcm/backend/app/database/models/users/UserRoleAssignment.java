@@ -2,7 +2,7 @@ package com.mcm.backend.app.database.models.users;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.roles.Role;
@@ -13,16 +13,19 @@ import java.util.UUID;
 @TableName("user_role_assignments")
 public class UserRoleAssignment implements TableEntity {
 
-    @PrimaryKey(UUID.class)
+    @TableColumn
+    @PrimaryKey
     private final UUID id;
 
-    @TableField(name = "user_id", type = UUID.class)
+    @TableColumn(name = "user_id")
+    // TODO Refactor to use @ForeignKey
     private final UUID userId;
 
-    @TableField(name = "instance_id", type = UUID.class)
+    @TableColumn(name = "instance_id")
+    // TODO Refactor to use @ForeignKey
     private final UUID instanceId;
 
-    @TableField(type = String.class)
+    @TableColumn
     private String role;
 
     @TableConstructor

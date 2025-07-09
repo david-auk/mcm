@@ -19,8 +19,4 @@ import java.lang.annotation.Target;
 @Target({ ElementType.FIELD, ElementType.METHOD })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PrimaryKey {
-    /**
-     * The Java type of the primary key value (e.g. UUID.class, String.class).
-     */
-    Class<?> value();
 }

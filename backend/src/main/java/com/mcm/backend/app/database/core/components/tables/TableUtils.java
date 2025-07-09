@@ -1,7 +1,7 @@
 package com.mcm.backend.app.database.core.components.tables;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 
 import java.lang.reflect.AccessibleObject;
@@ -50,8 +50,11 @@ public class TableUtils {
      */
     public static Class<?> getPrimaryKeyType(Class<?> clazz) {
         AccessibleObject pkMember = getPrimaryKeyMember(clazz);
-        PrimaryKey ann = pkMember.getAnnotation(PrimaryKey.class);
-        return ann.value();
+        if (pkMember instanceof Field) {
+            return ((Field) pkMember).getType();
+        } else {
+            return ((Method) pkMember).getReturnType();
+        }
     }
 
     /**
@@ -74,12 +77,11 @@ public class TableUtils {
     public static Map<Field, String> mapFieldToColumnNames(Class<?> clazz) {
         Map<Field, String> map = new LinkedHashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
-            if (field.isAnnotationPresent(TableField.class) || field.isAnnotationPresent(PrimaryKey.class)) {
+            if (field.isAnnotationPresent(TableColumn.class)) {
                 field.setAccessible(true);
-                String columnName = field.isAnnotationPresent(TableField.class)
-                        ? field.getAnnotation(TableField.class).name()
-                        : field.getName();
-                map.put(field, columnName.isEmpty() ? field.getName() : columnName);
+                String name = field.getAnnotation(TableColumn.class).name();
+                String columnName = name.isEmpty() ? field.getName() : name;
+                map.put(field, columnName);
             }
         }
         return map;
@@ -94,10 +96,10 @@ public class TableUtils {
         AccessibleObject pkMember = getPrimaryKeyMember(clazz);
 
         return Arrays.stream(clazz.getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(TableField.class))
+                .filter(f -> f.isAnnotationPresent(TableColumn.class))
                 .filter(f -> {
                     // exclude if PK is that same field
-                    return !(pkMember instanceof Field && ((Field) pkMember).equals(f));
+                    return !(pkMember instanceof Field && (pkMember).equals(f));
                 })
                 .peek(f -> f.setAccessible(true))
                 .collect(Collectors.toList());

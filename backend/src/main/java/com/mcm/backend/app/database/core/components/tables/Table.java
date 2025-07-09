@@ -3,9 +3,12 @@ package com.mcm.backend.app.database.core.components.tables;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mcm.backend.app.database.core.annotations.table.ForeignKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableIgnore;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
+import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterion;
+import com.mcm.backend.app.database.core.factories.DAOFactory;
 
 import java.lang.reflect.*;
 import java.sql.*;
@@ -134,12 +137,18 @@ public class Table<T, K> {
             int idx = 1;
             for (Field field : fieldToColumnName.keySet()) {
                 field.setAccessible(true);
-                Object value = field.get(entity);
-                if (value instanceof Map) {
-                    String json = objectMapper.writeValueAsString(value);
-                    ps.setObject(idx++, json, Types.OTHER);
+                if (field.isAnnotationPresent(ForeignKey.class)) {
+                    Object refObj = field.get(entity);
+                    Object fkValue = (refObj == null) ? null : TableUtils.getPrimaryKeyValue(refObj);
+                    ps.setObject(idx++, fkValue);
                 } else {
-                    ps.setObject(idx++, value);
+                    Object value = field.get(entity);
+                    if (value instanceof Map) {
+                        String json = objectMapper.writeValueAsString(value);
+                        ps.setObject(idx++, json, Types.OTHER);
+                    } else {
+                        ps.setObject(idx++, value);
+                    }
                 }
             }
         } catch (IllegalAccessException | JsonProcessingException e) {
@@ -153,12 +162,18 @@ public class Table<T, K> {
             // 1) SET clauses
             for (Field field : nonPkFields) {
                 field.setAccessible(true);
-                Object value = field.get(entity);
-                if (value instanceof Map) {
-                    String json = objectMapper.writeValueAsString(value);
-                    ps.setObject(idx++, json, Types.OTHER);
+                if (field.isAnnotationPresent(ForeignKey.class)) {
+                    Object refObj = field.get(entity);
+                    Object fkValue = (refObj == null) ? null : TableUtils.getPrimaryKeyValue(refObj);
+                    ps.setObject(idx++, fkValue);
                 } else {
-                    ps.setObject(idx++, value);
+                    Object value = field.get(entity);
+                    if (value instanceof Map) {
+                        String json = objectMapper.writeValueAsString(value);
+                        ps.setObject(idx++, json, Types.OTHER);
+                    } else {
+                        ps.setObject(idx++, value);
+                    }
                 }
             }
             // 2) WHERE clauses (all PK fields, in declaration order)
@@ -177,9 +192,9 @@ public class Table<T, K> {
 
     public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
         try {
-            // unchanged from your original
+            // changed line to only include @TableField fields
             Field[] fields = Arrays.stream(clazz.getDeclaredFields())
-                    .filter(f -> !f.isAnnotationPresent(TableIgnore.class))
+                    .filter(f -> f.isAnnotationPresent(TableColumn.class))
                     .toArray(Field[]::new);
             Constructor<?> constructor = Arrays.stream(clazz.getDeclaredConstructors())
                     .filter(c -> c.isAnnotationPresent(TableConstructor.class))
@@ -203,14 +218,29 @@ public class Table<T, K> {
                 String column = fieldToColumnName.get(field);
                 Class<?> type = field.getType();
 
-                if (Map.class.isAssignableFrom(type)) {
-                    // JSON→Map column
-                    String json = rs.getString(column);
-                    args[i] = (json == null)
-                            ? Collections.emptyMap()
-                            : objectMapper.readValue(json, new TypeReference<Map<String,Object>>() {});
+                if (field.isAnnotationPresent(ForeignKey.class)) {
+                    // Ensure the field type implements TableEntity
+                    if (!TableEntity.class.isAssignableFrom(type)) {
+                        throw new IllegalArgumentException("Foreign key Class does not extend TableEntity");
+                    }
+                    @SuppressWarnings("unchecked")
+                    Class<? extends TableEntity> refClass = (Class<? extends TableEntity>) type;
+                    // Determine primary key type for fetching the raw ID
+                    Class<?> pkType = TableUtils.getPrimaryKeyType(refClass);
+                    Object fkId = rs.getObject(column, pkType);
+
+                    args[i] = (fkId == null) ? null : loadReference(refClass, fkId);
                 } else {
-                    args[i] = rs.getObject(column, type);
+                    if (Map.class.isAssignableFrom(type)) {
+                        // JSON→Map column
+                        String json = rs.getString(column);
+                        args[i] = (json == null)
+                                ? Collections.emptyMap()
+                                : objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
+                        });
+                    } else {
+                        args[i] = rs.getObject(column, type);
+                    }
                 }
             }
 
@@ -260,6 +290,21 @@ public class Table<T, K> {
     public String getInsertQuery()     { return insertQuery; }
     public String getUpdateQuery()     { return updateQuery; }
     public String getTableName()       { return tableName; }
+
+    /**
+     * Generic loader for referenced entities.
+     *
+     * @param refClass the entity class
+     * @param key      the primary key value
+     * @param <R>      the entity type (must extend TableEntity)
+     * @param <P>      the primary key type
+     * @return the loaded entity or null if not found
+     */
+    private <R extends TableEntity, P> R loadReference(Class<R> refClass, P key) {
+        try (DAO<R, P> dao = DAOFactory.createDAO(refClass)) {
+            return dao.get(key);
+        }
+    }
 
     @Override
     public String toString() {

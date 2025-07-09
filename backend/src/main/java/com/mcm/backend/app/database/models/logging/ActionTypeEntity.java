@@ -2,20 +2,21 @@ package com.mcm.backend.app.database.models.logging;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import org.springframework.data.annotation.Id;
 
 @TableName("action_types")
 public class ActionTypeEntity implements TableEntity {
-    @PrimaryKey(String.class)
+
+    @TableColumn
+    @PrimaryKey
     private final String name;
 
-    @TableField(type = String.class, name = "message_template")
+    @TableColumn(name = "message_template")
     private final String messageTemplate;
 
-    @TableField(type = String.class)
+    @TableColumn
     private final String severity;
 
     @TableConstructor

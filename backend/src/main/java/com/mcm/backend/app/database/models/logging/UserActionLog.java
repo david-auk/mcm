@@ -2,7 +2,7 @@ package com.mcm.backend.app.database.models.logging;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
@@ -11,25 +11,27 @@ import java.util.*;
 
 @TableName("user_action_logs")
 public record UserActionLog(
-        @PrimaryKey(UUID.class)
+
+        @TableColumn
+        @PrimaryKey
         UUID id,
 
-        @TableField(type = String.class, name = "action_type")
+        @TableColumn(name = "action_type")
         String actionType,
 
-        @TableField(type = UUID.class, name = "user_id")
+        @TableColumn(name = "user_id")
         UUID userId,
 
-        @TableField(type = UUID.class, name = "affected_user_id")
+        @TableColumn(name = "affected_user_id")
         UUID affectedUserId,
 
-        @TableField(type = UUID.class, name = "instance_id")
+        @TableColumn(name = "instance_id")
         UUID instanceId,
 
-        @TableField(type = Timestamp.class)
+        @TableColumn
         Timestamp timestamp,
 
-        @TableField(type = Map.class) // raw Map, handled specially in DAO
+        @TableColumn
         Map<String, Object> metadata
 ) implements TableEntity {
 

@@ -2,7 +2,7 @@ package com.mcm.backend.app.database.models.server;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
@@ -12,22 +12,22 @@ import java.util.UUID;
 @TableName("server_instance_properties")
 public class ServerInstanceProperty implements TableEntity {
 
-    @PrimaryKey(UUID.class)
+    @PrimaryKey
     private final UUID id;
 
-    @TableField(type = UUID.class, name = "server_instance_id")
+    @TableColumn(name = "server_instance_id")
     private final UUID serverInstanceId;
 
-    @TableField(type = Boolean.class)
+    @TableColumn
     private Boolean hidden;
 
-    @TableField(type = String.class)
+    @TableColumn
     private String type;
 
-    @TableField(type = String.class)
+    @TableColumn
     private String value;
 
-    @TableField(type = String.class)
+    @TableColumn
     private final String key;
 
 

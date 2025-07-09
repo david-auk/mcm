@@ -2,13 +2,13 @@ package com.mcm.backend.app.database.models.roles;
 
 import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
 import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
+import com.mcm.backend.app.database.core.annotations.table.TableColumn;
 import com.mcm.backend.app.database.core.annotations.table.TableName;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 
 @TableName("role_inheritance")
-public record RoleInheritance(@TableField(name = "role_name", type = String.class) String roleName,
-                              @TableField(name = "inherits_role_name", type = String.class) String inheritsRoleName) implements TableEntity {
+public record RoleInheritance(@TableColumn(name = "role_name") String roleName,
+                              @TableColumn(name = "inherits_role_name") String inheritsRoleName) implements TableEntity {
     @TableConstructor
     public RoleInheritance(String roleName, String inheritsRoleName) {
         if (Role.isValidRole(roleName)) {
@@ -19,7 +19,7 @@ public record RoleInheritance(@TableField(name = "role_name", type = String.clas
         } else throw new IllegalArgumentException("Invalid role name: " + inheritsRoleName);
     }
 
-    @PrimaryKey(String.class)
+    @PrimaryKey
     public String getPrimaryKey() {
         return roleName + inheritsRoleName;
     }

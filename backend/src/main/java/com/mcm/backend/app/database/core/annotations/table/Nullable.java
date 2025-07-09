@@ -20,7 +20,7 @@ import com.mcm.backend.app.api.utils.components.ValidatedBodyResolver;
  *
  * @see com.mcm.backend.app.api.utils.components.ValidatedBodyResolver
  * @see com.mcm.backend.app.database.core.annotations.table.PrimaryKey
- * @see com.mcm.backend.app.database.core.annotations.table.TableField
+ * @see TableColumn
  */
 @Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)

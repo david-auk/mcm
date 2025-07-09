@@ -1,10 +1,12 @@
 package com.mcm.backend.app.database.core.components.daos;
 
-import com.mcm.backend.app.database.core.annotations.table.UniqueField;
+import com.mcm.backend.app.database.core.annotations.table.UniqueColumn;
 import com.mcm.backend.app.database.core.components.Database;
 import com.mcm.backend.app.database.core.components.daos.querying.FilterCriterion;
 import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.components.tables.Table;
+import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import com.mcm.backend.app.database.core.components.tables.TableUtils;
 
 import java.lang.reflect.Field;
 import java.sql.*;
@@ -27,7 +29,7 @@ public class DAO<T, K> implements AutoCloseable {
     }
 
     public <D> boolean existsByUniqueField(Field uniqueField, D isData) {
-        if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
+        if (!uniqueField.isAnnotationPresent(UniqueColumn.class)) {
             throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
         }
         List<T> matches = get(uniqueField, isData);
@@ -78,7 +80,13 @@ public class DAO<T, K> implements AutoCloseable {
 
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setObject(1, primaryKey);
+            // Unwrap TableEntity keys to their actual PK value if necessary
+            Object bindValue = primaryKey;
+            if (primaryKey instanceof TableEntity) { // If primaryKey is a foreign object
+                // Get and use the foreign objects pk (this.pk = foreignObject.pk)
+                bindValue = TableUtils.getPrimaryKeyValue(primaryKey);
+            }
+            preparedStatement.setObject(1, bindValue);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 entity = table.buildFromTableWildcardQuery(resultSet);
@@ -141,7 +149,7 @@ public class DAO<T, K> implements AutoCloseable {
     }
 
     public <D> T getUnique(Field uniqueField, D isData) {
-        if (!uniqueField.isAnnotationPresent(UniqueField.class)) {
+        if (!uniqueField.isAnnotationPresent(UniqueColumn.class)) {
             throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
         }
         List<T> results = get(uniqueField, isData);
