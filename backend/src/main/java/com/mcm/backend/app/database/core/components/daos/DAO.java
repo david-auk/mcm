@@ -16,26 +16,98 @@ import java.util.List;
 public class DAO<T, K> implements AutoCloseable {
 
     protected final Connection connection;
+    private final Boolean connectionOpened;
     private final Table<T, K> table;
 
-    // Constructor to enforce initialization
+    /**
+     * Constructs a DAO with a new database connection for the specified table.
+     *
+     * @param table the table metadata for which this DAO operates
+     */
     public DAO(Table<T, K> table) {
         this.table = table;
         this.connection = Database.getConnection();
+        this.connectionOpened = true;
     }
 
+    /**
+     * Constructs a DAO reusing an existing database connection for the specified table.
+     *
+     * @param connection the existing SQL connection
+     * @param table the table metadata for which this DAO operates
+     */
+    public DAO(Connection connection, Table<T, K> table) {
+        this.connection = connection;
+        this.connectionOpened = false;
+        this.table = table;
+
+        // TODO check if validation computing tax is worth it
+//        try {
+//            if (connection != null && !connection.isClosed() && connection.isValid(0)) {
+//                this.connection = connection;
+//            } else {
+//                throw new IllegalArgumentException("Invalid connection");
+//            }
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+    }
+
+    /**
+     * Checks if a record exists in the table with the given primary key.
+     *
+     * @param primaryKey the primary key value to check
+     * @return true if a record with the primary key exists; false otherwise
+     */
     public boolean existsByPrimaryKey(K primaryKey) {
-        return primaryKey != null && get(primaryKey) != null;
+        if (primaryKey == null) {
+            return false;
+        }
+        return queryUniqueFieldExists(table.getPrimaryKeyColumnName(), primaryKey);
     }
 
+    /**
+     * Checks if a record exists in the table with the specified unique field value.
+     *
+     * @param uniqueField the field annotated with {@link UniqueColumn} to check
+     * @param isData the value to match against the unique field
+     * @param <D> the type of the field value
+     * @return true if a matching record exists; false otherwise
+     * @throws RuntimeException if the field is not annotated with {@link UniqueColumn}
+     */
     public <D> boolean existsByUniqueField(Field uniqueField, D isData) {
         if (!uniqueField.isAnnotationPresent(UniqueColumn.class)) {
-            throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
+            throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueColumn");
         }
-        List<T> matches = get(uniqueField, isData);
-        return !matches.isEmpty();
+        return queryUniqueFieldExists(table.getColumnName(uniqueField), isData);
     }
 
+    private <D> boolean queryUniqueFieldExists(String columnName, D isData) {
+        String query = String.format(
+            "SELECT 1 FROM %s WHERE %s = ? LIMIT 1",
+            table.getTableName(), columnName
+        );
+
+        try (PreparedStatement ps = connection.prepareStatement(query)) {
+            Object bindValue = isData;
+            if (isData instanceof TableEntity) {
+                bindValue = TableUtils.getPrimaryKeyValue(isData);
+            }
+            ps.setObject(1, bindValue);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Checks if a record exists for the given entity based on its primary key.
+     *
+     * @param entity the entity to check existence for
+     * @return true if the entity exists; false otherwise
+     */
     public boolean exists(T entity) {
         if (entity == null) {
             return false;
@@ -43,6 +115,11 @@ public class DAO<T, K> implements AutoCloseable {
         return existsByPrimaryKey(table.getPrimaryKey(entity));
     }
 
+    /**
+     * Inserts the specified entity into the table if it does not already exist.
+     *
+     * @param entity the entity to insert
+     */
     public void add(T entity) {
         if (!exists(entity)) {
             try {
@@ -55,6 +132,12 @@ public class DAO<T, K> implements AutoCloseable {
         }
     }
 
+    /**
+     * Updates the specified entity in the table.
+     *
+     * @param entity the entity to update
+     * @throws RuntimeException if the entity does not exist or a SQL error occurs
+     */
     public void update(T entity) {
         if (!exists(entity)) {
             throw new RuntimeException("Entity does not exist.");
@@ -72,6 +155,12 @@ public class DAO<T, K> implements AutoCloseable {
         }
     }
 
+    /**
+     * Retrieves an entity by its primary key.
+     *
+     * @param primaryKey the primary key value of the entity to retrieve
+     * @return the entity if found; null otherwise
+     */
     public T get(K primaryKey) {
         T entity = null;
 
@@ -83,13 +172,13 @@ public class DAO<T, K> implements AutoCloseable {
             // Unwrap TableEntity keys to their actual PK value if necessary
             Object bindValue = primaryKey;
             if (primaryKey instanceof TableEntity) { // If primaryKey is a foreign object
-                // Get and use the foreign objects pk (this.pk = foreignObject.pk)
+                // Get and use the foreign object's pk (this.pk = foreignObject.pk)
                 bindValue = TableUtils.getPrimaryKeyValue(primaryKey);
             }
             preparedStatement.setObject(1, bindValue);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                entity = table.buildFromTableWildcardQuery(resultSet);
+                entity = table.buildFromTableWildcardQuery(connection, resultSet);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -148,6 +237,16 @@ public class DAO<T, K> implements AutoCloseable {
                 .get();
     }
 
+    /**
+     * Retrieves a unique entity by its unique field value.
+     *
+     * @param uniqueField the field annotated with @UniqueColumn to query
+     * @param isData the value to match
+     * @param <D> the type of the field value
+     * @return the unique entity if found; null if no match
+     * @throws RuntimeException if the field is not annotated with @UniqueColumn
+     * @throws IllegalStateException if multiple results are found
+     */
     public <D> T getUnique(Field uniqueField, D isData) {
         if (!uniqueField.isAnnotationPresent(UniqueColumn.class)) {
             throw new RuntimeException("Field " + uniqueField.getName() + " is not annotated with @UniqueField");
@@ -162,6 +261,12 @@ public class DAO<T, K> implements AutoCloseable {
         }
     }
 
+    /**
+     * Deletes the record with the specified primary key from the table.
+     *
+     * @param primaryKey the primary key value of the record to delete
+     * @throws RuntimeException if the record does not exist or a SQL error occurs
+     */
     public void delete(K primaryKey) {
         if (!existsByPrimaryKey(primaryKey)) {
             throw new RuntimeException("Record does not exist.");
@@ -181,6 +286,11 @@ public class DAO<T, K> implements AutoCloseable {
         }
     }
 
+    /**
+     * Retrieves all entities from the table.
+     *
+     * @return a list of all entities
+     */
     public List<T> getAll() {
         String query = "SELECT * FROM %s";
         query = String.format(query, table.getTableName());
@@ -196,22 +306,32 @@ public class DAO<T, K> implements AutoCloseable {
     }
 
     /**
-     * Helper method to convert a resultSet (list) into an entity list
+     * Converts the provided ResultSet into a list of entities.
      *
-     * @param resultSet A resultSet from a wildcard query, so it can be built using the  buildFromTableWildcardQuery
-     * @return A list of entities representing the query results
-     * @throws SQLException Exception that is meant to be caught by implementing methods
+     * @param resultSet the ResultSet from a wildcard query
+     * @return a list of entities built from the ResultSet
+     * @throws SQLException if a database access error occurs
      */
     protected List<T> getEntities(ResultSet resultSet) throws SQLException {
         List<T> entities = new ArrayList<>();
         while (resultSet.next()) {
-            T entity = table.buildFromTableWildcardQuery(resultSet);
+            T entity = table.buildFromTableWildcardQuery(connection, resultSet);
             entities.add(entity);
         }
         return entities;
     }
 
+    /**
+     * Closes the underlying database connection.
+     */
     public void close() {
-        Database.closeConnection(connection);
+        // Only close the connection if it was opened by the constructor
+        if (connectionOpened) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

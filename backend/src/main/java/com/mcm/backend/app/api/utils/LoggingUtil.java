@@ -44,32 +44,42 @@ public class LoggingUtil {
     // Actual impl
     public static void log(ActionType actionType, User user, User affectedUser, ServerInstance serverInstance, Map<String, Object> metadata) {
 
-        if (actionType == null) {
-            throw new IllegalArgumentException("actionType cannot be null");
-        }
-        if (user == null) {
-            throw new IllegalArgumentException("user cannot be null");
-        }
-        UUID affectedUserId;
-        if (affectedUser == null) {
-            affectedUserId = null;
-        } else {
-            affectedUserId = affectedUser.getId();
-        }
-        UUID serverInstanceId;
-        if (serverInstance == null) {
-            serverInstanceId = null;
-        } else {
-            serverInstanceId = serverInstance.getId();
-        }
+//        if (actionType == null) {
+//            throw new IllegalArgumentException("actionType cannot be null");
+//        }
+//        if (user == null) {
+//            throw new IllegalArgumentException("user cannot be null");
+//        }
+//        UUID affectedUserId;
+//        if (affectedUser == null) {
+//            affectedUserId = null;
+//        } else {
+//            affectedUserId = affectedUser.getId();
+//        }
+//        UUID serverInstanceId;
+//        if (serverInstance == null) {
+//            serverInstanceId = null;
+//        } else {
+//            serverInstanceId = serverInstance.getId();
+//        }
+//
+//        // Build the log instance
+//        UserActionLog userActionLog = new UserActionLog(
+//                null,
+//                actionType.toString(),
+//                user.getId(),
+//                affectedUserId,
+//                serverInstanceId,
+//                null, // generate current timestamp within the constructor
+//                metadata
+//        );
 
-        // Build the log instance
         UserActionLog userActionLog = new UserActionLog(
                 null,
                 actionType.toString(),
-                user.getId(),
-                affectedUserId,
-                serverInstanceId,
+                user,
+                affectedUser,
+                serverInstance,
                 null, // generate current timestamp within the constructor
                 metadata
         );
@@ -81,12 +91,13 @@ public class LoggingUtil {
     }
 
     // Method to add additional values to metadata for later formatting
-    public static Map<String, Object> getMetadata(UserActionLog userActionLog, DAO<User, UUID> userDAO, DAO<ServerInstance, UUID> serverInstanceDAO) {
+    public static Map<String, Object> getMetadata(UserActionLog userActionLog) {
         Map<String, Object> metadata = new HashMap<>(userActionLog.metadata());
 
-        metadata.put("user", userDAO.get(userActionLog.userId()));
-        metadata.put("affected_user", userDAO.get(userActionLog.affectedUserId()));
-        metadata.put("server_instance", serverInstanceDAO.get(userActionLog.instanceId()));
+
+        metadata.put("user", userActionLog.user());
+        metadata.put("affected_user", userActionLog.affectedUser());
+        metadata.put("server_instance", userActionLog.serverInstance());
 
         return metadata;
     }

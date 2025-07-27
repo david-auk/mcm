@@ -12,6 +12,7 @@ import java.util.UUID;
 @TableName("server_instance_properties")
 public class ServerInstanceProperty implements TableEntity {
 
+    @TableColumn
     @PrimaryKey
     private final UUID id;
 

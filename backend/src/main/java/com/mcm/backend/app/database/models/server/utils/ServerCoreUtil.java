@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.UUID;
 
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import static com.mcm.backend.constants.ServerSettings.SERVER_ROOT;
@@ -27,8 +28,20 @@ public class ServerCoreUtil {
      * @return the absolute path to the instance's working directory
      */
     public static Path getServerInstanceDirectory(ServerInstance serverInstance) {
-        return Path.of(SERVER_ROOT, serverInstance.getName());
-        //return String.format("%s/%s", SERVER_ROOT, serverInstance.getId());
+        return getServerInstanceDirectory(serverInstance.getId());
+    }
+
+    /**
+     * Returns the full absolute path to the working directory of the given {@link ServerInstance}.
+     * <p>
+     * Assumes the server directory is located directly under {@code SERVER_ROOT} and named using
+     * the instance's UUID.
+     *
+     * @param serverInstanceId the server instance id for which to resolve the directory
+     * @return the absolute path to the instance's working directory
+     */
+    public static Path getServerInstanceDirectory(UUID serverInstanceId) {
+        return Path.of(SERVER_ROOT, serverInstanceId.toString());
     }
 
     /**

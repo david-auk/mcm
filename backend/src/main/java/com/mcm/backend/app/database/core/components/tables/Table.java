@@ -190,7 +190,7 @@ public class Table<T, K> {
     //  ResultSet → entity
     // ——————————————————————————————————————————————————————————
 
-    public T buildFromTableWildcardQuery(ResultSet rs) throws SQLException {
+    public T buildFromTableWildcardQuery(Connection connection, ResultSet rs) throws SQLException {
         try {
             // changed line to only include @TableField fields
             Field[] fields = Arrays.stream(clazz.getDeclaredFields())
@@ -229,7 +229,7 @@ public class Table<T, K> {
                     Class<?> pkType = TableUtils.getPrimaryKeyType(refClass);
                     Object fkId = rs.getObject(column, pkType);
 
-                    args[i] = (fkId == null) ? null : loadReference(refClass, fkId);
+                    args[i] = (fkId == null) ? null : loadReference(connection, refClass, fkId);
                 } else {
                     if (Map.class.isAssignableFrom(type)) {
                         // JSON→Map column
@@ -274,15 +274,6 @@ public class Table<T, K> {
                 "Composite primary key — use getPrimaryKeyColumnNames()");
     }
 
-    /**
-     * If you have a composite key, this returns all column names in declaration order.
-     */
-    public List<String> getPrimaryKeyColumnNames() {
-        return pkFields.stream()
-                .map(fieldToColumnName::get)
-                .collect(Collectors.toList());
-    }
-
     // ——————————————————————————————————————————————————————————
     //  getters & toString()
     // ——————————————————————————————————————————————————————————
@@ -300,10 +291,20 @@ public class Table<T, K> {
      * @param <P>      the primary key type
      * @return the loaded entity or null if not found
      */
-    private <R extends TableEntity, P> R loadReference(Class<R> refClass, P key) {
-        try (DAO<R, P> dao = DAOFactory.createDAO(refClass)) {
+    private <R extends TableEntity, P> R loadReference(Connection connection, Class<R> refClass, P key) {
+        try (DAO<R, P> dao = DAOFactory.createDAO(connection, refClass)) {
             return dao.get(key);
         }
+    }
+
+    public String getColumnName(Field uniqueField) {
+        String columnName = fieldToColumnName.get(uniqueField);
+        if (columnName == null) {
+            throw new IllegalArgumentException(
+                    "Field '" + uniqueField.getName() + "' is not a column in table '" + tableName + "'"
+            );
+        }
+        return columnName;
     }
 
     @Override

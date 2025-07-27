@@ -52,7 +52,6 @@ public class ServerInstance implements TableEntity {
     @TableColumn
     private Integer port;
 
-//    @TableIgnore TODO Check if needed?
     // RCON client instance, initialized when the server is initialized
     private RconClient rconClient;
 

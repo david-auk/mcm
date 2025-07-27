@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import authenticatedFetch from '../../../utils/auth/authenticatedFetch';
 import { useToast } from '../../../contexts/ToastContext';
+import { useNavigate } from 'react-router-dom';
 import './NotificationsList.css';
 import ItemTooltip from './ItemTooltip';
 
@@ -29,6 +29,7 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ endpoint }) => {
   const [notifications, setNotifications] = useState<RawNotification[]>([]);
   const [loading, setLoading] = useState(true);
   const toast = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -85,10 +86,28 @@ const NotificationsList: React.FC<NotificationsListProps> = ({ endpoint }) => {
       if (idx % 2 === 1) {
         const val = n.vars[part];
         if (val && typeof val === 'object') {
+          const valObj = val as any;
+          const id = valObj.id;
+          let displayText: string;
+          let onClickHandler: (() => void) | undefined;
+
+          if (part === 'server_instance') {
+            displayText = valObj.name;
+            onClickHandler = () => navigate(`/server-instance/${id}`);
+          } else if (part === 'user' || part === 'affected_user') {
+            displayText = valObj.username;
+            onClickHandler = () => navigate(`/user/${id}`);
+          } else {
+            displayText = String(valObj.username ?? valObj.name ?? part);
+          }
+
           return (
             <ItemTooltip key={idx} data={val as Record<string, any>}>
-              <span className="notification__token">
-                {String((val as any).username ?? (val as any).name ?? part)}
+              <span
+                className={`notification__token${onClickHandler ? ' notification__link' : ''}`}
+                {...(onClickHandler ? { onClick: onClickHandler } : {})}
+              >
+                {displayText}
               </span>
             </ItemTooltip>
           );
