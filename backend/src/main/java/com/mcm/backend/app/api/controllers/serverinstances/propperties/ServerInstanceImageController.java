@@ -89,7 +89,6 @@ public class ServerInstanceImageController {
   }
 
   private Path getImagePath(ServerInstance serverInstance) {
-    Path serverDir = Paths.get(ServerCoreUtil.getServerInstanceDirectory(serverInstance));
-    return serverDir.resolve("server-icon.png");
+    return serverInstance.getPath().resolve("server-icon.png");
   }
 }

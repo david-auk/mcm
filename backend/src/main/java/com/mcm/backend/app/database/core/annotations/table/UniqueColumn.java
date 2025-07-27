@@ -8,5 +8,5 @@ import java.lang.annotation.Target;
 // TODO Write JAVADOC
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface UniqueField {
+public @interface UniqueColumn {
 }

@@ -4,14 +4,12 @@ import com.mcm.backend.app.api.utils.process.LogEntry;
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.ServerInstanceProperty;
-import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Utility for fully initializing a Minecraft {@link ServerInstance}.
@@ -31,12 +29,12 @@ public class ServerInitializerUtil {
      */
     public static List<ServerInstanceProperty> initialize(ServerInstance instance, ProcessStatus ps)
     throws IOException, InterruptedException {
-        Path serverDir = Paths.get(ServerCoreUtil.getServerInstanceDirectory(instance));
+        Path serverDir = instance.getPath();
         Path jarPath = serverDir.resolve("server.jar");
 
         // Step 1: Create the server directory
         ps.getLogs().add(new LogEntry("Creating server directory"));
-        Files.createDirectories(serverDir);
+        Files.createDirectory(serverDir);
 
         // Step 2: Download the server JAR
         ps.getLogs().add(new LogEntry("Downloading server JAR from: " + instance.getJarUrl()));

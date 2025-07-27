@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Console.css';
 import authenticatedFetch from '../../../utils/auth/authenticatedFetch';
 import { useToast } from '../../../contexts/ToastContext';
+import { AnsiUp } from 'ansi_up';
 import type ServerInstance from '../ServerInstance';
 
 interface ConsoleProps {
@@ -17,6 +18,7 @@ const Console: React.FC<ConsoleProps> = ({ isOperator, serverInstance, fetchServ
   const logConsoleRef = useRef<HTMLDivElement>(null);
   const [isFollowing, setIsFollowing] = useState(true);
   const logsRef = useRef<string[]>([]);
+  const ansiUp = new AnsiUp();
 
   useEffect(() => {
     logsRef.current = logs;
@@ -144,9 +146,14 @@ const Console: React.FC<ConsoleProps> = ({ isOperator, serverInstance, fetchServ
 
       <div className="log-console" ref={logConsoleRef} onScroll={handleScroll}>
         {logs.map((entry, i) => (
-          <div key={i} className="log-entry">
-            {entry}
-          </div>
+          <div
+            key={i}
+            className="log-entry"
+            // transform ANSI codes to HTML and inject
+            dangerouslySetInnerHTML={{
+              __html: ansiUp.ansi_to_html(entry)
+            }}
+          />
         ))}
       </div>
 

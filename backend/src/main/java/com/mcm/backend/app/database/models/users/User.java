@@ -11,15 +11,16 @@ import java.util.UUID;
 @TableName("users")
 public class User implements TableEntity {
 
-    @PrimaryKey(UUID.class)
+    @TableColumn
+    @PrimaryKey
     private final UUID id;
 
-    @UniqueField
-    @TableField(type = String.class)
+    @TableColumn
+    @UniqueColumn
     private String username;
 
+    @TableColumn(name = "password_hash")
     @Nullable
-    @TableField(name = "password_hash", type = String.class)
     private String passwordHash;
 
     @TableConstructor

@@ -5,9 +5,6 @@ IS_LINUX:= $(filter Linux,$(UNAME_S))
 
 # ----------  Compose file list ----------
 COMPOSE_FILES = -f docker-compose.yml
-ifeq ($(IS_LINUX),Linux)
-COMPOSE_FILES += -f docker-compose.override.yml
-endif
 
 # ----------  Targets ----------
 .PHONY: setup up down
@@ -35,6 +32,11 @@ setup:
 		  echo "DB_NAME=\"$$DB_NAME\""; \
 		  echo "DB_USER=\"$$DB_USER\""; \
 		  echo "DB_PASSWORD=\"$$DB_PASSWORD\""; \
+		  if [ $$IS_MAC ]; then \
+		    echo ""; \
+      		echo "# Suppress OpenJDK 64-Bit Server VM warning: Unable to get SVE vector length on this system"; \
+      		echo "JAVA_TOOL_OPTIONS=\"-XX:UseSVE=0\""; \
+      	  fi; \
 		} > .env; \
 		echo ""; \
 		echo "Created .env."; \

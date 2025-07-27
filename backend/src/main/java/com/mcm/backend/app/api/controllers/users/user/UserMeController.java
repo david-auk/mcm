@@ -5,6 +5,7 @@ import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.api.utils.requestbody.RequestBodyUtil;
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
 import com.mcm.backend.app.api.utils.annotations.RequireRole;
+import com.mcm.backend.app.database.core.components.Database;
 import com.mcm.backend.app.database.core.components.daos.DAO;
 import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.factories.DAOFactory;
@@ -18,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -104,38 +107,31 @@ public class UserMeController {
         ArrayList<Map<String, Object>> notifications = new ArrayList<>();
 
         // Open a new UserActionLog DAO
-        try (DAO<UserActionLog, UUID> userActionLogDAO = DAOFactory.createDAO(UserActionLog.class)) {
+        try (Connection connection = Database.getConnection();
+                DAO<ActionTypeEntity, String> actionTypeDAO = DAOFactory.createDAO(connection, ActionTypeEntity.class);
+                DAO<UserActionLog, UUID> userActionLogDAO = DAOFactory.createDAO(connection, UserActionLog.class)) {
 
-            // Open a new User DAO
-            try (DAO<User, UUID> userDAO = DAOFactory.createDAO(User.class)) {
+                // Build a list of UserActionLogs
+                List<UserActionLog> userActionLogs = new QueryBuilder<>(userActionLogDAO)
+                        .where(UserActionLog.class.getDeclaredField("user"), user.getId())
+                        .orderBy(UserActionLog.class.getDeclaredField("timestamp"))
+                        .desc()
+                        .get();
 
-                // Open a new Server instance DAO
-                try (DAO<ServerInstance, UUID> serverInstanceDAO = DAOFactory.createDAO(ServerInstance.class)) {
-
-                    // Open a new actionType DAO
-                    try (DAO<ActionTypeEntity, String> actionTypeDAO = DAOFactory.createDAO(ActionTypeEntity.class)) {
-
-                        // Build a list of UserActionLogs
-                        List<UserActionLog> userActionLogs = new QueryBuilder<>(userActionLogDAO)
-                                .where(UserActionLog.class.getDeclaredField("userId"), user.getId())
-                                .orderBy(UserActionLog.class.getDeclaredField("timestamp"))
-                                .desc()
-                                .get();
-
-                        // Format each result using the LoggingUtil
-                        for (UserActionLog userActionLog : userActionLogs) {
-                            notifications.add(Map.of(
-                                "message_template", actionTypeDAO.get(userActionLog.actionType()),
-                                "vars", LoggingUtil.getMetadata(userActionLog, userDAO, serverInstanceDAO),
-                                "timestamp", userActionLog.timestamp()
-                            ));
-                        }
-
-                        // Return the formatted list of notifications
-                        return ResponseEntity.ok(notifications);
-                    }
+                // Format each result using the LoggingUtil
+                for (UserActionLog userActionLog : userActionLogs) {
+                    notifications.add(Map.of(
+                            "message_template", actionTypeDAO.get(userActionLog.actionType()),
+                            "vars", LoggingUtil.getMetadata(userActionLog),
+                            "timestamp", userActionLog.timestamp()
+                    ));
                 }
-            }
+
+                // Return the formatted list of notifications
+                return ResponseEntity.ok(notifications);
+
+            } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

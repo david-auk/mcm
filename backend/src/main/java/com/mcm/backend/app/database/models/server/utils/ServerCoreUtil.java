@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.UUID;
 
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import static com.mcm.backend.constants.ServerSettings.SERVER_ROOT;
@@ -26,8 +27,21 @@ public class ServerCoreUtil {
      * @param serverInstance the server instance for which to resolve the directory
      * @return the absolute path to the instance's working directory
      */
-    public static String getServerInstanceDirectory(ServerInstance serverInstance) {
-        return String.format("%s/%s", SERVER_ROOT, serverInstance.getId());
+    public static Path getServerInstanceDirectory(ServerInstance serverInstance) {
+        return getServerInstanceDirectory(serverInstance.getId());
+    }
+
+    /**
+     * Returns the full absolute path to the working directory of the given {@link ServerInstance}.
+     * <p>
+     * Assumes the server directory is located directly under {@code SERVER_ROOT} and named using
+     * the instance's UUID.
+     *
+     * @param serverInstanceId the server instance id for which to resolve the directory
+     * @return the absolute path to the instance's working directory
+     */
+    public static Path getServerInstanceDirectory(UUID serverInstanceId) {
+        return Path.of(SERVER_ROOT, serverInstanceId.toString());
     }
 
     /**
@@ -52,7 +66,7 @@ public class ServerCoreUtil {
      * @return absolute path to latest.log
      */
     public static Path getLogFilePath(ServerInstance serverInstance) {
-        return Path.of(getServerInstanceDirectory(serverInstance), "latest.log");
+        return getServerInstanceDirectory(serverInstance).resolve("latest.log");
     }
 
     /**
@@ -65,16 +79,16 @@ public class ServerCoreUtil {
 
         // Validate server structure
 
-        String dirPath = getServerInstanceDirectory(serverInstance);
-        File dir = new File(dirPath);
+        //String dirPath = getServerInstanceDirectory(serverInstance);
+        File dir = getServerInstanceDirectory(serverInstance).toFile();
 
         if (!dir.exists() || !dir.isDirectory()) {
-            throw new IllegalStateException("Server directory does not exist: " + dirPath);
+            throw new IllegalStateException("Server directory does not exist: " + dir.getAbsolutePath());
         }
 
         File jarFile = new File(dir, "server.jar");
         if (!jarFile.exists() || !jarFile.isFile()) {
-            throw new IllegalStateException("Missing server.jar in: " + dirPath);
+            throw new IllegalStateException("Missing server.jar in: " + dir.getAbsolutePath());
         }
 
         // Validate ports
@@ -98,7 +112,7 @@ public class ServerCoreUtil {
      * @throws IOException if deletion fails
      */
     public static void cleanServerInstance(ServerInstance instance) throws IOException {
-        Path instanceDir = Path.of(getServerInstanceDirectory(instance));
+        Path instanceDir = getServerInstanceDirectory(instance);
 
         if (!Files.exists(instanceDir)) return; // nothing to delete
 

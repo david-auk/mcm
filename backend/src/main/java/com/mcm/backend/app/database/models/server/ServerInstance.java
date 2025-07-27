@@ -1,17 +1,18 @@
 package com.mcm.backend.app.database.models.server;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.daos.DAO;
+import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconClient;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
@@ -20,37 +21,37 @@ import java.util.UUID;
 @TableName("server_instances")
 public class ServerInstance implements TableEntity {
 
-    @PrimaryKey(UUID.class)
+    @TableColumn
+    @PrimaryKey
     private final UUID id;
 
-    @UniqueField
-    @TableField(type = String.class)
+    @TableColumn
+    @UniqueColumn
     private String name;
 
+    @TableColumn
     @Nullable
-    @TableField(type = String.class)
     private String description;
 
-    @TableField(type = String.class, name = "minecraft_version")
+    @TableColumn(name = "minecraft_version")
     private final String minecraftVersion;
 
-    @TableField(type = String.class, name = "jar_url")
+    @TableColumn(name = "jar_url")
     private final String jarUrl;
 
-    @TableField(type = Boolean.class, name = "eula_accepted")
+    @TableColumn(name = "eula_accepted")
     private Boolean eulaAccepted;
 
+    @TableColumn(name = "created_at")
     @Nullable // Will be generated within constructor
-    @TableField(type = Timestamp.class, name = "created_at")
     private final Timestamp createdAt;
 
-    @TableField(type = Integer.class, name = "allocated_ram_mb")
+    @TableColumn(name = "allocated_ram_mb")
     private Integer allocatedRamMB;
 
-    @TableField(type = Integer.class)
+    @TableColumn
     private Integer port;
 
-    @TableIgnore
     // RCON client instance, initialized when the server is initialized
     private RconClient rconClient;
 
@@ -230,5 +231,15 @@ public class ServerInstance implements TableEntity {
             setRconClient(RconUtils.buildRconClient(this));
         }
         return rconClient;
+    }
+
+    public Path getPath() {
+        return ServerCoreUtil.getServerInstanceDirectory(this);
+    }
+
+    public List<ServerInstanceProperty> getProperties(DAO<ServerInstanceProperty, UUID> sipDAO) throws NoSuchFieldException {
+        return new QueryBuilder<>(sipDAO)
+                .where(ServerInstanceProperty.class.getDeclaredField("serverInstanceId"), id)
+                .get();
     }
 }

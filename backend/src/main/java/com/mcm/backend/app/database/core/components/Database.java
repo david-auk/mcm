@@ -17,14 +17,4 @@ public class Database {
             throw new RuntimeException(e);
         }
     }
-
-    public static void closeConnection(Connection connection) {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    }
 }

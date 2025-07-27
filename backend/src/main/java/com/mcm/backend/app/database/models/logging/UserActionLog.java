@@ -1,56 +1,69 @@
 package com.mcm.backend.app.database.models.logging;
 
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableField;
-import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import com.mcm.backend.app.database.models.server.ServerInstance;
+import com.mcm.backend.app.database.models.users.User;
 
 import java.sql.Timestamp;
 import java.util.*;
 
 @TableName("user_action_logs")
 public record UserActionLog(
-        @PrimaryKey(UUID.class)
+
+        @TableColumn
+        @PrimaryKey
         UUID id,
 
-        @TableField(type = String.class, name = "action_type")
+        @TableColumn(name = "action_type")
         String actionType,
 
-        @TableField(type = UUID.class, name = "user_id")
-        UUID userId,
+        @TableColumn(name = "user_id")
+        @ForeignKey
+        User user,
 
-        @TableField(type = UUID.class, name = "affected_user_id")
-        UUID affectedUserId,
+        @TableColumn(name = "affected_user_id")
+        @ForeignKey
+        @Nullable
+        User affectedUser,
 
-        @TableField(type = UUID.class, name = "instance_id")
-        UUID instanceId,
+        @TableColumn(name = "instance_id")
+        @ForeignKey
+        @Nullable
+        ServerInstance serverInstance,
 
-        @TableField(type = Timestamp.class)
+        @TableColumn
+        @Nullable
         Timestamp timestamp,
 
-        @TableField(type = Map.class) // raw Map, handled specially in DAO
+        @TableColumn
         Map<String, Object> metadata
 ) implements TableEntity {
 
     @TableConstructor
-
-    public UserActionLog(UUID id, String actionType, UUID userId, UUID affectedUserId, UUID instanceId, Timestamp timestamp, Map<String, Object> metadata) {
+    public UserActionLog(
+            UUID id,
+            String actionType,
+            User user,
+            User affectedUser,
+            ServerInstance serverInstance,
+            Timestamp timestamp,
+            Map<String, Object> metadata) {
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
 
         if (actionType == null) {
             throw new IllegalArgumentException("actionType cannot be null");
         }
         if (Arrays.stream(ActionType.values()).noneMatch(a -> a.name().equalsIgnoreCase(actionType))) {
-            throw new IllegalArgumentException("actionType " + actionType + " is not supported");
+            throw new IllegalArgumentException("ActionType " + actionType + " is not supported");
         }
         this.actionType = actionType;
-        if (userId == null) {
-            throw new IllegalArgumentException("userId cannot be null");
+        if (user == null) {
+            throw new IllegalArgumentException("user cannot be null");
         }
-        this.userId = userId;
-        this.affectedUserId = affectedUserId;
-        this.instanceId = instanceId;
+        this.user = user;
+        this.affectedUser = affectedUser;
+        this.serverInstance = serverInstance;
         this.timestamp = Objects.requireNonNullElseGet(timestamp, () -> new Timestamp(System.currentTimeMillis()));
         this.metadata = metadata;
     }
