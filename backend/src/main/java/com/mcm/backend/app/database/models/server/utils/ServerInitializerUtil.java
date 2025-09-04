@@ -41,8 +41,10 @@ public class ServerInitializerUtil {
         downloadServerJar(instance.getJarUrl(), jarPath);
 
         // Step 3: Run server until eula.txt exists (max 60s)
+        // TODO Add custom Forge option (Due to it needing an installer jar, generating a new executable jar
+        
         ps.getLogs().add(new LogEntry("Running server to generate eula.txt (This could take a while...)"));
-        runUntilFileExists(serverDir, "eula.txt", 60_000);
+        runUntilFileExists(instance, "eula.txt", 60_000);
 
         // Step 4: Accept EULA by modifying eula.txt
         ps.getLogs().add(new LogEntry("Accepting EULA"));
@@ -52,7 +54,7 @@ public class ServerInitializerUtil {
         Path propsPath = serverDir.resolve("server.properties");
         if (!Files.exists(propsPath)) {
             ps.getLogs().add(new LogEntry("Waiting for server.properties"));
-            runUntilFileExists(serverDir, "server.properties", 60_000);
+            runUntilFileExists(instance, "server.properties", 60_000);
             ps.getLogs().add(new LogEntry("server.properties generated"));
         }
 
@@ -81,8 +83,11 @@ public class ServerInitializerUtil {
         }
     }
 
-    private static void runUntilFileExists(Path serverDir, String expectedFilename, long timeoutMillis) throws IOException, InterruptedException {
-        ProcessBuilder pb = new ProcessBuilder("java", "-jar", "server.jar", "nogui");
+    private static void runUntilFileExists(ServerInstance serverInstance, String expectedFilename, long timeoutMillis) throws IOException, InterruptedException {
+        Path serverDir = serverInstance.getPath();
+
+        //ProcessBuilder pb = new ProcessBuilder("java", "-jar", "server.jar", "--installServer");
+        ProcessBuilder pb = new ProcessBuilder(serverInstance.getStartCommand().split(" "));
         pb.directory(serverDir.toFile());
         pb.redirectOutput(serverDir.resolve("latest.log").toFile());
         pb.redirectErrorStream(true);

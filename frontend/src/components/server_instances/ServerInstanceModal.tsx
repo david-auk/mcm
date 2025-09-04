@@ -4,21 +4,26 @@ import authenticatedFetch from '../../utils/auth/authenticatedFetch';
 import { useToast } from '../../contexts/ToastContext';
 import Modal from '../shared/views/Modal';
 import type ServerInstance from '../../pages/server_instance/ServerInstance';
+import type { AxiosResponse } from 'axios';
 
 interface Props {
   server?: ServerInstance;
   isOpen: boolean;
   onClose: () => void;
   onSaved: (instance: ServerInstance) => void;
+  forumMode: 'new' | 'edit' | 'import'
+  importedFile?: File | null
 }
 
 const ServerInstanceModal: React.FC<Props> = ({
   server,
   onClose,
   onSaved,
+  forumMode,
+  importedFile
 }) => {
   const toast = useToast();
-  const isEdit = Boolean(server);
+  // const isEdit = Boolean(server);
 
   // initialize state from either blank (create) or existing
   const [name, setName] = useState(server?.name ?? '');
@@ -30,6 +35,20 @@ const ServerInstanceModal: React.FC<Props> = ({
   const [port, setPort] = useState(server?.port ?? 1024);
   const [submitting, setSubmitting] = useState(false);
 
+  let title: string
+
+  switch (forumMode) {
+    case 'new':
+      title = "Add New Server Instance";
+      break;
+    case 'edit':
+      title = "Edit Server Instance";
+      break;
+    case 'import':
+      title = "Import Server Instance";
+      break;
+  }
+
   // keep form in sync if server prop changes
   useEffect(() => {
     if (server) {
@@ -37,7 +56,7 @@ const ServerInstanceModal: React.FC<Props> = ({
       setDescription(server.description ?? '');
       setMinecraftVersion(server.minecraftVersion);
       setJarUrl(server.jarUrl);
-      setEulaAccepted(isEdit); // Because in order to edit you need to have accepted.
+      setEulaAccepted(forumMode === "edit" || forumMode === 'import'); // Because in order to edit you need to have accepted.
       setAllocatedRam(server.allocatedRamMB);
       setPort(server.port);
     }
@@ -64,6 +83,7 @@ const ServerInstanceModal: React.FC<Props> = ({
     return null;
   };
 
+
   const handleSave = async () => {
     if (submitting) return;
     const err = getValidationError();
@@ -74,7 +94,7 @@ const ServerInstanceModal: React.FC<Props> = ({
     setSubmitting(true);
     try {
       const payload = {
-        ...(isEdit ? { id: server!.id } : {}), // Add optional id when the ID is known.
+        ...(forumMode === 'edit' ? { id: server!.id } : {}), // Add optional id when the ID is known.
         name: name.trim(),
         description: description.trim() || null,
         minecraft_version: minecraftVersion.trim(),
@@ -84,25 +104,53 @@ const ServerInstanceModal: React.FC<Props> = ({
         port,
       };
 
-      const res = isEdit
-        ? await authenticatedFetch.put<ServerInstance>(`/server-instances/${server!.id}`, payload)
-        : await authenticatedFetch.post<ServerInstance>('/server-instances', payload);
+      let res: AxiosResponse;
+      let message: string;
 
-      toast(`Server ${isEdit ? 'updated' : 'created'} successfully`, 'success');
+      switch (forumMode) {
+        case 'new':
+          res = await authenticatedFetch.post<ServerInstance>(
+            "/server-instances",
+            payload
+          );
+          message = "created";
+          break;
+        case 'edit':
+          res = await authenticatedFetch.put<ServerInstance>(
+            `/server-instances/${server!.id}`,
+            payload
+          );
+          message = "updated";
+          break;
+        case 'import':
+          if (!importedFile || !server) {
+            toast('Missing data to finalize import', 'error');
+            return;
+          }
+          const form = new FormData();
+          form.append('file', importedFile);
+          form.append('server', new Blob([JSON.stringify(server)], { type: 'application/json' }));
+          res = await authenticatedFetch.post('/server-instances/import', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          } as any);
+          message = "imported";
+      }
+
+      toast(`Server ${message} successfully`, 'success');
       onSaved(res.data);
       onClose();
     } catch (e: any) {
       toast(e.response?.data?.error || 'Save failed', 'error');
       setSubmitting(false);
     }
-  };
+  }
 
   return (
     <Modal
-      title={isEdit ? 'Edit Server Instance' : 'Add New Server Instance'}
+      title={title}
       onClose={onClose}
       onConfirm={handleSave}
-      confirmText={isEdit ? "Save" : 'Create'}
+      confirmText={forumMode === 'new' ? "Create" : 'Save'}
       cancelText="Cancel"
 
     >
@@ -157,7 +205,9 @@ const ServerInstanceModal: React.FC<Props> = ({
             <label>
               Server JAR URL
               <input
-                disabled={isEdit && server?.eulaAccepted}
+                disabled={
+                  forumMode === 'edit' && server?.eulaAccepted || forumMode === 'import' && (jarUrl) !== ""
+                }
                 type="url"
                 placeholder="https://example.com/server.jar"
                 value={jarUrl}

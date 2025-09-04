@@ -2,17 +2,21 @@ package com.mcm.backend.app.database.models.server;
 
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
 import com.mcm.backend.app.database.core.annotations.table.*;
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
 import com.mcm.backend.app.database.models.server.utils.TmuxUtil;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconClient;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconUtils;
+import com.mcm.backend.app.database.models.users.User;
+import com.mcm.backend.app.middlewares.data.roles.RoleDAO;
+import com.mcm.backend.app.middlewares.data.roles.RoleUtil;
+import com.mcm.backend.exceptions.JsonErrorResponseException;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
@@ -237,9 +241,19 @@ public class ServerInstance implements TableEntity {
         return ServerCoreUtil.getServerInstanceDirectory(this);
     }
 
-    public List<ServerInstanceProperty> getProperties(DAO<ServerInstanceProperty, UUID> sipDAO) throws NoSuchFieldException {
-        return new QueryBuilder<>(sipDAO)
-                .where(ServerInstanceProperty.class.getDeclaredField("serverInstanceId"), id)
-                .get();
+    public String getStartCommand() {
+        return ServerCoreUtil.getServerStartCommand(this);
     }
+
+    // DB Methods
+
+    public List<RoleEntity> getRoles(Connection connection, User user) throws JsonErrorResponseException, NoSuchFieldException {
+        return RoleDAO.getRolesForInstance(connection, this, user);
+    }
+
+//    public List<ServerInstanceProperty> getProperties(DAO<ServerInstanceProperty, UUID> sipDAO) throws NoSuchFieldException {
+//        return new QueryBuilder<>(sipDAO)
+//                .where(ServerInstanceProperty.class.getDeclaredField("serverInstanceId"), id)
+//                .get();
+//    }
 }

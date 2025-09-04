@@ -1,11 +1,9 @@
 package com.mcm.backend.app.database.models.users;
 
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableColumn;
-import com.mcm.backend.app.database.core.annotations.table.TableName;
+import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.roles.Role;
+import com.mcm.backend.app.database.models.server.ServerInstance;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -18,31 +16,31 @@ public class UserRoleAssignment implements TableEntity {
     private final UUID id;
 
     @TableColumn(name = "user_id")
-    // TODO Refactor to use @ForeignKey
-    private final UUID userId;
+    @ForeignKey
+    private final User user;
 
     @TableColumn(name = "instance_id")
-    // TODO Refactor to use @ForeignKey
-    private final UUID instanceId;
+    @ForeignKey
+    private final ServerInstance serverInstance;
 
     @TableColumn
     private String role;
 
     @TableConstructor
-    public UserRoleAssignment(UUID id, UUID userId, UUID instanceId, String role) {
+    public UserRoleAssignment(UUID id, User user, ServerInstance serverInstance, String role) {
         this.id = Objects.requireNonNullElseGet(id, UUID::randomUUID);
 
         // User validation
-        if (userId == null) {
-            throw new IllegalArgumentException("userId cannot be null");
+        if (user == null) {
+            throw new IllegalArgumentException("user cannot be null");
         }
-        this.userId = userId;
+        this.user = user;
 
         // Instance validation
-        if (instanceId == null) {
-            throw new IllegalArgumentException("instanceId cannot be null");
+        if (serverInstance == null) {
+            throw new IllegalArgumentException("serverInstance cannot be null");
         }
-        this.instanceId = instanceId;
+        this.serverInstance = serverInstance;
 
         // Role validation
         setRole(role);
@@ -52,12 +50,12 @@ public class UserRoleAssignment implements TableEntity {
         return id;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
 
-    public UUID getInstanceId() {
-        return instanceId;
+    public ServerInstance getServerInstance() {
+        return serverInstance;
     }
 
     public String getRole() {

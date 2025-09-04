@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 @ControllerAdvice
@@ -22,6 +23,11 @@ public class GlobalExceptionHandler {
         // Hide details from the client
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "An unexpected internal error occurred."));
+    }
+
+    @ExceptionHandler(SQLException.class)
+    public ResponseEntity<Map<String, String>> handleNoSuchFieldException(SQLException ex) {
+        throw new RuntimeException(ex);
     }
 
     @ExceptionHandler(JsonErrorResponseException.class)

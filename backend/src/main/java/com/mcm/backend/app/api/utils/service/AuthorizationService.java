@@ -8,7 +8,7 @@ import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.roles.RoleInheritance;
 import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.UserRoleAssignment;
-import com.mcm.backend.app.api.controllers.serverinstances.roles.RoleUtil;
+import com.mcm.backend.app.middlewares.data.roles.RoleUtil;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;

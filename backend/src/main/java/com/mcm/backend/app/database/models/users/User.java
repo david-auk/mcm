@@ -4,7 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
 import com.mcm.backend.app.database.core.annotations.table.*;
 import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import com.mcm.backend.app.database.models.roles.RoleEntity;
+import com.mcm.backend.app.database.models.server.ServerInstance;
+import com.mcm.backend.app.middlewares.data.roles.RoleDAO;
+import com.mcm.backend.app.middlewares.data.serverinstances.ServerInstanceUtil;
+import com.mcm.backend.exceptions.JsonErrorResponseException;
 
+import java.sql.Connection;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -58,5 +65,15 @@ public class User implements TableEntity {
 
     public void setPassword(String password) {
         setPasswordHash(PasswordHashUtil.hashPassword(password));
+    }
+
+    // DB METHODS
+
+    public List<ServerInstance> getServerInstances(Connection connection) {
+        return ServerInstanceUtil.getServerInstances(connection, this);
+    }
+
+    public List<RoleEntity> getRoles(Connection connection, ServerInstance serverInstance) throws JsonErrorResponseException, NoSuchFieldException {
+        return RoleDAO.getRolesForInstance(connection, serverInstance, this);
     }
 }

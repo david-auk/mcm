@@ -1,3 +1,25 @@
+.server-list-header .actions {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+/* Center icon + label inside action buttons */
+.server-list-header .actions .secondary,
+.server-list-header .actions .danger,
+.server-list-header .actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* spacing between icon and text */
+}
+
+.server-list-header .actions button svg {
+  display: block;        /* remove inline SVG baseline gap */
+  width: 1em;            /* scale with font size */
+  height: 1em;
+}
+
 .server-list-container { padding: 16px; max-width: 800px; margin: 0 auto; }
 .server-list-header {
   display: flex;

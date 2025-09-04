@@ -9,3 +9,20 @@
   display: flex;
   gap: 1rem;
 }
+
+/* Center icon + label inside action buttons */
+.server-settings .actions .secondary,
+.server-settings .actions .danger,
+.server-settings .actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* spacing between icon and text */
+  line-height: 1; /* avoids baseline offset with pixel fonts */
+}
+
+.server-settings .actions button svg {
+  display: block;        /* remove inline SVG baseline gap */
+  width: 1em;            /* scale with font size */
+  height: 1em;
+}

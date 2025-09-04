@@ -118,6 +118,16 @@ button.secondary {
   --btn-color: var(--color-profile--secondary-color);
 }
 
+button.holo {
+  --btn-bg: transparent;
+  --btn-border: var(--color-profile--primary-bg);
+  --btn-color: var(--color-profile--primary-bg);
+
+  border-width: 1px;
+  background-color: transparent;
+  color: var(--color-profile--primary-bg);
+}
+
 button.danger {
   --btn-bg: var(--color-profile--danger-bg);
   --btn-border: var(--color-profile--danger-border);
