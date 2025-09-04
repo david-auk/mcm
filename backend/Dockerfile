@@ -1,21 +1,23 @@
 FROM gradle:jdk24-corretto AS build
 
+# Set working directory
+WORKDIR /app
+
 # Switch to root to install tmux using yum
 USER root
 RUN yum install -y tmux && \
     yum clean all && \
     rm -rf /var/cache/yum
 
+# Copy project files with correct ownership
+COPY build.gradle.kts settings.gradle.kts ./
+COPY gradle gradle/
+COPY --chown=gradle:gradle src src/
+
+RUN chown -R gradle:gradle build.gradle.kts settings.gradle.kts gradle src
+
 # Switch back to the gradle user
 USER gradle
-
-# Set working directory
-WORKDIR /app
-
-# Copy project files with correct ownership
-COPY --chown=gradle:gradle build.gradle.kts settings.gradle.kts ./
-COPY --chown=gradle:gradle gradle gradle/
-COPY --chown=gradle:gradle src src/
 
 # Parse JAVA_TOOL_OPTIONS
 ARG JAVA_TOOL_OPTIONS
