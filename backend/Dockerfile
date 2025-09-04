@@ -33,5 +33,8 @@ RUN mkdir -p /home/gradle/server_instances && \
 # Build
 RUN gradle --no-daemon build --stacktrace
 
-# Run the application (dev style)
-CMD ["gradle", "bootRun", "--no-daemon", "--stacktrace"]
+# make a writable project cache dir
+RUN mkdir -p /home/gradle/.gradle/project-cache
+
+# run with explicit project cache dir
+CMD ["gradle","bootRun","--no-daemon","--stacktrace","--project-cache-dir","/home/gradle/.gradle/project-cache"]
