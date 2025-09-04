@@ -26,7 +26,7 @@ RUN mkdir /home/gradle/server_instances
 RUN touch /home/gradle/server_instances/touchfile
 
 # Build the project
-#RUN gradle --no-daemon build --stacktrace
+RUN gradle --no-daemon build --stacktrace
 
 # Run the application
 CMD ["gradle", "bootRun", "--no-daemon", "--stacktrace"]
