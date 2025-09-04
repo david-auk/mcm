@@ -1,34 +1,37 @@
 FROM gradle:jdk24-corretto AS build
 
-# Set working directory
+# Work in /app
 WORKDIR /app
 
-# Switch to root to install tmux using yum
+# Root for package installs and fixing ownerships
 USER root
 RUN yum install -y tmux && \
-    yum clean all && \
-    rm -rf /var/cache/yum
+    yum clean all && rm -rf /var/cache/yum
 
-# Copy project files with correct ownership
+# Copy project files (Podman may ignore --chown; we'll chown explicitly)
 COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle gradle/
-COPY --chown=gradle:gradle src src/
+COPY src src/
 
-RUN chown -R gradle:gradle build.gradle.kts settings.gradle.kts gradle src
+# Ensure everything under /app is writable by 'gradle'
+RUN chown -R gradle:gradle /app
 
 # Switch back to the gradle user
 USER gradle
 
-# Parse JAVA_TOOL_OPTIONS
+# Keep Gradle caches in the user home (reduces writes in /app)
+ENV GRADLE_USER_HOME=/home/gradle/.gradle
+
+# Optional: pass JAVA_TOOL_OPTIONS through (ok if empty)
 ARG JAVA_TOOL_OPTIONS
 ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS
 
-# Create empty skel
-RUN mkdir /home/gradle/server_instances
-RUN touch /home/gradle/server_instances/touchfile
+# Create skel dirs as the gradle user
+RUN mkdir -p /home/gradle/server_instances && \
+    touch /home/gradle/server_instances/touchfile
 
-# Build the project
+# Build
 RUN gradle --no-daemon build --stacktrace
 
-# Run the application
+# Run the application (dev style)
 CMD ["gradle", "bootRun", "--no-daemon", "--stacktrace"]
