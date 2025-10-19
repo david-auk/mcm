@@ -49,6 +49,10 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.11.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+
+    // (Optional) Jackson Annotations — sometimes required for features like @JsonProperty
+    implementation("io.github.david-auk:fluid-jdbc:0.1.0")
 }
 
 tasks.test {

@@ -2,9 +2,9 @@ package com.mcm.backend.app.api.utils.components;
 
 import com.mcm.backend.app.api.utils.annotations.CurrentUser;
 import com.mcm.backend.app.api.utils.security.SecurityContextUtil;
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,7 @@ public class CurrentUserResolver implements HandlerMethodArgumentResolver {
         @SuppressWarnings("unchecked")
         Class<? extends TableEntity> cls = (Class<? extends TableEntity>) p.getParameterType();
 
-        try (DAO<? extends com.mcm.backend.app.database.core.components.tables.TableEntity, UUID> dao
+        try (DAO<? extends io.github.david.auk.fluid.jdbc.components.tables.TableEntity, UUID> dao
                      = DAOFactory.createDAO(cls)) {
             var entity = dao.get(userId);
             if (entity == null) {

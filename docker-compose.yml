@@ -38,7 +38,6 @@ services:
     volumes:
       - ./backend:/app:Z          # :Z on SELinux hosts
       - ./server_instances:/home/gradle/server_instances
-    user: "${UID:-1000}:${GID:-1000}"
     environment:
       DEFAULT_USER_PASSWORD: ${FRONTEND_DEFAULT_USER_PASSWORD}
       # point to localhost since both DB + backend share the host network

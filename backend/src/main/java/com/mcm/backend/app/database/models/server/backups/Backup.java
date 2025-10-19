@@ -1,10 +1,10 @@
 package com.mcm.backend.app.database.models.server.backups;
 
-import com.mcm.backend.app.database.core.annotations.table.*;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.backups.utils.BackupUtil;
 import com.mcm.backend.app.database.models.users.User;
+import io.github.david.auk.fluid.jdbc.annotations.table.*;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 
 import java.nio.file.Path;
 import java.sql.Timestamp;

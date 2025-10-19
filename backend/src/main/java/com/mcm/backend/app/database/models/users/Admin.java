@@ -1,7 +1,7 @@
 package com.mcm.backend.app.database.models.users;
 
-import com.mcm.backend.app.database.core.annotations.table.*;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import io.github.david.auk.fluid.jdbc.annotations.table.*;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 
 import java.util.UUID;
 

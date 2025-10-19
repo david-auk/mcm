@@ -1,9 +1,9 @@
 package com.mcm.backend.app.api.utils.service;
 
 import com.mcm.backend.app.api.utils.security.SecurityContextUtil;
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.roles.RoleInheritance;
 import com.mcm.backend.app.database.models.users.Admin;
@@ -57,7 +57,7 @@ public class AuthorizationService {
 
         // Load all user-instance assignments
         try (DAO<UserRoleAssignment, UUID> uraDao = DAOFactory.createDAO(UserRoleAssignment.class)) {
-            List<UserRoleAssignment> assigns = new com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder<>(uraDao)
+            List<UserRoleAssignment> assigns = new io.github.david.auk.fluid.jdbc.components.daos.querying.QueryBuilder<>(uraDao)
                     .where(UserRoleAssignment.class.getDeclaredField("userId"), userId)
                     .and(UserRoleAssignment.class.getDeclaredField("instanceId"), serverInstanceId)
                     .get();

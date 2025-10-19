@@ -1,5 +1,7 @@
 package com.mcm.backend.app.database.core.components.tables;
 
+import io.github.david.auk.fluid.jdbc.annotations.table.*;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
 import org.reflections.Reflections;
@@ -7,11 +9,6 @@ import org.reflections.Reflections;
 import java.util.Set;
 import java.util.UUID;
 
-import com.mcm.backend.app.database.core.annotations.table.TableName;
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableColumn;
-import com.mcm.backend.app.database.core.annotations.table.ForeignKey;
 
 /**
  * Unit tests for TableEntity.validateEntity.
@@ -41,7 +38,8 @@ class TableEntityValidationTest {
 
     // 1) Missing @TableName entirely
     static class NoTableNameEntity implements TableEntity {
-        @PrimaryKey @TableColumn
+        @PrimaryKey
+        @TableColumn
         private final UUID id;
         @TableConstructor
         public NoTableNameEntity(UUID id) { this.id = id; }
@@ -241,7 +239,8 @@ class TableEntityValidationTest {
     @TableName("bad_fk_entity")
     static class BadForeignKeyEntity implements TableEntity {
         @PrimaryKey @TableColumn private final UUID id;
-        @ForeignKey @TableColumn private final String notEntity;  // wrong type
+        @ForeignKey
+        @TableColumn private final String notEntity;  // wrong type
         @TableConstructor
         public BadForeignKeyEntity(UUID id, String notEntity) {
             this.id = id;

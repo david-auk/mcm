@@ -1,8 +1,8 @@
 package com.mcm.backend.app.database.models.server.utils.rcon;
 
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.daos.querying.QueryBuilder;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.ServerInstanceProperty;
 

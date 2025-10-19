@@ -2,13 +2,13 @@ package com.mcm.backend.app.database.models.users;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
-import com.mcm.backend.app.database.core.annotations.table.*;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.middlewares.data.roles.RoleDAO;
 import com.mcm.backend.app.middlewares.data.serverinstances.ServerInstanceUtil;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
+import io.github.david.auk.fluid.jdbc.annotations.table.*;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 
 import java.sql.Connection;
 import java.util.List;

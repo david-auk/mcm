@@ -1,11 +1,11 @@
 package com.mcm.backend.app.database.models.server.backups.utils;
 
-import com.mcm.backend.app.database.core.components.Database;
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
 import com.mcm.backend.app.database.models.server.ServerInstance;
 import com.mcm.backend.app.database.models.server.backups.Backup;
 import com.mcm.backend.app.database.models.users.User;
+import io.github.david.auk.fluid.jdbc.components.Database;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;

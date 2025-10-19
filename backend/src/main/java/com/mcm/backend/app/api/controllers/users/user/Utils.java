@@ -1,6 +1,6 @@
 package com.mcm.backend.app.api.controllers.users.user;
 
-import com.mcm.backend.app.database.core.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
 import com.mcm.backend.app.database.models.users.User;
 
 import java.util.UUID;

@@ -1,8 +1,6 @@
 package com.mcm.backend.app.database.models.server;
 
 import com.mcm.backend.app.api.utils.process.ProcessStatus;
-import com.mcm.backend.app.database.core.annotations.table.*;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
 import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.server.utils.ServerCoreUtil;
 import com.mcm.backend.app.database.models.server.utils.ServerInitializerUtil;
@@ -11,8 +9,9 @@ import com.mcm.backend.app.database.models.server.utils.rcon.RconClient;
 import com.mcm.backend.app.database.models.server.utils.rcon.RconUtils;
 import com.mcm.backend.app.database.models.users.User;
 import com.mcm.backend.app.middlewares.data.roles.RoleDAO;
-import com.mcm.backend.app.middlewares.data.roles.RoleUtil;
 import com.mcm.backend.exceptions.JsonErrorResponseException;
+import io.github.david.auk.fluid.jdbc.annotations.table.*;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 
 import java.io.IOException;
 import java.nio.file.Path;

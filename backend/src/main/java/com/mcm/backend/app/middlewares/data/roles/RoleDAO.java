@@ -1,7 +1,7 @@
 package com.mcm.backend.app.middlewares.data.roles;
 
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.app.database.models.roles.RoleEntity;
 import com.mcm.backend.app.database.models.roles.RoleInheritance;
 import com.mcm.backend.app.database.models.server.ServerInstance;

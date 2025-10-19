@@ -1,11 +1,11 @@
 package com.mcm.backend.app;
 
 import com.mcm.backend.app.api.utils.PasswordHashUtil;
-import com.mcm.backend.app.database.core.components.Database;
-import com.mcm.backend.app.database.core.components.daos.DAO;
-import com.mcm.backend.app.database.core.components.daos.querying.QueryBuilder;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
-import com.mcm.backend.app.database.core.factories.DAOFactory;
+import io.github.david.auk.fluid.jdbc.components.Database;
+import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.daos.querying.QueryBuilder;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
+import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.app.database.models.users.Admin;
 import com.mcm.backend.app.database.models.users.User;
 import org.reflections.Reflections;

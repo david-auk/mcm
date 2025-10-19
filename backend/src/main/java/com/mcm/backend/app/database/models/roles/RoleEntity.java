@@ -1,10 +1,10 @@
 package com.mcm.backend.app.database.models.roles;
 
-import com.mcm.backend.app.database.core.annotations.table.PrimaryKey;
-import com.mcm.backend.app.database.core.annotations.table.TableConstructor;
-import com.mcm.backend.app.database.core.annotations.table.TableColumn;
-import com.mcm.backend.app.database.core.annotations.table.TableName;
-import com.mcm.backend.app.database.core.components.tables.TableEntity;
+import io.github.david.auk.fluid.jdbc.annotations.table.PrimaryKey;
+import io.github.david.auk.fluid.jdbc.annotations.table.TableConstructor;
+import io.github.david.auk.fluid.jdbc.annotations.table.TableColumn;
+import io.github.david.auk.fluid.jdbc.annotations.table.TableName;
+import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 
 @TableName("roles")
 public record RoleEntity(@PrimaryKey @TableColumn String name,
