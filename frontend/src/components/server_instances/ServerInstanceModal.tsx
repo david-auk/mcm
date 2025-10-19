@@ -123,7 +123,7 @@ const ServerInstanceModal: React.FC<Props> = ({
           message = "updated";
           break;
         case 'import':
-          if (!importedFile || !server) {
+          { if (!importedFile || !server) {
             toast('Missing data to finalize import', 'error');
             return;
           }
@@ -132,8 +132,8 @@ const ServerInstanceModal: React.FC<Props> = ({
           form.append('server', new Blob([JSON.stringify(server)], { type: 'application/json' }));
           res = await authenticatedFetch.post('/server-instances/import', form, {
             headers: { 'Content-Type': 'multipart/form-data' },
-          } as any);
-          message = "imported";
+          } as never);
+          message = "imported"; }
       }
 
       toast(`Server ${message} successfully`, 'success');
