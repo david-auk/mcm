@@ -82,7 +82,7 @@ public class ServerCoreUtil {
         //String dirPath = getServerInstanceDirectory(serverInstance);
         File dir = getServerInstanceDirectory(serverInstance).toFile();
 
-        if (!dir.exists() || !dir.isDirectory()) {
+        if (!dir.isDirectory()) {
             throw new IllegalStateException("Server directory does not exist: " + dir.getAbsolutePath());
         }
 

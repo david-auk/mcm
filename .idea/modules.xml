@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/frontend/frontend.iml" filepath="$PROJECT_DIR$/frontend/frontend.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/minecraft-manager-backend.main.iml" filepath="$PROJECT_DIR$/.idea/modules/minecraft-manager-backend.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/minecraft-manager-backend.test.iml" filepath="$PROJECT_DIR$/.idea/modules/minecraft-manager-backend.test.iml" />
     </modules>
   </component>
 </project>

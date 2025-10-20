@@ -2,6 +2,7 @@ package com.mcm.backend.app.api.utils.service;
 
 import com.mcm.backend.app.api.utils.security.SecurityContextUtil;
 import io.github.david.auk.fluid.jdbc.components.daos.DAO;
+import io.github.david.auk.fluid.jdbc.components.daos.querying.QueryBuilder;
 import io.github.david.auk.fluid.jdbc.components.tables.TableEntity;
 import io.github.david.auk.fluid.jdbc.factories.DAOFactory;
 import com.mcm.backend.app.database.models.roles.RoleEntity;
@@ -20,7 +21,9 @@ import java.util.UUID;
 // service that does all the “DAO + inheritance + membership” logic
 public class AuthorizationService {
 
-    /** check that the current user has the given global role (via your RequireRole). */
+    /**
+     * check that the current user has the given global role (via your RequireRole).
+     */
     // TODO Add extends User
     public void requireUserRole(Class<? extends TableEntity> roleEntityClass) throws JsonErrorResponseException {
         UUID userId = SecurityContextUtil.getCurrentUserId();
@@ -33,7 +36,9 @@ public class AuthorizationService {
         }
     }
 
-    /** check that the current user has at least `baseRole` (and any inherited) on a given instance */
+    /**
+     * check that the current user has at least `baseRole` (and any inherited) on a given instance
+     */
     public void requireInstanceRole(UUID serverInstanceId, String baseRoleName) throws JsonErrorResponseException, NoSuchFieldException {
         UUID userId = SecurityContextUtil.getCurrentUserId();
 
@@ -43,26 +48,40 @@ public class AuthorizationService {
         }
 
         // Collect inherited role‐names
-        List<String> allowed;
-        try (DAO<RoleEntity, String> RoleEntityDAO = DAOFactory.createDAO(RoleEntity.class);
-             DAO<RoleInheritance, String> RoleInheritanceDAO = DAOFactory.createDAO(RoleInheritance.class)) {
+        List<String> inherited;
+        try (DAO<RoleEntity, String> roleEntityDAO = DAOFactory.createDAO(RoleEntity.class);
+             DAO<RoleInheritance, String> roleInheritanceDAO = DAOFactory.createDAO(RoleInheritance.class)) {
 
             // Get originally assigned role
-            RoleEntity base = RoleEntityDAO.get(baseRoleName);
+            RoleEntity base = roleEntityDAO.get(baseRoleName.toLowerCase());
+
+            if (base == null) {
+                throw new RuntimeException("Base role not found: " + baseRoleName.toLowerCase());
+            }
 
             // Fetch child roles
-            List<RoleEntity> inherited = RoleUtil.fetchAllInheritedRoles(base, RoleEntityDAO, RoleInheritanceDAO);
-            allowed = inherited.stream().map(RoleEntity::name).toList();
+            List<RoleEntity> inheritedEntities = RoleUtil.fetchAllInheritedRoles(base, roleEntityDAO, roleInheritanceDAO);
+            //allowed = inherited.stream().map(RoleEntity::name).toList();
+            inherited = inheritedEntities.stream().map(RoleEntity::name).toList();
+
         }
 
         // Load all user-instance assignments
         try (DAO<UserRoleAssignment, UUID> uraDao = DAOFactory.createDAO(UserRoleAssignment.class)) {
-            List<UserRoleAssignment> assigns = new io.github.david.auk.fluid.jdbc.components.daos.querying.QueryBuilder<>(uraDao)
-                    .where(UserRoleAssignment.class.getDeclaredField("userId"), userId)
-                    .and(UserRoleAssignment.class.getDeclaredField("instanceId"), serverInstanceId)
+            List<UserRoleAssignment> assigns = new QueryBuilder<>(uraDao)
+                    .where(UserRoleAssignment.class.getDeclaredField("user"), userId)
+                    .and(UserRoleAssignment.class.getDeclaredField("serverInstance"), serverInstanceId)
                     .get();
 
-            boolean allowedAccess = assigns.stream().map(UserRoleAssignment::getRole).anyMatch(allowed::contains);
+            boolean allowedAccess = false;
+            for (String s : inherited) {
+                if (s.equals(baseRoleName.toLowerCase())) {
+                    allowedAccess = true;
+                    break;
+                }
+            }
+
+            //boolean allowedAccess = assigns.stream().map(UserRoleAssignment::getRole).anyMatch(allowed::contains);
             if (!allowedAccess) {
                 throw new JsonErrorResponseException("User lacks required role " + baseRoleName, HttpStatus.FORBIDDEN);
             }

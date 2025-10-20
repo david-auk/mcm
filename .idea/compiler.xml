@@ -9,6 +9,8 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="com.minecraft-manager-backend.main" options="-parameters" />
+      <module name="com.minecraft-manager-backend.test" options="-parameters" />
       <module name="minecraft-manager-backend" options="-parameters" />
       <module name="minecraft-manager-backend.main" options="-parameters" />
       <module name="minecraft-manager-backend.test" options="-parameters" />

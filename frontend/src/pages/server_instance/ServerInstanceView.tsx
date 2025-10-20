@@ -10,11 +10,12 @@ import type { Tab } from '../../components/shared/views/TabView';
 import TabView from '../../components/shared/views/TabView';
 import Dashboard from './dashboard/Dashboard';
 import Console from './console/Console';
-import ServerSettings from './settings/ServerSettings';
+import ServerSettings from './settings/server_settings/ServerSettings';
 import PropertiesView from './properties/PropertiesView';
 import ServerImageView from './properties/ServerImageView';
+import UserPermissions from './settings/user_permissions/UserPermissions';
 
-type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
+export type RoleName = 'user' | 'viewer' | 'operator' | 'editor' | 'maintainer';
 
 interface Role {
   name: RoleName;
@@ -133,20 +134,26 @@ const ServerInstanceView: React.FC = () => {
     }
   }
 
-  if (allowedToView('maintainer')) {
+  if (admin) {
     tabs.push({
       label: 'Settings',
       disabled: isInitializing,
-      component: (
-        <ServerSettings
-          server={server!}
-          navigate={navigate}
-          onUpdated={(updated: ServerInstance) => {
-            // update local state so view reflects changes
-            setServer(updated);
-          }}
-        />
-      ),
+      component: <TabView tabs={[
+        {
+          label: 'Server', component: <ServerSettings
+            server={server!}
+            navigate={navigate}
+            onUpdated={(updated: ServerInstance) => {
+              setServer(updated);
+            }}
+          />
+        },
+        {
+          label: 'User Permissions', component: <UserPermissions
+            serverInstanceId={server.id}
+          />
+        },
+      ]} />
     });
   }
 

@@ -29,7 +29,7 @@ public class ServerInstanceUtil {
 
             try (DAO<UserRoleAssignment, UUID> uraDao = DAOFactory.createDAO(UserRoleAssignment.class)) {
                 assignments = new QueryBuilder<>(uraDao)
-                        .where(UserRoleAssignment.class.getDeclaredField("user"), user)
+                        .where(UserRoleAssignment.class.getDeclaredField("user"), user.getId())
                         .get();
             }
 
@@ -41,7 +41,7 @@ public class ServerInstanceUtil {
                     for (UserRoleAssignment assignment : assignments) {
                         List<RoleEntity> userRoleForAssignment;
 
-                        RoleEntity assignedRole = roleDao.get(assignment.getRole());
+                        RoleEntity assignedRole = roleDao.get(assignment.getRole().toString());
 
                         // Get users roles for this server instance
                         userRoleForAssignment = RoleUtil.fetchAllInheritedRoles(assignedRole, roleDao, roleInheritanceDao);

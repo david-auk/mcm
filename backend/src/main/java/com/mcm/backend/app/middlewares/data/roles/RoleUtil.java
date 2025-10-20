@@ -33,7 +33,7 @@ public class RoleUtil {
         // Build the sting to role
         RoleEntity assignedRole;
 
-        assignedRole = roleDAO.get(userRoleAssignment.getRole());
+        assignedRole = roleDAO.get(userRoleAssignment.getRole().toString());
 
         // Get all the (Inherited) roles
         return RoleUtil.fetchAllInheritedRoles(assignedRole, roleDAO, roleInheritanceDAO);
@@ -47,8 +47,8 @@ public class RoleUtil {
         try (DAO<UserRoleAssignment, UUID> uraDao = DAOFactory.createDAO(UserRoleAssignment.class)) {
 
             List<UserRoleAssignment> assignments = new QueryBuilder<>(uraDao)
-                    .where(UserRoleAssignment.class.getDeclaredField("user"), user)
-                    .and(  UserRoleAssignment.class.getDeclaredField("serverInstance"), serverInstance)
+                    .where(UserRoleAssignment.class.getDeclaredField("user"), user.getId())
+                    .and(  UserRoleAssignment.class.getDeclaredField("serverInstance"), serverInstance.getId())
                     .get();
 
             if (assignments.isEmpty()) {
