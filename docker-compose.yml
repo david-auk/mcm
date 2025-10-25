@@ -20,6 +20,7 @@ services:
       retries: 5
 
   backend:
+    restart: always
     build:
       context: backend
       args:
@@ -50,6 +51,7 @@ services:
       retries: 15
 
   frontend:
+    restart: always
     container_name: mcm_frontend
     build:
       context: frontend
