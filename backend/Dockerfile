@@ -1,4 +1,4 @@
-FROM gradle:jdk24-corretto AS build
+FROM gradle:jdk25-corretto AS build
 
 # Work in /app
 WORKDIR /app
@@ -6,7 +6,7 @@ WORKDIR /app
 # Root for package installs and fixing ownerships
 USER root
 RUN yum install -y tmux && \
-    yum clean all && rm -rf /var/cache/yum
+  yum clean all && rm -rf /var/cache/yum
 
 # Copy project files (Podman may ignore --chown; we'll chown explicitly)
 COPY build.gradle.kts settings.gradle.kts ./
@@ -28,7 +28,7 @@ ENV JAVA_TOOL_OPTIONS=$JAVA_TOOL_OPTIONS
 
 # Create skel dirs as the gradle user
 RUN mkdir -p /home/gradle/server_instances && \
-    touch /home/gradle/server_instances/touchfile
+  touch /home/gradle/server_instances/touchfile
 
 # Build
 RUN gradle --no-daemon build --stacktrace
